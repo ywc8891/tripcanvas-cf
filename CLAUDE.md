@@ -117,14 +117,14 @@ Required vars (documented, not valued here):
 
 ## Current Status
 
-- [ ] Phase 1 — Export (WordPress content + media)
+- [x] Phase 1 — Export (WordPress content + media)
 - [ ] Phase 2 — Payload CMS schema design
 - [ ] Phase 3 — Cloudflare infrastructure setup
 - [ ] Phase 4 — Data migration scripts
 - [ ] Phase 5 — Frontend build (Astro)
 - [ ] Phase 6 — DNS cutover
 
-**Active phase: Not started — begin with Phase 1**
+**Active phase: Phase 2 — Payload CMS schema + CF setup**
 
 ## How to Start Each Session
 

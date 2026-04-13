@@ -1,342 +1,427 @@
-# AGENTS.md — Phase 1: Export from WordPress
+# AGENTS-phase2.md — Phase 2: Payload CMS Schema + CF Setup
 
-> Swap this file for the next phase's AGENTS.md when Phase 1 is complete.
-> Work through tasks TOP TO BOTTOM. Commit after each task. Do not skip ahead.
-
----
-
-## Phase 1 Goal
-
-Extract everything from the live WordPress site into structured, portable formats
-that Phase 4 migration scripts will consume. Do NOT modify the live site.
-
-## Verified Architecture
-
-- The source is not one global multilingual WordPress install.
-- `tripcanvas.co` is a standalone single-site WordPress install.
-- `malaysia.tripcanvas.co`, `indonesia.tripcanvas.co`, and `thailand.tripcanvas.co` are separate WordPress multisite networks.
-- The verified WordPress roots are:
-  - `/var/www/html/tripcanvas.co/`
-  - `/var/www/html/malaysia.tripcanvas.co/public/`
-  - `/var/www/html/indonesia.tripcanvas.co/public/`
-  - `/var/www/html/thailand.tripcanvas.co/public/`
-- Do not assume WPML/Polylang across the whole estate before checking each network.
-
-## Pre-flight Checklist
-
-Before starting any task, confirm:
-- [ ] SSH access to EC2 instance works
-- [ ] WP-CLI is installed on EC2 (`/usr/bin/wp-cli --info`)
-- [ ] WordPress REST API is accessible: `curl https://tripcanvas.co/wp-json/wp/v2/posts` returns JSON
-- [ ] Confirm each WordPress root and determine whether locale handling is via multisite subsites, WPML, or Polylang
-- [ ] Detect multilanguage plugin where relevant: `/usr/bin/wp-cli plugin list | grep -E "wpml|polylang"` — note which one
-- [ ] If WPML: install plugin **WPML REST API** on the live site (exposes `?lang=` param to REST API)
-- [ ] If Polylang: install plugin **Polylang REST API** on the live site
-- [ ] Local `scripts/migration/` directory exists in repo
-
-> ⚠️ NOTE: We use the WordPress REST API for all content extraction — NOT direct MySQL queries.
-> Raw MySQL access to WPML/Polylang schema is fragile and error-prone. The REST API approach
-> is safer and produces cleaner, already-structured output.
+> Rename this to AGENTS.md when Phase 2 begins.
 
 ---
 
-## Task 1 — Inventory the WordPress site
+## Phase 2 Goal
+
+Stand up the Cloudflare infrastructure and design the Payload CMS schema.
+By end of phase: Payload admin UI is accessible at cms.tripcanvas.co,
+collections are defined, and a test post can be created with multilanguage fields.
+
+---
+
+## Task 1 — Initialize monorepo tooling
+
+From repo root:
 
 ```bash
-# Run on EC2 via SSH
-wp post-type list --format=json
-wp taxonomy list --format=json
-wp plugin list --format=json
-wp theme list --format=json
-wp language list --format=json
-```
-
-Save output to `scripts/migration/inventory/`:
-- `post-types.json`
-- `taxonomies.json`
-- `plugins.json`
-- `themes.json`
-- `languages.json`
-
-Commit: `chore(migration): add wp inventory files`
-
----
-
-## Task 2 — Export posts per locale via REST API
-
-> ✅ APPROACH: Use the WordPress REST API — NOT direct MySQL queries.
-> WPML/Polylang database schemas are convoluted and AI-generated SQL will produce
-> broken locale mappings. The REST API (with the language plugin installed) is reliable.
-
-Write `scripts/migration/export-posts.js` (Node.js) that:
-
-1. Reads from `.env`:
-   ```
-   WP_BASE_URL=https://tripcanvas.co
-   WP_APP_USERNAME=your-wp-username
-   WP_APP_PASSWORD=your-wp-application-password
-   # Generate app password: WP Admin → Users → Profile → Application Passwords
-   ```
-
-2. Fetches all published posts for each locale using the REST API with `?lang=` parameter:
-   ```
-   GET /wp-json/wp/v2/posts?per_page=100&page=1&status=publish&lang=en&_embed
-   GET /wp-json/wp/v2/posts?per_page=100&page=1&status=publish&lang=ms&_embed
-   GET /wp-json/wp/v2/posts?per_page=100&page=1&status=publish&lang=id&_embed
-   GET /wp-json/wp/v2/posts?per_page=100&page=1&status=publish&lang=th&_embed
-   ```
-   Handle pagination: loop until response array length < per_page.
-
-3. The `_embed` flag includes featured image and taxonomy data inline — no separate queries needed.
-
-4. For each post, extract and normalize to this shape:
-```json
+# Initialize pnpm workspaces
+cat > package.json << 'EOF'
 {
-  "wp_id": 123,
-  "slug": "best-beaches-langkawi",
-  "locale": "my",
-  "title": "...",
-  "content": "<p>HTML content...</p>",
-  "excerpt": "...",
-  "date": "2023-01-15T10:00:00Z",
-  "modified": "2023-06-20T14:30:00Z",
-  "featured_image_id": 456,
-  "featured_image_url": "https://tripcanvas.co/wp-content/uploads/...",
-  "categories": [{ "id": 5, "slug": "beaches", "name": "Beaches" }],
-  "tags": [{ "id": 12, "slug": "travel", "name": "Travel" }],
-  "meta": { "seo_title": "...", "seo_description": "..." }
+  "name": "tripcanvas",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "workspaces": ["apps/*", "packages/*"]
 }
+EOF
+
+# Create workspace packages
+mkdir -p apps/cms apps/frontend packages/shared-types
+
+# Init each package
+cd apps/cms && pnpm init
+cd ../frontend && pnpm init
+cd ../../packages/shared-types && pnpm init
 ```
 
-5. Output one file per locale: `scripts/migration/export/posts-{locale}.json`
-
-6. Before finishing, strip WP shortcodes from all `content` fields. They will break
-   the HTML-to-Lexical converter in Phase 3. Strip these patterns:
-   - `[caption ...] ... [/caption]` → keep inner `<img>` tag, discard wrapper
-   - `[gallery ...]` → replace with empty string (images are in media library separately)
-   - `[embed ...]...[/embed]` → replace with the URL as plain text
-   - Any remaining `[...]` shortcodes → replace with empty string
-
-Run the script. Print total post count per locale to stdout.
-Commit: `feat(migration): add rest api post export script and output files`
-
-**Troubleshooting:**
-- If `?lang=` returns all posts instead of filtered: the WPML/Polylang REST API plugin isn't active
-- If getting 401: check WP Application Password is set correctly (Basic auth: base64 of `user:apppassword`)
-- WP language codes may differ from our locale codes — map them:
-  `ms` or `ms-MY` → `my`, `id` or `id-ID` → `id`, `th` → `th`, `en` → `en`
+Commit: `chore: initialize pnpm monorepo structure`
 
 ---
 
-## Task 3 — Export taxonomy terms via REST API
+## Task 2 — Create Cloudflare resources
 
-Write `scripts/migration/export-taxonomies.js`:
+Run these wrangler commands and save the output IDs to `.env.example`:
 
-Fetch categories and tags for each locale via the REST API:
+```bash
+# D1 database
+wrangler d1 create tripcanvas-db
+# → Note the database_id
+
+# R2 bucket
+wrangler r2 bucket create tripcanvas-media
+
+# Create wrangler.toml at repo root
 ```
-GET /wp-json/wp/v2/categories?per_page=100&lang=en
-GET /wp-json/wp/v2/tags?per_page=100&lang=en
-# Repeat for ms, id, th
+
+Create `wrangler.toml`:
+```toml
+name = "tripcanvas-cms"
+main = "apps/cms/src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tripcanvas-db"
+database_id = "REPLACE_WITH_YOUR_D1_ID"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "tripcanvas-media"
+
+[vars]
+ENVIRONMENT = "production"
 ```
 
-Handle pagination. Use the same `.env` credentials as Task 2.
+Commit: `chore: add wrangler config and cloudflare resources`
 
-Group translations: the same category in 4 languages should be one entry with
-localized names, not 4 separate entries. Use the `slug` as the stable key to group them.
+---
 
-Output: `scripts/migration/export/taxonomies.json`
+## Task 3 — Install and configure Payload CMS
 
-```json
-{
-  "categories": [
-    {
-      "wp_id": 5,
-      "slug": "beaches",
-      "parent_id": null,
-      "names": {
-        "en": "Beaches",
-        "my": "Pantai",
-        "id": "Pantai",
-        "th": "ชายหาด"
-      }
-    }
+```bash
+cd apps/cms
+
+pnpm add payload @payloadcms/db-sqlite @payloadcms/richtext-lexical
+pnpm add hono  # HTTP framework for Worker
+pnpm add -D wrangler typescript @cloudflare/workers-types
+```
+
+Create `apps/cms/src/payload.config.ts`:
+
+```typescript
+import { buildConfig } from 'payload'
+import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
+
+export default buildConfig({
+  secret: process.env.PAYLOAD_SECRET || '',
+  editor: lexicalEditor({}),
+  
+  // Localization — matches our 4 subdomains
+  localization: {
+    locales: [
+      { label: 'English (Global)', code: 'en' },
+      { label: 'Malaysia', code: 'my' },
+      { label: 'Indonesia', code: 'id' },
+      { label: 'Thailand', code: 'th' },
+    ],
+    defaultLocale: 'en',
+    fallback: true, // fall back to 'en' if locale translation missing
+  },
+
+  db: sqliteAdapter({
+    client: {
+      url: process.env.DATABASE_URL || 'file:./dev.db',
+    },
+  }),
+
+  collections: [
+    // Import collection configs (created in Task 4)
+    require('./collections/Posts').Posts,
+    require('./collections/Categories').Categories,
+    require('./collections/Tags').Tags,
+    require('./collections/Media').Media,
+    require('./collections/Authors').Authors,
   ],
-  "tags": [
+
+  admin: {
+    user: 'authors',
+  },
+})
+```
+
+Commit: `feat(cms): add payload config with localization`
+
+---
+
+## Task 4 — Define Payload collections
+
+Create each file below in `apps/cms/src/collections/`:
+
+### Posts.ts
+```typescript
+import { CollectionConfig } from 'payload'
+
+export const Posts: CollectionConfig = {
+  slug: 'posts',
+  admin: {
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'locale', 'status', 'publishedAt'],
+    description: 'Travel articles and guides',
+  },
+  access: {
+    read: () => true, // public read
+  },
+  versions: {
+    drafts: true, // enable draft/publish workflow
+  },
+  fields: [
     {
-      "wp_id": 12,
-      "slug": "travel",
-      "names": { "en": "Travel", "my": "Pelancongan", "id": "Perjalanan", "th": "การท่องเที่ยว" }
-    }
-  ]
+      name: 'title',
+      type: 'text',
+      required: true,
+      localized: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      admin: { description: 'URL-friendly identifier. Auto-generated from title.' },
+    },
+    {
+      name: 'content',
+      type: 'richText',
+      localized: true,
+    },
+    {
+      name: 'excerpt',
+      type: 'textarea',
+      localized: true,
+      admin: { description: 'Short summary shown in post listings.' },
+    },
+    {
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'categories',
+      hasMany: true,
+    },
+    {
+      name: 'tags',
+      type: 'relationship',
+      relationTo: 'tags',
+      hasMany: true,
+    },
+    {
+      name: 'author',
+      type: 'relationship',
+      relationTo: 'authors',
+    },
+    {
+      name: 'publishedAt',
+      type: 'date',
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'seo',
+      type: 'group',
+      localized: true,
+      admin: { description: 'SEO metadata' },
+      fields: [
+        { name: 'title', type: 'text' },
+        { name: 'description', type: 'textarea' },
+      ],
+    },
+    // Preserve original WordPress ID for migration matching
+    {
+      name: 'wpId',
+      type: 'number',
+      admin: { description: 'Original WordPress post ID (migration reference)', readOnly: true },
+    },
+  ],
 }
 ```
 
-Commit: `feat(migration): add taxonomy export via rest api`
+### Categories.ts
+```typescript
+import { CollectionConfig } from 'payload'
+
+export const Categories: CollectionConfig = {
+  slug: 'categories',
+  admin: { useAsTitle: 'name' },
+  access: { read: () => true },
+  fields: [
+    { name: 'name', type: 'text', required: true, localized: true },
+    { name: 'slug', type: 'text', required: true, unique: true },
+    { name: 'parent', type: 'relationship', relationTo: 'categories' },
+    { name: 'wpId', type: 'number', admin: { readOnly: true } },
+  ],
+}
+```
+
+### Tags.ts
+```typescript
+import { CollectionConfig } from 'payload'
+
+export const Tags: CollectionConfig = {
+  slug: 'tags',
+  admin: { useAsTitle: 'name' },
+  access: { read: () => true },
+  fields: [
+    { name: 'name', type: 'text', required: true, localized: true },
+    { name: 'slug', type: 'text', required: true, unique: true },
+    { name: 'wpId', type: 'number', admin: { readOnly: true } },
+  ],
+}
+```
+
+### Media.ts
+
+> ✅ DESIGN DECISION: Payload stores the R2 URL only. No server-side image resizing in Payload.
+> Cloudflare Workers have no disk access, so Payload cannot process/resize images on the Worker.
+> Image optimization is handled by Astro's `<Image>` component at the edge via Cloudflare Image
+> Resizing. This means: faster uploads, no Worker CPU wasted on image processing, and responsive
+> images generated on-demand by the CDN.
+>
+> PREREQUISITE: Enable Cloudflare Image Resizing on the tripcanvas.co zone in CF dashboard
+> (Speed → Optimization → Resize images from any origin → ON). Without this, Astro's
+> `<Image>` will still work but will serve the raw R2 file instead of an optimized version.
+
+```typescript
+import { CollectionConfig } from 'payload'
+
+export const Media: CollectionConfig = {
+  slug: 'media',
+  upload: {
+    // Serve directly from R2 — no local processing
+    staticURL: process.env.R2_PUBLIC_URL || '/media',
+    staticDir: 'media', // local dev fallback only
+    // NO imageSizes — Cloudflare Image Resizing handles this at the CDN edge
+    // Adding imageSizes here would cause Payload to attempt local Sharp processing,
+    // which fails silently on Cloudflare Workers (no filesystem)
+    adminThumbnail: 'url', // show the raw URL as thumbnail in admin
+    disableLocalStorage: true, // never write to disk — always use R2 handler
+  },
+  access: { read: () => true },
+  fields: [
+    {
+      name: 'alt',
+      type: 'text',
+      localized: true,
+      admin: { description: 'Describe the image for screen readers and SEO.' },
+    },
+    { name: 'caption', type: 'text', localized: true },
+    {
+      name: 'width',
+      type: 'number',
+      admin: { description: 'Original image width in pixels' },
+    },
+    {
+      name: 'height',
+      type: 'number',
+      admin: { description: 'Original image height in pixels' },
+    },
+    { name: 'wpId', type: 'number', admin: { readOnly: true } },
+  ],
+}
+```
+
+**How Astro consumes this in the frontend (Phase 4 reference):**
+```astro
+---
+// In any Astro component — Cloudflare Image Resizing via URL params
+const { src, alt, width, height } = post.featuredImage
+const optimizedSrc = `${src}?width=800&quality=85&format=webp`
+---
+<img src={optimizedSrc} alt={alt} width={800} loading="lazy" decoding="async" />
+```
+No npm packages needed — resizing is a CF zone feature, activated by URL query params.
+
+### Authors.ts
+```typescript
+import { CollectionConfig } from 'payload'
+
+export const Authors: CollectionConfig = {
+  slug: 'authors',
+  auth: true, // this collection handles authentication
+  admin: { useAsTitle: 'email' },
+  fields: [
+    { name: 'name', type: 'text', required: true },
+    { name: 'bio', type: 'textarea', localized: true },
+    { name: 'avatar', type: 'upload', relationTo: 'media' },
+    {
+      name: 'role',
+      type: 'select',
+      options: ['admin', 'editor', 'writer'],
+      defaultValue: 'writer',
+    },
+  ],
+}
+```
+
+Commit: `feat(cms): add all payload collection definitions`
 
 ---
 
-## Task 4 — Export media inventory via REST API
+## Task 5 — Create subdomain routing Worker
 
-Write `scripts/migration/export-media.js`:
+Create `apps/cms/src/router.ts`:
 
-Fetch all media attachments via the REST API:
-```
-GET /wp-json/wp/v2/media?per_page=100&page=N
-```
+This Worker intercepts requests to all subdomains and injects the locale:
 
-Handle pagination. No `?lang=` needed — media is not translated.
+```typescript
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url)
+    const host = url.hostname
 
-Output: `scripts/migration/export/media-inventory.json`
+    // Map subdomain to locale
+    const localeMap: Record<string, string> = {
+      'malaysia.tripcanvas.co': 'my',
+      'indonesia.tripcanvas.co': 'id',
+      'thailand.tripcanvas.co': 'th',
+      'tripcanvas.co': 'en',
+      'www.tripcanvas.co': 'en',
+    }
 
-```json
-[
-  {
-    "wp_id": 789,
-    "filename": "langkawi-beach.jpg",
-    "url": "https://tripcanvas.co/wp-content/uploads/2023/01/langkawi-beach.jpg",
-    "mime_type": "image/jpeg",
-    "alt": "Langkawi beach sunset",
-    "caption": "...",
-    "attached_to_post_id": 123,
-    "width": 1920,
-    "height": 1080
-  }
-]
-```
+    const locale = localeMap[host] ?? 'en'
 
-Print total count on completion.
-Commit: `feat(migration): add media inventory export`
-
----
-
-## Task 5 — Download all media files
-
-> ✅ APPROACH: Node.js with p-limit and axios retries — NOT a bash/curl script.
-> A travel blog may have thousands of high-res images. Bash curl loops fail silently
-> on timeouts and have no concurrency control. Node.js handles this reliably.
-
-Write `scripts/migration/download-media.js`:
-
-```bash
-pnpm add p-limit axios
-```
-
-Implementation requirements:
-- Read `export/media-inventory.json`
-- Use `p-limit` with concurrency of **5** (avoids rate limiting the WP server)
-- Use `axios` with a 3-attempt retry on failure (exponential backoff: 1s, 2s, 4s)
-- Save each file to `scripts/migration/media-download/{filename}`
-- Skip files that already exist on disk (idempotent — safe to re-run)
-- Log progress every 50 files: `Downloaded 50/1247 (4%) — 3 failures so far`
-- Write all failures to `scripts/migration/media-download-errors.json` with url + error message
-- Exit with code 1 if more than 5% of files failed (likely a connectivity problem, not individual errors)
-
-```javascript
-import pLimit from 'p-limit'
-import axios from 'axios'
-import { existsSync, createWriteStream, writeFileSync } from 'fs'
-import { resolve } from 'path'
-
-const limit = pLimit(5)
-const OUTPUT_DIR = './media-download'
-const MAX_RETRIES = 3
-
-async function downloadWithRetry(url, dest, attempt = 1) {
-  try {
-    const res = await axios({ url, responseType: 'stream', timeout: 30000 })
-    await new Promise((resolve, reject) => {
-      const writer = createWriteStream(dest)
-      res.data.pipe(writer)
-      writer.on('finish', resolve)
-      writer.on('error', reject)
+    // Clone request, add locale header for the frontend to read
+    const modifiedRequest = new Request(request, {
+      headers: {
+        ...Object.fromEntries(request.headers),
+        'X-TC-Locale': locale,
+        'X-TC-Host': host,
+      },
     })
-  } catch (err) {
-    if (attempt < MAX_RETRIES) {
-      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt - 1)))
-      return downloadWithRetry(url, dest, attempt + 1)
-    }
-    throw err
-  }
+
+    // Route to Cloudflare Pages frontend
+    return fetch(modifiedRequest)
+  },
 }
 
-// ... main loop using limit() wrapper
+interface Env {
+  DB: D1Database
+  R2: R2Bucket
+}
 ```
 
-Run: `node download-media.js`
-Report final count: `Downloaded 1244/1247. Failures: 3 (see media-download-errors.json)`
-
-Note: Do NOT commit media files — `scripts/migration/media-download/` is in `.gitignore`.
-Commit: `feat(migration): add robust media download script with retry logic`
+Commit: `feat(cms): add subdomain locale routing worker`
 
 ---
 
-## Task 6 — Export WordPress menus and settings
+## Task 6 — Local dev smoke test
 
 ```bash
-# Run on EC2
-wp menu list --format=json > menus.json
-wp option get blogname
-wp option get siteurl
-wp option get permalink_structure
+cd apps/cms
+wrangler dev --local  # starts local D1 + Worker
+
+# In another terminal, verify:
+curl http://localhost:8787/api/posts
+# Should return { docs: [], totalDocs: 0, ... }
+
+# Access admin UI
+open http://localhost:8787/admin
+# Create a test post in all 4 locales
+# Upload a test image
+# Verify it saves without errors
 ```
 
-Save to `scripts/migration/export/site-settings.json`
-Commit: `feat(migration): add site settings export`
+Document any issues in `docs/dev-notes.md`.
+Commit: `chore: confirm local dev environment working`
 
 ---
 
-## Task 7 — Document URL structure
+## Phase 2 Complete
 
-Create `scripts/migration/export/url-map.md`:
-
-Manually document:
-- Current permalink structure (e.g. `/%postname%/` or `/%category%/%postname%/`)
-- Any custom rewrite rules
-- The subdomain → language mapping
-
-This is critical for generating correct 301 redirects in Phase 5.
-
-Commit: `docs(migration): add url structure map`
-
----
-
-## Phase 1 Complete
-
-When all tasks above are done and committed:
-
-1. Update `CLAUDE.md` — check off Phase 1 in the status section
-2. Update active phase to Phase 2
-3. Replace this file with `AGENTS-phase2.md` renamed to `AGENTS.md`
-4. Final commit: `chore: complete phase 1 — wordpress export done`
-
----
-
-## Troubleshooting
-
-**WP-CLI not installed:**
-```bash
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x wp-cli.phar
-sudo mv wp-cli.phar /usr/local/bin/wp
-```
-
-**WPML vs Polylang detection:**
-```bash
-wp plugin list | grep -E "wpml|polylang"
-```
-Install the corresponding REST API plugin on the live WP site:
-- WPML → search "WPML REST API" in WP plugin directory
-- Polylang → search "Polylang REST API" in WP plugin directory
-
-**WordPress Application Password (for REST API auth):**
-WP Admin → Users → Your Profile → scroll to "Application Passwords"
-Name it "Migration Script" → Generate → copy the password
-Use as Basic auth: `Authorization: Basic base64("username:xxxx xxxx xxxx xxxx xxxx xxxx")`
-
-**REST API returns 401:**
-Check that Application Passwords are enabled. Some hosts disable them.
-If disabled, temporarily add this to `wp-config.php`:
-`define('WP_APPLICATION_PASSWORDS_ENABLED', true);`
-
-**`?lang=` param not filtering:**
-The WPML/Polylang REST API plugin is not active. Install and activate it on the live site.
+1. Update `CLAUDE.md` — check off Phase 2
+2. Replace `AGENTS.md` with `AGENTS-phase3.md`
+3. Final commit: `chore: complete phase 2 — cms schema and cf infra done`
