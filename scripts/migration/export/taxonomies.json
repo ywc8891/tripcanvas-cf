@@ -1,0 +1,885 @@
+{
+  "categories": [
+    {
+      "slug": "adv",
+      "names": {
+        "id": "Removed/ADV"
+      }
+    },
+    {
+      "slug": "area-guides",
+      "names": {
+        "id": "Bali areas guide"
+      }
+    },
+    {
+      "slug": "attractions-activities",
+      "names": {
+        "id": "Things to do"
+      }
+    },
+    {
+      "slug": "attractions-activities-bali",
+      "names": {
+        "id": "Things to do"
+      }
+    },
+    {
+      "slug": "attractions-activities-hua-hin",
+      "names": {
+        "th": "Things to do"
+      }
+    },
+    {
+      "slug": "attractions-activities-khao-yai",
+      "names": {
+        "th": "Things to do"
+      }
+    },
+    {
+      "slug": "ayutthaya",
+      "names": {
+        "th": "Ayutthaya"
+      }
+    },
+    {
+      "slug": "bali",
+      "names": {
+        "id": "Bali"
+      }
+    },
+    {
+      "slug": "balinese-local-food",
+      "names": {
+        "id": "Balinese Cuisine"
+      }
+    },
+    {
+      "slug": "bandung",
+      "names": {
+        "id": "Bandung"
+      }
+    },
+    {
+      "slug": "bangkok",
+      "names": {
+        "th": "Bangkok"
+      }
+    },
+    {
+      "slug": "banyuwangi",
+      "names": {
+        "id": "Banyuwangi"
+      }
+    },
+    {
+      "slug": "bars-pubs-bali",
+      "names": {
+        "id": "Bars and Pubs"
+      }
+    },
+    {
+      "slug": "beach-hotels-accommodation-bali",
+      "names": {
+        "id": "Beach Holiday"
+      }
+    },
+    {
+      "slug": "beach-islands-bali",
+      "names": {
+        "id": "Beach and Islands"
+      }
+    },
+    {
+      "slug": "bogor",
+      "names": {
+        "id": "Bogor"
+      }
+    },
+    {
+      "slug": "budget-accommodation-bali",
+      "names": {
+        "id": "Budget Stay"
+      }
+    },
+    {
+      "slug": "budget-travel-bali",
+      "names": {
+        "id": "Budget Guide"
+      }
+    },
+    {
+      "slug": "cafes-bali",
+      "names": {
+        "id": "Cafes"
+      }
+    },
+    {
+      "slug": "candidasa-amed",
+      "names": {
+        "id": "Candidasa and Amed"
+      }
+    },
+    {
+      "slug": "canggu",
+      "names": {
+        "id": "Canggu"
+      }
+    },
+    {
+      "slug": "chiang-mai",
+      "names": {
+        "th": "Chiang Mai"
+      }
+    },
+    {
+      "slug": "chiang-rai",
+      "names": {
+        "th": "Chiang Rai"
+      }
+    },
+    {
+      "slug": "chonburi",
+      "names": {
+        "th": "Chonburi"
+      }
+    },
+    {
+      "slug": "cross-border-adventures",
+      "names": {
+        "th": "Cross Border Adventures"
+      }
+    },
+    {
+      "slug": "culture-guide-bali",
+      "names": {
+        "id": "Culture"
+      }
+    },
+    {
+      "slug": "destination",
+      "names": {
+        "id": "Destination"
+      }
+    },
+    {
+      "slug": "family-activities-bali",
+      "names": {
+        "id": "Family"
+      }
+    },
+    {
+      "slug": "family-group-travel-bali",
+      "names": {
+        "id": "Friends and Families Guide"
+      }
+    },
+    {
+      "slug": "family-hotels-villas-bali",
+      "names": {
+        "id": "Kids Friendly Stay"
+      }
+    },
+    {
+      "slug": "family-restaurants-bali",
+      "names": {
+        "id": "Kids Friendly Restaurants"
+      }
+    },
+    {
+      "slug": "famous-personalities-in-bali",
+      "names": {
+        "id": "Celebrities Guide"
+      }
+    },
+    {
+      "slug": "fine-dining-restaurants-bali",
+      "names": {
+        "id": "Fine dining"
+      }
+    },
+    {
+      "slug": "five-star-hotels-accommodation-bali",
+      "names": {
+        "id": "5 star Hotels"
+      }
+    },
+    {
+      "slug": "flores",
+      "names": {
+        "id": "Flores"
+      }
+    },
+    {
+      "slug": "food",
+      "names": {
+        "id": "Food Guide"
+      }
+    },
+    {
+      "slug": "gay-guide-bali",
+      "names": {
+        "id": "Gay Guide"
+      }
+    },
+    {
+      "slug": "halal-food-bali",
+      "names": {
+        "id": "Halal"
+      }
+    },
+    {
+      "slug": "hat-yai",
+      "names": {
+        "th": "Hat Yai"
+      }
+    },
+    {
+      "slug": "health-wellness",
+      "names": {
+        "id": "Health &amp; Wellness"
+      }
+    },
+    {
+      "slug": "honeymoon-romance-bali",
+      "names": {
+        "id": "Couple Guide"
+      }
+    },
+    {
+      "slug": "hotel-experience-reviews",
+      "names": {
+        "id": "Our Bali hotel reviews &amp; experiences"
+      }
+    },
+    {
+      "slug": "hotel-reviews-experience",
+      "names": {
+        "id": "Our experiences/reviews"
+      }
+    },
+    {
+      "slug": "hotels-resorts-bali",
+      "names": {
+        "id": "Hotels and Resorts"
+      }
+    },
+    {
+      "slug": "hotels-villas",
+      "names": {
+        "id": "Where to stay"
+      }
+    },
+    {
+      "slug": "hotels-villas-bali",
+      "names": {
+        "id": "Where to stay"
+      }
+    },
+    {
+      "slug": "hotels-villas-hua-hin",
+      "names": {
+        "th": "Where to stay"
+      }
+    },
+    {
+      "slug": "hotels-villas-khao-yai",
+      "names": {
+        "th": "Where to stay"
+      }
+    },
+    {
+      "slug": "hua-hin",
+      "names": {
+        "th": "Hua Hin"
+      }
+    },
+    {
+      "slug": "inspiration",
+      "names": {
+        "my": "Inspiration",
+        "th": "Inspiration"
+      }
+    },
+    {
+      "slug": "ipoh",
+      "names": {
+        "my": "Ipoh"
+      }
+    },
+    {
+      "slug": "itineraries",
+      "names": {
+        "id": "Bali travel itineraries"
+      }
+    },
+    {
+      "slug": "jakarta",
+      "names": {
+        "id": "Jakarta"
+      }
+    },
+    {
+      "slug": "jimbaran",
+      "names": {
+        "id": "Jimbaran"
+      }
+    },
+    {
+      "slug": "jogja",
+      "names": {
+        "id": "Yogyakarta"
+      }
+    },
+    {
+      "slug": "johor",
+      "names": {
+        "my": "Johor"
+      }
+    },
+    {
+      "slug": "kanchanaburi",
+      "names": {
+        "th": "Kanchanaburi"
+      }
+    },
+    {
+      "slug": "kedah",
+      "names": {
+        "my": "Kedah, Langkawi"
+      }
+    },
+    {
+      "slug": "khao-yai",
+      "names": {
+        "th": "Khao Yai"
+      }
+    },
+    {
+      "slug": "koh-samui",
+      "names": {
+        "th": "Koh Samui"
+      }
+    },
+    {
+      "slug": "krabi",
+      "names": {
+        "th": "Krabi"
+      }
+    },
+    {
+      "slug": "kuala-lumpur",
+      "names": {
+        "my": "KL &amp; Selangor"
+      }
+    },
+    {
+      "slug": "kuta",
+      "names": {
+        "id": "Kuta"
+      }
+    },
+    {
+      "slug": "lombok",
+      "names": {
+        "id": "Lombok"
+      }
+    },
+    {
+      "slug": "luxury-hotels-accommodation-bali",
+      "names": {
+        "id": "Luxury Stay"
+      }
+    },
+    {
+      "slug": "luxury-travel-bali",
+      "names": {
+        "id": "Luxury Guide"
+      }
+    },
+    {
+      "slug": "malang",
+      "names": {
+        "id": "Malang"
+      }
+    },
+    {
+      "slug": "melaka",
+      "names": {
+        "my": "Melaka (Malacca)"
+      }
+    },
+    {
+      "slug": "nan",
+      "names": {
+        "th": "Nan"
+      }
+    },
+    {
+      "slug": "nature-retreats-bali",
+      "names": {
+        "id": "Nature"
+      }
+    },
+    {
+      "slug": "negeri-sembilan",
+      "names": {
+        "my": "Negeri Sembilan"
+      }
+    },
+    {
+      "slug": "news",
+      "names": {
+        "my": "News &amp; Announcements",
+        "id": "News &amp; Announcements",
+        "th": "News &amp; Announcements"
+      }
+    },
+    {
+      "slug": "nightlife-bali",
+      "names": {
+        "id": "Nightlife"
+      }
+    },
+    {
+      "slug": "no",
+      "names": {
+        "id": "No"
+      }
+    },
+    {
+      "slug": "north-bali",
+      "names": {
+        "id": "North Bali"
+      }
+    },
+    {
+      "slug": "nusa-dua",
+      "names": {
+        "id": "Nusa Dua"
+      }
+    },
+    {
+      "slug": "others",
+      "names": {
+        "my": "Others"
+      }
+    },
+    {
+      "slug": "pahang",
+      "names": {
+        "my": "Pahang"
+      }
+    },
+    {
+      "slug": "penang",
+      "names": {
+        "my": "Penang"
+      }
+    },
+    {
+      "slug": "perak",
+      "names": {
+        "my": "Perak"
+      }
+    },
+    {
+      "slug": "phang-nga",
+      "names": {
+        "th": "Phang Nga"
+      }
+    },
+    {
+      "slug": "phetchabun",
+      "names": {
+        "th": "Phetchabun"
+      }
+    },
+    {
+      "slug": "photography-places-bali",
+      "names": {
+        "id": "Photography"
+      }
+    },
+    {
+      "slug": "phuket",
+      "names": {
+        "th": "Phuket"
+      }
+    },
+    {
+      "slug": "private-villas-bali",
+      "names": {
+        "id": "Private Villas"
+      }
+    },
+    {
+      "slug": "ratchaburi",
+      "names": {
+        "th": "Ratchaburi"
+      }
+    },
+    {
+      "slug": "recipes-and-cooking",
+      "names": {
+        "id": "Recipes &amp; Cooking Tips",
+        "th": "Thai Recipes &amp; Cooking Tips"
+      }
+    },
+    {
+      "slug": "removed",
+      "names": {
+        "my": "Removed"
+      }
+    },
+    {
+      "slug": "restaurants-cafes-bars",
+      "names": {
+        "id": "Where to eat"
+      }
+    },
+    {
+      "slug": "restaurants-cafes-bars-bali",
+      "names": {
+        "id": "Where to eat"
+      }
+    },
+    {
+      "slug": "restaurants-cafes-bars-hua-hin",
+      "names": {
+        "th": "Where to eat"
+      }
+    },
+    {
+      "slug": "restaurants-cafes-khao-yai",
+      "names": {
+        "th": "Where to eat"
+      }
+    },
+    {
+      "slug": "romantic-honeymoon-accommodation-bali",
+      "names": {
+        "id": "Romantic Stay"
+      }
+    },
+    {
+      "slug": "romantic-restaurants-bali",
+      "names": {
+        "id": "Romantic dining"
+      }
+    },
+    {
+      "slug": "romantic-things-to-do-bali",
+      "names": {
+        "id": "Romance"
+      }
+    },
+    {
+      "slug": "sabah",
+      "names": {
+        "my": "Sabah"
+      }
+    },
+    {
+      "slug": "sanur",
+      "names": {
+        "id": "Sanur"
+      }
+    },
+    {
+      "slug": "satun",
+      "names": {
+        "th": "Koh Lipe &amp; Satun"
+      }
+    },
+    {
+      "slug": "semarang",
+      "names": {
+        "id": "Semarang"
+      }
+    },
+    {
+      "slug": "seminyak-legian",
+      "names": {
+        "id": "Seminyak/Legian"
+      }
+    },
+    {
+      "slug": "shopping",
+      "names": {
+        "my": "Shopping Guide in Malaysia",
+        "id": "Shopping guide in Indonesia",
+        "th": "Shopping Guide in Thailand"
+      }
+    },
+    {
+      "slug": "shopping-bali",
+      "names": {
+        "id": "Shopping"
+      }
+    },
+    {
+      "slug": "spa-relaxation-bali",
+      "names": {
+        "id": "Spa and Relaxation"
+      }
+    },
+    {
+      "slug": "sponsored",
+      "names": {
+        "id": "Sponsored",
+        "th": "Sponsored"
+      }
+    },
+    {
+      "slug": "sports-adventure-bali",
+      "names": {
+        "id": "Sports and Adventure"
+      }
+    },
+    {
+      "slug": "sulawesi",
+      "names": {
+        "id": "Sulawesi"
+      }
+    },
+    {
+      "slug": "sumatra",
+      "names": {
+        "id": "Sumatra"
+      }
+    },
+    {
+      "slug": "sumba",
+      "names": {
+        "id": "Sumba"
+      }
+    },
+    {
+      "slug": "surabaya",
+      "names": {
+        "id": "Surabaya"
+      }
+    },
+    {
+      "slug": "surakarta",
+      "names": {
+        "id": "Surakarta (Solo)"
+      }
+    },
+    {
+      "slug": "surat-thani",
+      "names": {
+        "th": "Surat Thani"
+      }
+    },
+    {
+      "slug": "terengganu",
+      "names": {
+        "my": "Terengganu"
+      }
+    },
+    {
+      "slug": "travel-guide-tips",
+      "names": {
+        "id": "Guides and Tips"
+      }
+    },
+    {
+      "slug": "travel-guide-tips-bali",
+      "names": {
+        "id": "Guides &amp; Tips"
+      }
+    },
+    {
+      "slug": "travel-guide-tips-hua-hin",
+      "names": {
+        "th": "Guides &amp; Tips"
+      }
+    },
+    {
+      "slug": "travel-guide-tips-khao-yai",
+      "names": {
+        "th": "Guides &amp; Tips"
+      }
+    },
+    {
+      "slug": "ubud",
+      "names": {
+        "id": "Ubud"
+      }
+    },
+    {
+      "slug": "uluwatu",
+      "names": {
+        "id": "Uluwatu"
+      }
+    },
+    {
+      "slug": "uncategorized",
+      "names": {
+        "en": "Uncategorized",
+        "th": "Uncategorized"
+      }
+    },
+    {
+      "slug": "unique-places-in-bali",
+      "names": {
+        "id": "Off The Beaten Path"
+      }
+    },
+    {
+      "slug": "vegetarian-vegan-food-bali",
+      "names": {
+        "id": "Vegetarian and Vegan"
+      }
+    },
+    {
+      "slug": "wedding-bali",
+      "names": {
+        "id": "Wedding Guide"
+      }
+    },
+    {
+      "slug": "west-bali",
+      "names": {
+        "id": "West Bali"
+      }
+    },
+    {
+      "slug": "west-papua",
+      "names": {
+        "id": "West Papua"
+      }
+    }
+  ],
+  "tags": [
+    {
+      "slug": "airbnb-vacation-rental",
+      "names": {
+        "id": "Airbnb"
+      }
+    },
+    {
+      "slug": "best-of-bali",
+      "names": {
+        "id": "Best of Bali"
+      }
+    },
+    {
+      "slug": "best-of-bandung",
+      "names": {
+        "id": "Best of Bandung"
+      }
+    },
+    {
+      "slug": "best-of-bangkok",
+      "names": {
+        "th": "Best of Bangkok"
+      }
+    },
+    {
+      "slug": "best-of-hua-hin",
+      "names": {
+        "th": "Best of Hua Hin and Petchaburi region"
+      }
+    },
+    {
+      "slug": "best-of-indonesia",
+      "names": {
+        "id": "Best of Indonesia"
+      }
+    },
+    {
+      "slug": "best-of-jogja",
+      "names": {
+        "id": "Best of Jogja"
+      }
+    },
+    {
+      "slug": "best-of-khao-yai",
+      "names": {
+        "th": "Best of Khao Yai"
+      }
+    },
+    {
+      "slug": "best-of-lombok",
+      "names": {
+        "id": "Best of Lombok"
+      }
+    },
+    {
+      "slug": "best-of-malaysia",
+      "names": {
+        "my": "Best of Malaysia"
+      }
+    },
+    {
+      "slug": "best-of-pattaya-chonburi",
+      "names": {
+        "th": "Best of Pattaya and Chonburi"
+      }
+    },
+    {
+      "slug": "best-of-thailand",
+      "names": {
+        "th": "Best of Thailand"
+      }
+    },
+    {
+      "slug": "canggu",
+      "names": {
+        "id": "Canggu"
+      }
+    },
+    {
+      "slug": "central-thailand",
+      "names": {
+        "th": "Central Thailand"
+      }
+    },
+    {
+      "slug": "islands-beaches",
+      "names": {
+        "th": "Islands and beaches"
+      }
+    },
+    {
+      "slug": "java",
+      "names": {
+        "id": "Java"
+      }
+    },
+    {
+      "slug": "listing",
+      "names": {
+        "my": "listing",
+        "id": "listing"
+      }
+    },
+    {
+      "slug": "northern-thailand",
+      "names": {
+        "th": "Northern Thailand"
+      }
+    },
+    {
+      "slug": "nusa-tenggara",
+      "names": {
+        "id": "Nusa Tenggara"
+      }
+    },
+    {
+      "slug": "responsible-tourism",
+      "names": {
+        "id": "Responsible travel"
+      }
+    },
+    {
+      "slug": "southern-thailand",
+      "names": {
+        "th": "Southern Thailand"
+      }
+    }
+  ]
+}

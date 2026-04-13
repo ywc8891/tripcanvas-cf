@@ -1,0 +1,6 @@
+# Media downloads (78GB)
+media-download/
+media-download-errors.json
+
+# Environment files
+.env

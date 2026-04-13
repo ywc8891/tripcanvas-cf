@@ -1,0 +1,13 @@
+[
+  {
+    "wp_id": 1,
+    "slug": "hello-world",
+    "locale": "en",
+    "title": "Hello TripCanvas!",
+    "content": "",
+    "excerpt": "",
+    "date": "2015-05-17 03:42:38",
+    "modified": null,
+    "status": "publish"
+  }
+]

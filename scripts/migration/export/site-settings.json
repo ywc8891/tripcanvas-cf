@@ -1,0 +1,59 @@
+{
+  "sites": {
+    "en": {
+      "blogname": "TripCanvas",
+      "permalink_structure": "/%postname%/",
+      "siteurl": "https://tripcanvas.co"
+    },
+    "my": {
+      "blogname": "TripCanvas Malaysia",
+      "permalink_structure": "/%category%/%postname%/",
+      "siteurl": "https://malaysia.tripcanvas.co"
+    },
+    "id": {
+      "blogname": "TripCanvas Indonesia",
+      "permalink_structure": "/%category%/%postname%/",
+      "siteurl": "https://indonesia.tripcanvas.co"
+    },
+    "th": {
+      "blogname": "TripCanvas Thailand",
+      "permalink_structure": "/%category%/%postname%/",
+      "siteurl": "https://thailand.tripcanvas.co"
+    }
+  },
+  "menus": [
+    {
+      "term_id": 8,
+      "name": "Footer menu (left)",
+      "slug": "footer-menu-left",
+      "locations": [],
+      "count": 5
+    },
+    {
+      "term_id": 7,
+      "name": "Footer menu (right)",
+      "slug": "footer-menu-right",
+      "locations": [
+        "amp-footer-menu"
+      ],
+      "count": 11
+    },
+    {
+      "term_id": 92,
+      "name": "Footer menu middle",
+      "slug": "footer-menu-middle",
+      "locations": [],
+      "count": 0
+    },
+    {
+      "term_id": 6,
+      "name": "Main Menu",
+      "slug": "main-menu",
+      "locations": [
+        "main_nav_menu",
+        "amp-menu"
+      ],
+      "count": 14
+    }
+  ]
+}
