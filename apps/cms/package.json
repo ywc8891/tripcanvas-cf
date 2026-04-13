@@ -8,5 +8,16 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@payloadcms/db-sqlite": "^3.82.1",
+    "@payloadcms/richtext-lexical": "^3.82.1",
+    "hono": "^4.12.12",
+    "payload": "^3.82.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260413.1",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.81.1"
+  }
 }
