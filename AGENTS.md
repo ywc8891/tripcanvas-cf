@@ -10,13 +10,26 @@
 Extract everything from the live WordPress site into structured, portable formats
 that Phase 4 migration scripts will consume. Do NOT modify the live site.
 
+## Verified Architecture
+
+- The source is not one global multilingual WordPress install.
+- `tripcanvas.co` is a standalone single-site WordPress install.
+- `malaysia.tripcanvas.co`, `indonesia.tripcanvas.co`, and `thailand.tripcanvas.co` are separate WordPress multisite networks.
+- The verified WordPress roots are:
+  - `/var/www/html/tripcanvas.co/`
+  - `/var/www/html/malaysia.tripcanvas.co/public/`
+  - `/var/www/html/indonesia.tripcanvas.co/public/`
+  - `/var/www/html/thailand.tripcanvas.co/public/`
+- Do not assume WPML/Polylang across the whole estate before checking each network.
+
 ## Pre-flight Checklist
 
 Before starting any task, confirm:
 - [ ] SSH access to EC2 instance works
-- [ ] WP-CLI is installed on EC2 (`wp --info`)
+- [ ] WP-CLI is installed on EC2 (`/usr/bin/wp-cli --info`)
 - [ ] WordPress REST API is accessible: `curl https://tripcanvas.co/wp-json/wp/v2/posts` returns JSON
-- [ ] Detect multilanguage plugin: `wp plugin list | grep -E "wpml|polylang"` — note which one
+- [ ] Confirm each WordPress root and determine whether locale handling is via multisite subsites, WPML, or Polylang
+- [ ] Detect multilanguage plugin where relevant: `/usr/bin/wp-cli plugin list | grep -E "wpml|polylang"` — note which one
 - [ ] If WPML: install plugin **WPML REST API** on the live site (exposes `?lang=` param to REST API)
 - [ ] If Polylang: install plugin **Polylang REST API** on the live site
 - [ ] Local `scripts/migration/` directory exists in repo
@@ -327,4 +340,3 @@ If disabled, temporarily add this to `wp-config.php`:
 
 **`?lang=` param not filtering:**
 The WPML/Polylang REST API plugin is not active. Install and activate it on the live site.
-

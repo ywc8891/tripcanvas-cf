@@ -15,8 +15,16 @@ Target cost: ~$5/month. All content, images, and multilanguage features must be 
 - Host: AWS EC2, Ubuntu, tripcanvas.co
 - CMS: WordPress (PHP)
 - DB: MySQL
-- Multilanguage: WPML or Polylang plugin
-- Subdomains: malaysia.tripcanvas.co, indonesia.tripcanvas.co, thailand.tripcanvas.co
+- WordPress topology:
+  - `tripcanvas.co` is a standalone single-site WordPress install
+  - `malaysia.tripcanvas.co` is its own WordPress multisite network
+  - `indonesia.tripcanvas.co` is its own WordPress multisite network
+  - `thailand.tripcanvas.co` is its own WordPress multisite network
+- Locale/content structure:
+  - `tripcanvas.co` serves English (`en`)
+  - Localized content is not a single global WPML/Polylang setup across all domains
+  - Language/section variants currently exist as separate subdomains and, within some subdomains, path-based multisite subsites such as `/zh/`, `/id/`, and `/shop/`
+- Subdomains: `malaysia.tripcanvas.co`, `indonesia.tripcanvas.co`, `thailand.tripcanvas.co`
 - Media: WordPress uploads folder (possibly partially on S3)
 
 ## Target Stack
@@ -37,6 +45,28 @@ Target cost: ~$5/month. All content, images, and multilanguage features must be 
 | malaysia.tripcanvas.co | my | Malay / Malaysian English |
 | indonesia.tripcanvas.co | id | Indonesian |
 | thailand.tripcanvas.co | th | Thai |
+
+## Source WordPress Layout
+
+- `tripcanvas.co`
+  - Path: `/var/www/html/tripcanvas.co/`
+  - Type: standalone WordPress site
+  - Database: `wordpress_main`
+- `malaysia.tripcanvas.co`
+  - Path: `/var/www/html/malaysia.tripcanvas.co/public/`
+  - Type: WordPress multisite network
+  - Database: `malaysia`
+  - Known sites: `/`, `/zh/`, `/shop/`
+- `indonesia.tripcanvas.co`
+  - Path: `/var/www/html/indonesia.tripcanvas.co/public/`
+  - Type: WordPress multisite network
+  - Database: `wordpress`
+  - Known sites: `/`, `/id/`, `/flights/`, `/giveaway/`, `/business/`, `/zh/`
+- `thailand.tripcanvas.co`
+  - Path: `/var/www/html/thailand.tripcanvas.co/public/`
+  - Type: WordPress multisite network
+  - Database: `thailand`
+  - Known sites: `/`, `/zh/`, `/id/`
 
 ## Monorepo Structure
 
