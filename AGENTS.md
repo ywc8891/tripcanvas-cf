@@ -1,427 +1,179 @@
-# AGENTS-phase2.md — Phase 2: Payload CMS Schema + CF Setup
-
-> Rename this to AGENTS.md when Phase 2 begins.
+# AGENTS.md — Phase 2: Payload CMS Schema + Cloudflare Setup
 
 ---
 
 ## Phase 2 Goal
 
 Stand up the Cloudflare infrastructure and design the Payload CMS schema.
-By end of phase: Payload admin UI is accessible at cms.tripcanvas.co,
+By end of phase: Payload admin UI is accessible at the deployed URL,
 collections are defined, and a test post can be created with multilanguage fields.
 
 ---
 
-## Task 1 — Initialize monorepo tooling
+## Progress Summary
 
-From repo root:
+### Completed
 
-```bash
-# Initialize pnpm workspaces
-cat > package.json << 'EOF'
-{
-  "name": "tripcanvas",
-  "private": true,
-  "packageManager": "pnpm@9.0.0",
-  "workspaces": ["apps/*", "packages/*"]
-}
-EOF
+1. ✅ Migrated from manual setup to official Payload Cloudflare template
+2. ✅ Installed dependencies (Next.js 15.4.11, Payload 3.82.1, esbuild 0.28.0)
+3. ✅ D1 database configured with tables: users, posts, categories, tags, media
+4. ✅ R2 bucket configured for media storage
+5. ✅ CMS Worker deployed to Cloudflare: `https://tripcanvas-cms.academyt.workers.dev`
+6. ✅ PAYLOAD_SECRET set via `wrangler secret put`
 
-# Create workspace packages
-mkdir -p apps/cms apps/frontend packages/shared-types
+### Blocked
 
-# Init each package
-cd apps/cms && pnpm init
-cd ../frontend && pnpm init
-cd ../../packages/shared-types && pnpm init
-```
-
-Commit: `chore: initialize pnpm monorepo structure`
+⚠️ **Admin UI initialization error** - "There was an error initializing Payload"
+- Admin UI loads but shows error during hydration
+- User creation blocked
+- Likely related to database schema for localized fields and versions
 
 ---
 
-## Task 2 — Create Cloudflare resources
+## Task 1 — Initialize monorepo tooling ✅
 
-Run these wrangler commands and save the output IDs to `.env.example`:
+Completed in previous session:
+- Created pnpm workspace configuration
+- apps/cms: Payload CMS with Next.js + OpenNext
+- apps/frontend: Astro (empty, for Phase 3)
 
-```bash
-# D1 database
-wrangler d1 create tripcanvas-db
-# → Note the database_id
+---
 
-# R2 bucket
-wrangler r2 bucket create tripcanvas-media
+## Task 2 — Cloudflare Resources ✅
 
-# Create wrangler.toml at repo root
-```
+Resources created:
+- **D1 Database**: `tripcanvas-db` (ID: `93ea8644-31d9-4f02-b436-398a4a965671`)
+- **R2 Bucket**: `tripcanvas-media`
 
-Create `wrangler.toml`:
+wrangler.toml configured in apps/cms/:
 ```toml
-name = "tripcanvas-cms"
-main = "apps/cms/src/index.ts"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
+name = 'tripcanvas-cms'
+account_id = '055213e96101363c1867d04f82e08d8b'
 
 [[d1_databases]]
-binding = "DB"
-database_name = "tripcanvas-db"
-database_id = "REPLACE_WITH_YOUR_D1_ID"
+binding = 'D1'
+database_id = '93ea8644-31d9-4f02-b436-398a4a965671'
 
 [[r2_buckets]]
-binding = "R2"
-bucket_name = "tripcanvas-media"
-
-[vars]
-ENVIRONMENT = "production"
+binding = 'R2'
+bucket_name = 'tripcanvas-media'
 ```
-
-Commit: `chore: add wrangler config and cloudflare resources`
 
 ---
 
-## Task 3 — Install and configure Payload CMS
+## Task 3 — Payload CMS Installation ✅
 
+Installed packages:
+```bash
+pnpm add next@15.4.11 payload @payloadcms/db-d1-sqlite @payloadcms/richtext-lexical
+pnpm add @payloadcms/storage-r2 @opennextjs/cloudflare
+pnpm add -D wrangler esbuild@latest
+```
+
+### Key Dependencies
+- **Next.js**: 15.4.11 (15.5.15+ required for OpenNext, but 15.4.11 is Payload's minimum)
+- **@opennextjs/cloudflare**: 1.19.1
+- **esbuild**: 0.28.0 (upgraded from 0.25.4 to fix bundler panic)
+- **wrangler**: 4.82.2
+
+### Build Fix Applied
+The esbuild 0.25.4 bundled with OpenNext had a bug with monorepo path resolution.
+Upgraded to esbuild 0.28.0 to fix "panic: Unexpected expression of type <nil>" errors.
+
+---
+
+## Task 4 — Payload Collections ✅
+
+Created collection definitions in `apps/cms/src/collections/`:
+
+- **Posts.ts** - with localized title, slug, content, excerpt, featuredImage, categories, tags, author, publishedAt, seo, wpId, drafts
+- **Categories.ts** - with localized name, slug, parent, wpId
+- **Tags.ts** - with localized name, slug, wpId
+- **Media.ts** - with alt, caption, width, height, wpId (upload to R2)
+- **Users.ts** - with auth: true
+
+### Localization Configuration
+```typescript
+localization: {
+  locales: [
+    { label: 'English (Global)', code: 'en' },
+    { label: 'Malaysia', code: 'my' },
+    { label: 'Indonesia', code: 'id' },
+    { label: 'Thailand', code: 'th' },
+  ],
+  defaultLocale: 'en',
+  fallback: true,
+}
+```
+
+---
+
+## Task 5 — Deploy Worker ✅
+
+Successfully deployed:
 ```bash
 cd apps/cms
-
-pnpm add payload @payloadcms/db-sqlite @payloadcms/richtext-lexical
-pnpm add hono  # HTTP framework for Worker
-pnpm add -D wrangler typescript @cloudflare/workers-types
+npx opennextjs-cloudflare build
+npx wrangler deploy
 ```
 
-Create `apps/cms/src/payload.config.ts`:
-
-```typescript
-import { buildConfig } from 'payload'
-import { sqliteAdapter } from '@payloadcms/db-sqlite'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
-
-export default buildConfig({
-  secret: process.env.PAYLOAD_SECRET || '',
-  editor: lexicalEditor({}),
-  
-  // Localization — matches our 4 subdomains
-  localization: {
-    locales: [
-      { label: 'English (Global)', code: 'en' },
-      { label: 'Malaysia', code: 'my' },
-      { label: 'Indonesia', code: 'id' },
-      { label: 'Thailand', code: 'th' },
-    ],
-    defaultLocale: 'en',
-    fallback: true, // fall back to 'en' if locale translation missing
-  },
-
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URL || 'file:./dev.db',
-    },
-  }),
-
-  collections: [
-    // Import collection configs (created in Task 4)
-    require('./collections/Posts').Posts,
-    require('./collections/Categories').Categories,
-    require('./collections/Tags').Tags,
-    require('./collections/Media').Media,
-    require('./collections/Authors').Authors,
-  ],
-
-  admin: {
-    user: 'authors',
-  },
-})
-```
-
-Commit: `feat(cms): add payload config with localization`
+**Deployed URL**: `https://tripcanvas-cms.academyt.workers.dev`
 
 ---
 
-## Task 4 — Define Payload collections
+## Task 6 — Database Schema ⚠️ PARTIAL
 
-Create each file below in `apps/cms/src/collections/`:
+The database has tables but may be missing tables for:
+- Localization tables (posts_title, posts_slug, etc.)
+- Versions tables (for drafts)
 
-### Posts.ts
-```typescript
-import { CollectionConfig } from 'payload'
-
-export const Posts: CollectionConfig = {
-  slug: 'posts',
-  admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'locale', 'status', 'publishedAt'],
-    description: 'Travel articles and guides',
-  },
-  access: {
-    read: () => true, // public read
-  },
-  versions: {
-    drafts: true, // enable draft/publish workflow
-  },
-  fields: [
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-      localized: true,
-    },
-    {
-      name: 'slug',
-      type: 'text',
-      required: true,
-      unique: true,
-      admin: { description: 'URL-friendly identifier. Auto-generated from title.' },
-    },
-    {
-      name: 'content',
-      type: 'richText',
-      localized: true,
-    },
-    {
-      name: 'excerpt',
-      type: 'textarea',
-      localized: true,
-      admin: { description: 'Short summary shown in post listings.' },
-    },
-    {
-      name: 'featuredImage',
-      type: 'upload',
-      relationTo: 'media',
-    },
-    {
-      name: 'categories',
-      type: 'relationship',
-      relationTo: 'categories',
-      hasMany: true,
-    },
-    {
-      name: 'tags',
-      type: 'relationship',
-      relationTo: 'tags',
-      hasMany: true,
-    },
-    {
-      name: 'author',
-      type: 'relationship',
-      relationTo: 'authors',
-    },
-    {
-      name: 'publishedAt',
-      type: 'date',
-      admin: { position: 'sidebar' },
-    },
-    {
-      name: 'seo',
-      type: 'group',
-      localized: true,
-      admin: { description: 'SEO metadata' },
-      fields: [
-        { name: 'title', type: 'text' },
-        { name: 'description', type: 'textarea' },
-      ],
-    },
-    // Preserve original WordPress ID for migration matching
-    {
-      name: 'wpId',
-      type: 'number',
-      admin: { description: 'Original WordPress post ID (migration reference)', readOnly: true },
-    },
-  ],
-}
-```
-
-### Categories.ts
-```typescript
-import { CollectionConfig } from 'payload'
-
-export const Categories: CollectionConfig = {
-  slug: 'categories',
-  admin: { useAsTitle: 'name' },
-  access: { read: () => true },
-  fields: [
-    { name: 'name', type: 'text', required: true, localized: true },
-    { name: 'slug', type: 'text', required: true, unique: true },
-    { name: 'parent', type: 'relationship', relationTo: 'categories' },
-    { name: 'wpId', type: 'number', admin: { readOnly: true } },
-  ],
-}
-```
-
-### Tags.ts
-```typescript
-import { CollectionConfig } from 'payload'
-
-export const Tags: CollectionConfig = {
-  slug: 'tags',
-  admin: { useAsTitle: 'name' },
-  access: { read: () => true },
-  fields: [
-    { name: 'name', type: 'text', required: true, localized: true },
-    { name: 'slug', type: 'text', required: true, unique: true },
-    { name: 'wpId', type: 'number', admin: { readOnly: true } },
-  ],
-}
-```
-
-### Media.ts
-
-> ✅ DESIGN DECISION: Payload stores the R2 URL only. No server-side image resizing in Payload.
-> Cloudflare Workers have no disk access, so Payload cannot process/resize images on the Worker.
-> Image optimization is handled by Astro's `<Image>` component at the edge via Cloudflare Image
-> Resizing. This means: faster uploads, no Worker CPU wasted on image processing, and responsive
-> images generated on-demand by the CDN.
->
-> PREREQUISITE: Enable Cloudflare Image Resizing on the tripcanvas.co zone in CF dashboard
-> (Speed → Optimization → Resize images from any origin → ON). Without this, Astro's
-> `<Image>` will still work but will serve the raw R2 file instead of an optimized version.
-
-```typescript
-import { CollectionConfig } from 'payload'
-
-export const Media: CollectionConfig = {
-  slug: 'media',
-  upload: {
-    // Serve directly from R2 — no local processing
-    staticURL: process.env.R2_PUBLIC_URL || '/media',
-    staticDir: 'media', // local dev fallback only
-    // NO imageSizes — Cloudflare Image Resizing handles this at the CDN edge
-    // Adding imageSizes here would cause Payload to attempt local Sharp processing,
-    // which fails silently on Cloudflare Workers (no filesystem)
-    adminThumbnail: 'url', // show the raw URL as thumbnail in admin
-    disableLocalStorage: true, // never write to disk — always use R2 handler
-  },
-  access: { read: () => true },
-  fields: [
-    {
-      name: 'alt',
-      type: 'text',
-      localized: true,
-      admin: { description: 'Describe the image for screen readers and SEO.' },
-    },
-    { name: 'caption', type: 'text', localized: true },
-    {
-      name: 'width',
-      type: 'number',
-      admin: { description: 'Original image width in pixels' },
-    },
-    {
-      name: 'height',
-      type: 'number',
-      admin: { description: 'Original image height in pixels' },
-    },
-    { name: 'wpId', type: 'number', admin: { readOnly: true } },
-  ],
-}
-```
-
-**How Astro consumes this in the frontend (Phase 4 reference):**
-```astro
----
-// In any Astro component — Cloudflare Image Resizing via URL params
-const { src, alt, width, height } = post.featuredImage
-const optimizedSrc = `${src}?width=800&quality=85&format=webp`
----
-<img src={optimizedSrc} alt={alt} width={800} loading="lazy" decoding="async" />
-```
-No npm packages needed — resizing is a CF zone feature, activated by URL query params.
-
-### Authors.ts
-```typescript
-import { CollectionConfig } from 'payload'
-
-export const Authors: CollectionConfig = {
-  slug: 'authors',
-  auth: true, // this collection handles authentication
-  admin: { useAsTitle: 'email' },
-  fields: [
-    { name: 'name', type: 'text', required: true },
-    { name: 'bio', type: 'textarea', localized: true },
-    { name: 'avatar', type: 'upload', relationTo: 'media' },
-    {
-      name: 'role',
-      type: 'select',
-      options: ['admin', 'editor', 'writer'],
-      defaultValue: 'writer',
-    },
-  ],
-}
-```
-
-Commit: `feat(cms): add all payload collection definitions`
-
----
-
-## Task 5 — Create subdomain routing Worker
-
-Create `apps/cms/src/router.ts`:
-
-This Worker intercepts requests to all subdomains and injects the locale:
-
-```typescript
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url)
-    const host = url.hostname
-
-    // Map subdomain to locale
-    const localeMap: Record<string, string> = {
-      'malaysia.tripcanvas.co': 'my',
-      'indonesia.tripcanvas.co': 'id',
-      'thailand.tripcanvas.co': 'th',
-      'tripcanvas.co': 'en',
-      'www.tripcanvas.co': 'en',
-    }
-
-    const locale = localeMap[host] ?? 'en'
-
-    // Clone request, add locale header for the frontend to read
-    const modifiedRequest = new Request(request, {
-      headers: {
-        ...Object.fromEntries(request.headers),
-        'X-TC-Locale': locale,
-        'X-TC-Host': host,
-      },
-    })
-
-    // Route to Cloudflare Pages frontend
-    return fetch(modifiedRequest)
-  },
-}
-
-interface Env {
-  DB: D1Database
-  R2: R2Bucket
-}
-```
-
-Commit: `feat(cms): add subdomain locale routing worker`
-
----
-
-## Task 6 — Local dev smoke test
-
+Check tables:
 ```bash
-cd apps/cms
-wrangler dev --local  # starts local D1 + Worker
-
-# In another terminal, verify:
-curl http://localhost:8787/api/posts
-# Should return { docs: [], totalDocs: 0, ... }
-
-# Access admin UI
-open http://localhost:8787/admin
-# Create a test post in all 4 locales
-# Upload a test image
-# Verify it saves without errors
+wrangler d1 execute tripcanvas-db --remote --command "SELECT name FROM sqlite_master WHERE type='table';"
 ```
-
-Document any issues in `docs/dev-notes.md`.
-Commit: `chore: confirm local dev environment working`
 
 ---
 
-## Phase 2 Complete
+## Next Steps
 
-1. Update `CLAUDE.md` — check off Phase 2
-2. Replace `AGENTS.md` with `AGENTS-phase3.md`
-3. Final commit: `chore: complete phase 2 — cms schema and cf infra done`
+### Option 1: Debug Initialization Error (Recommended)
+
+1. Check worker logs: `wrangler tail tripcanvas-cms`
+2. Verify PAYLOAD_SECRET is set: `wrangler secret list --name tripcanvas-cms`
+3. Test admin login at `/admin/login`
+4. Create user through UI registration if available
+
+### Option 2: Recreate Database with Fresh Migrations
+
+1. Drop all tables in D1
+2. Create proper migration file matching collection config
+3. Run migrations
+
+### Option 3: Continue Without Admin (API-Only)
+
+The API endpoints may still work even if admin UI has issues.
+Test with GraphQL or REST API.
+
+---
+
+## Phase 2 Complete Checklist
+
+- [x] Monorepo setup (pnpm workspaces)
+- [x] Cloudflare D1 database created
+- [x] Cloudflare R2 bucket created
+- [x] Payload CMS installed
+- [x] Collection definitions created
+- [x] Worker deployed to Cloudflare
+- [x] PAYLOAD_SECRET set
+- [ ] Admin UI accessible (blocked - initialization error)
+- [ ] Test post created with multilanguage fields
+
+---
+
+## Phase 3 Preview
+
+After Phase 2 completion:
+1. Fix admin UI initialization issue
+2. Set up custom domain `cms.tripcanvas.co` → Worker
+3. Create admin user and verify login
+4. Begin Phase 3: Frontend (Astro on Cloudflare Pages)

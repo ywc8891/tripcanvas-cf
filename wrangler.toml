@@ -1,16 +1,7 @@
 name = "tripcanvas-cms"
-main = "apps/cms/src/index.ts"
+main = ".open-next/worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-
-[[d1_databases]]
-binding = "DB"
-database_name = "tripcanvas-db"
-database_id = "REPLACE_WITH_YOUR_D1_ID"
-
-[[r2_buckets]]
-binding = "R2"
-bucket_name = "tripcanvas-media"
 
 [vars]
 ENVIRONMENT = "production"

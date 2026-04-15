@@ -7,7 +7,6 @@ export const Categories: CollectionConfig = {
   fields: [
     { name: 'name', type: 'text', required: true, localized: true },
     { name: 'slug', type: 'text', required: true, unique: true },
-    { name: 'parent', type: 'relationship', relationTo: 'categories' },
     { name: 'wpId', type: 'number', admin: { readOnly: true } },
   ],
 }

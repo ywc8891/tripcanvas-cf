@@ -1,0 +1,21 @@
+name = 'tripcanvas-cms'
+main = '.open-next/worker.js'
+account_id = '055213e96101363c1867d04f82e08d8b'
+compatibility_date = '2025-08-15'
+compatibility_flags = ['nodejs_compat', 'global_fetch_strictly_public']
+
+[assets]
+directory = '.open-next/assets'
+binding = 'ASSETS'
+
+[[d1_databases]]
+binding = 'D1'
+database_id = '93ea8644-31d9-4f02-b436-398a4a965671'
+database_name = 'tripcanvas-db'
+
+[[r2_buckets]]
+binding = 'R2'
+bucket_name = 'tripcanvas-media'
+
+[vars]
+ENVIRONMENT = 'production'

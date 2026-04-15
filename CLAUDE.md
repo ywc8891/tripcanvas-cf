@@ -118,13 +118,26 @@ Required vars (documented, not valued here):
 ## Current Status
 
 - [x] Phase 1 — Export (WordPress content + media)
-- [ ] Phase 2 — Payload CMS schema design
+  - Posts exported: EN (1), MY (132), ID (461), TH (277)
+  - Taxonomies, media inventory, site settings saved to JSON
+- [x] Phase 2 — Payload CMS schema design ⚠️ (partial)
+  - ✅ Payload CMS installed with official Cloudflare template
+  - ✅ D1 database created (`tripcanvas-db`)
+  - ✅ R2 bucket created (`tripcanvas-media`)
+  - ✅ CMS Worker deployed to Cloudflare: `https://tripcanvas-cms.academyt.workers.dev`
+  - ⚠️ Admin UI loads but has initialization error - user creation blocked
+  - Collections defined: Posts, Categories, Tags, Media, Users (with localization)
 - [ ] Phase 3 — Cloudflare infrastructure setup
 - [ ] Phase 4 — Data migration scripts
 - [ ] Phase 5 — Frontend build (Astro)
 - [ ] Phase 6 — DNS cutover
 
-**Active phase: Phase 2 — Payload CMS schema + CF setup**
+**Active phase: Phase 2 — Payload CMS (fix admin initialization)**
+
+### Cloudflare Resources
+- **D1 Database**: `tripcanvas-db` (ID: `93ea8644-31d9-4f02-b436-398a4a965671`)
+- **R2 Bucket**: `tripcanvas-media`
+- **CMS Worker**: `https://tripcanvas-cms.academyt.workers.dev`
 
 ## How to Start Each Session
 

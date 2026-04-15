@@ -107,3 +107,9 @@ media-download/
 session.json
 *.pem
 credentials.json
+
+
+apps/cms/cloudflare-env.d.ts
+apps/cms/.next/
+apps/cms/dist/
+.wrangler/

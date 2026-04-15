@@ -8,10 +8,10 @@ export const Posts: CollectionConfig = {
     description: 'Travel articles and guides',
   },
   access: {
-    read: () => true, // public read
+    read: () => true,
   },
   versions: {
-    drafts: true, // enable draft/publish workflow
+    drafts: true,
   },
   fields: [
     {
@@ -25,7 +25,7 @@ export const Posts: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
-      admin: { description: 'URL-friendly identifier. Auto-generated from title.' },
+      admin: { description: 'URL-friendly identifier' },
     },
     {
       name: 'content',
@@ -36,7 +36,6 @@ export const Posts: CollectionConfig = {
       name: 'excerpt',
       type: 'textarea',
       localized: true,
-      admin: { description: 'Short summary shown in post listings.' },
     },
     {
       name: 'featuredImage',
@@ -58,7 +57,7 @@ export const Posts: CollectionConfig = {
     {
       name: 'author',
       type: 'relationship',
-      relationTo: 'authors',
+      relationTo: 'users',
     },
     {
       name: 'publishedAt',
@@ -69,17 +68,15 @@ export const Posts: CollectionConfig = {
       name: 'seo',
       type: 'group',
       localized: true,
-      admin: { description: 'SEO metadata' },
       fields: [
         { name: 'title', type: 'text' },
         { name: 'description', type: 'textarea' },
       ],
     },
-    // Preserve original WordPress ID for migration matching
     {
       name: 'wpId',
       type: 'number',
-      admin: { description: 'Original WordPress post ID (migration reference)', readOnly: true },
+      admin: { readOnly: true },
     },
   ],
 }
