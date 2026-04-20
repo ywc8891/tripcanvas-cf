@@ -118,21 +118,45 @@ Required vars (documented, not valued here):
 ## Current Status
 
 - [x] Phase 1 — Export (WordPress content + media)
-  - Posts exported: EN (1), MY (132), ID (461), TH (277)
-  - Taxonomies, media inventory, site settings saved to JSON
-- [x] Phase 2 — Payload CMS schema design ⚠️ (partial)
+  - Posts exported (actual counts): EN 1, MY 132, ID 461, TH 277 (total 871)
+  - Taxonomies: 124 categories, 21 tags (shape: `{ slug, names: { locale: name } }`)
+  - Media inventory: 60,581 entries (⚠️ `url`, `mime_type`, `width`, `height` all null)
+  - Media downloaded: 560,150 files (~37 GB) under `scripts/migration/media-download/{locale}/{year}/{month}/`
+  - Site settings + url-map saved
+- [x] Phase 2 — Payload CMS schema + deploy
   - ✅ Payload CMS installed with official Cloudflare template
-  - ✅ D1 database created (`tripcanvas-db`)
-  - ✅ R2 bucket created (`tripcanvas-media`)
-  - ✅ CMS Worker deployed to Cloudflare: `https://tripcanvas-cms.academyt.workers.dev`
-  - ⚠️ Admin UI loads but has initialization error - user creation blocked
-  - Collections defined: Posts, Categories, Tags, Media, Users (with localization)
-- [ ] Phase 3 — Cloudflare infrastructure setup
-- [ ] Phase 4 — Data migration scripts
-- [ ] Phase 5 — Frontend build (Astro)
+  - ✅ D1 database (`tripcanvas-db`), R2 bucket (`tripcanvas-media`)
+  - ✅ CMS Worker deployed: `https://tripcanvas-cms.academyt.workers.dev`
+  - ✅ Admin UI working, user creation + login verified
+  - Collections: Users, Categories, Tags, Media, Posts (localized: en/my/id/th)
+- [x] Phase 3 — Astro frontend (per `AGENTS.md`)
+  - ✅ Astro + Tailwind, homepage, blog index, `[slug]` post page
+  - ✅ Deployed: `https://tripcanvas.academyt.workers.dev`
+  - ✅ CMS service binding (`CMS_SERVICE`) wired through middleware
+- [x] Phase 4 — Data migration (WordPress → Payload)
+  - ✅ CMS schema drift fixed; fresh migration applied; `/api/posts` restored
+  - ✅ Live taxonomy migration completed: 124 categories, 21 tags
+  - ✅ Live post migration completed: 842 unique slugs migrated from 871 source posts
+  - ✅ Live media migration completed: 36,372 discovered URLs → 16,962 uploaded, 19,346 skipped
+  - ✅ Residual media failures reduced to 4 unrecoverable source 404 URLs
+  - ✅ Post content media URL rewrite completed: 39,255 URL swaps applied via `migrate-posts.js`
+  - ✅ Verification passed: CMS totals posts=842, categories=124, tags=21
+  - Spec: `AGENTS-phase3.md` (title says "Phase 3" but it's the data-migration playbook; CLAUDE.md numbering treats it as Phase 4)
+- [ ] Phase 5 — Frontend polish + visual replication of tripcanvas.co (includes locale-by-domain routing)
+  - ✅ Domain-based locale routing deployed and validated (`tripcanvas=en`, `malaysia=my`, `indonesia=id`, `thailand=th`)
+  - ✅ Header override routing validated (`x-tc-locale`)
+  - ✅ Legacy WordPress path redirects live:
+    - `/<slug>` → `/blog/<slug>` (301)
+    - `/<category>/<slug>` → `/blog/<slug>` (301)
+    - `/?p=<wpId>` → `/blog/<slug>` (301)
+  - ✅ Added redirect QA automation: `scripts/migration/verify-redirects.js`
+  - ✅ Redirect QA passed live: `36/36` checks (`pnpm migrate:verify:redirects`)
+  - ⏳ Remaining: visual parity/polish pass against legacy tripcanvas.co pages
 - [ ] Phase 6 — DNS cutover
 
-**Active phase: Phase 2 — Payload CMS (fix admin initialization)**
+**Active phase: Phase 5 — Frontend polish + locale/domain behavior**
+
+> Note on numbering mismatch: the `AGENTS-phaseN.md` files were authored before the frontend work was pulled forward. `AGENTS-phase3.md` = data migration, `AGENTS-phase4.md` = Astro frontend (already done).
 
 ### Cloudflare Resources
 - **D1 Database**: `tripcanvas-db` (ID: `93ea8644-31d9-4f02-b436-398a4a965671`)

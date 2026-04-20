@@ -1,179 +1,237 @@
-# AGENTS.md — Phase 2: Payload CMS Schema + Cloudflare Setup
+# AGENTS.md — TripCanvas Project
 
 ---
 
-## Phase 2 Goal
+## Project Overview
 
-Stand up the Cloudflare infrastructure and design the Payload CMS schema.
-By end of phase: Payload admin UI is accessible at the deployed URL,
-collections are defined, and a test post can be created with multilanguage fields.
-
----
-
-## Progress Summary
-
-### Completed
-
-1. ✅ Migrated from manual setup to official Payload Cloudflare template
-2. ✅ Installed dependencies (Next.js 15.4.11, Payload 3.82.1, esbuild 0.28.0)
-3. ✅ D1 database configured with tables: users, posts, categories, tags, media
-4. ✅ R2 bucket configured for media storage
-5. ✅ CMS Worker deployed to Cloudflare: `https://tripcanvas-cms.academyt.workers.dev`
-6. ✅ PAYLOAD_SECRET set via `wrangler secret put`
-
-### Blocked
-
-⚠️ **Admin UI initialization error** - "There was an error initializing Payload"
-- Admin UI loads but shows error during hydration
-- User creation blocked
-- Likely related to database schema for localized fields and versions
+Travel blog CMS + Frontend on Cloudflare Workers
+- **CMS**: Payload CMS on Cloudflare Workers
+- **Frontend**: Astro on Cloudflare Workers
+- **Database**: Cloudflare D1 (SQLite)
+- **Storage**: Cloudflare R2
 
 ---
 
-## Task 1 — Initialize monorepo tooling ✅
+## Infrastructure
 
-Completed in previous session:
-- Created pnpm workspace configuration
-- apps/cms: Payload CMS with Next.js + OpenNext
-- apps/frontend: Astro (empty, for Phase 3)
+| Resource | Name/ID | URL |
+|----------|---------|-----|
+| Frontend Worker | tripcanvas | https://tripcanvas.academyt.workers.dev |
+| CMS Worker | tripcanvas-cms | https://tripcanvas-cms.academyt.workers.dev |
+| D1 Database | tripcanvas-db | 93ea8644-31d9-4f02-b436-398a4a965671 |
+| R2 Bucket | tripcanvas-media | - |
 
 ---
 
-## Task 2 — Cloudflare Resources ✅
+## Package Versions (Production-Matched)
 
-Resources created:
-- **D1 Database**: `tripcanvas-db` (ID: `93ea8644-31d9-4f02-b436-398a4a965671`)
-- **R2 Bucket**: `tripcanvas-media`
+| Package | Version |
+|---------|---------|
+| payload | 3.77.0 |
+| @opennextjs/cloudflare | 1.11.0 |
+| next | 15.4.11 |
+| @payloadcms/db-d1-sqlite | 3.77.0 |
+| @payloadcms/storage-r2 | 3.77.0 |
+| @payloadcms/richtext-lexical | 3.77.0 |
+| wrangler | 4.61.1 |
 
-wrangler.toml configured in apps/cms/:
-```toml
-name = 'tripcanvas-cms'
-account_id = '055213e96101363c1867d04f82e08d8b'
+---
 
-[[d1_databases]]
-binding = 'D1'
-database_id = '93ea8644-31d9-4f02-b436-398a4a965671'
+## Project Structure
 
-[[r2_buckets]]
-binding = 'R2'
-bucket_name = 'tripcanvas-media'
+```
+tripcanvas-cf/
+├── apps/
+│   ├── cms/                    # Payload CMS
+│   │   ├── src/
+│   │   │   ├── payload.config.ts
+│   │   │   ├── collections/
+│   │   │   │   ├── Users.ts
+│   │   │   │   ├── Posts.ts
+│   │   │   │   ├── Categories.ts
+│   │   │   │   ├── Tags.ts
+│   │   │   │   ├── Media.ts
+│   │   │   │   └── Authors.ts
+│   │   │   └── migrations/
+│   │   ├── wrangler.toml
+│   │   └── package.json
+│   └── frontend/               # Astro Frontend
+│       ├── src/
+│       │   ├── lib/
+│       │   │   └── payload.ts  # CMS API client
+│       │   ├── layouts/
+│       │   │   └── Layout.astro
+│       │   ├── pages/
+│       │   │   ├── index.astro
+│       │   │   └── blog/
+│       │   │       ├── index.astro
+│       │   │       └── [slug].astro
+│       │   ├── middleware.ts
+│       │   └── styles/
+│       │       └── global.css
+│       ├── wrangler.jsonc
+│       └── astro.config.mjs
+├── packages/
+├── pnpm-workspace.yaml
+└── package.json
 ```
 
 ---
 
-## Task 3 — Payload CMS Installation ✅
+## Completed Phases
 
-Installed packages:
+### ✅ Phase 1: WordPress Export
+- Content exported from WordPress (previous session)
+
+### ✅ Phase 2: Payload CMS Setup
+
+#### Tasks Completed
+1. ✅ Monorepo setup (pnpm workspaces)
+2. ✅ Cloudflare D1 database created
+3. ✅ Cloudflare R2 bucket created
+4. ✅ Payload CMS installed with matching versions
+5. ✅ Collection definitions created
+6. ✅ Worker deployed to Cloudflare
+7. ✅ PAYLOAD_SECRET set
+8. ✅ Admin UI accessible and working
+9. ✅ User created and login working
+10. ✅ Test post created and visible via API
+
+#### Database Tables (15 tables)
+- users, users_sessions
+- posts, categories, tags, media
+- payload_migrations, payload_kv
+- payload_locked_documents, payload_locked_documents_rels
+- payload_preferences, payload_preferences_rels
+- d1_migrations, _cf_KV, sqlite_sequence
+
+### ✅ Phase 3: Astro Frontend Setup
+
+#### Tasks Completed
+1. ✅ Astro initialized with Cloudflare adapter
+2. ✅ Tailwind CSS configured
+3. ✅ Payload helper library created
+4. ✅ CMS service binding configured
+5. ✅ Homepage with post list
+6. ✅ Blog index page
+7. ✅ Individual post pages
+8. ✅ Frontend deployed to Cloudflare
+
+---
+
+## Current Status
+
+| Component | Status | URL |
+|-----------|--------|-----|
+| Frontend | ✅ Working | https://tripcanvas.academyt.workers.dev |
+| CMS Admin | ✅ Working | https://tripcanvas-cms.academyt.workers.dev/admin |
+| User Login | ✅ Working | - |
+| Post Creation | ✅ Working | - |
+| API Communication | ✅ Working | Service binding |
+
+---
+
+## Known Gaps (Future Enhancement)
+
+| Feature | Priority | Notes |
+|---------|----------|-------|
+| Localization | Medium | No multilingual fields yet |
+| Relationships | Medium | Posts not linked to categories/tags |
+| SEO fields | Low | No meta fields |
+| Draft/Publish | Low | No versioning (all posts visible) |
+| Custom domains | Low | Not configured yet |
+
+---
+
+## Commands
+
+### Development
 ```bash
-pnpm add next@15.4.11 payload @payloadcms/db-d1-sqlite @payloadcms/richtext-lexical
-pnpm add @payloadcms/storage-r2 @opennextjs/cloudflare
-pnpm add -D wrangler esbuild@latest
+# CMS dev server
+cd apps/cms && pnpm dev
+
+# Frontend dev server
+cd apps/frontend && pnpm dev
 ```
 
-### Key Dependencies
-- **Next.js**: 15.4.11 (15.5.15+ required for OpenNext, but 15.4.11 is Payload's minimum)
-- **@opennextjs/cloudflare**: 1.19.1
-- **esbuild**: 0.28.0 (upgraded from 0.25.4 to fix bundler panic)
-- **wrangler**: 4.82.2
-
-### Build Fix Applied
-The esbuild 0.25.4 bundled with OpenNext had a bug with monorepo path resolution.
-Upgraded to esbuild 0.28.0 to fix "panic: Unexpected expression of type <nil>" errors.
-
----
-
-## Task 4 — Payload Collections ✅
-
-Created collection definitions in `apps/cms/src/collections/`:
-
-- **Posts.ts** - with localized title, slug, content, excerpt, featuredImage, categories, tags, author, publishedAt, seo, wpId, drafts
-- **Categories.ts** - with localized name, slug, parent, wpId
-- **Tags.ts** - with localized name, slug, wpId
-- **Media.ts** - with alt, caption, width, height, wpId (upload to R2)
-- **Users.ts** - with auth: true
-
-### Localization Configuration
-```typescript
-localization: {
-  locales: [
-    { label: 'English (Global)', code: 'en' },
-    { label: 'Malaysia', code: 'my' },
-    { label: 'Indonesia', code: 'id' },
-    { label: 'Thailand', code: 'th' },
-  ],
-  defaultLocale: 'en',
-  fallback: true,
-}
-```
-
----
-
-## Task 5 — Deploy Worker ✅
-
-Successfully deployed:
+### Build & Deploy
 ```bash
-cd apps/cms
-npx opennextjs-cloudflare build
-npx wrangler deploy
+# Build CMS
+cd apps/cms && pnpm build && npx wrangler deploy
+
+# Build Frontend
+cd apps/frontend && pnpm build && npx wrangler deploy
 ```
 
-**Deployed URL**: `https://tripcanvas-cms.academyt.workers.dev`
+### Database
+```bash
+# Check tables
+npx wrangler d1 execute tripcanvas-db --remote --command "SELECT name FROM sqlite_master WHERE type='table';"
+
+# Run migrations
+cd apps/cms && pnpm payload migrate
+```
 
 ---
 
-## Task 6 — Database Schema ⚠️ PARTIAL
+## Architecture
 
-The database has tables but may be missing tables for:
-- Localization tables (posts_title, posts_slug, etc.)
-- Versions tables (for drafts)
-
-Check tables:
-```bash
-wrangler d1 execute tripcanvas-db --remote --command "SELECT name FROM sqlite_master WHERE type='table';"
 ```
+User Browser
+    ↓
+Cloudflare Edge
+    ↓
+┌─────────────────────────────────┐
+│  Frontend (Astro Worker)         │
+│  tripcanvas.academyt.workers.dev │
+│         ↓ CMS_SERVICE binding    │
+├─────────────────────────────────┤
+│  CMS (Payload Worker)            │
+│  tripcanvas-cms.academyt...      │
+│         ↓                        │
+│  ┌─────────┐  ┌─────────────┐    │
+│  │   D1    │  │     R2      │    │
+│  │ SQLite  │  │   Media     │    │
+│  └─────────┘  └─────────────┘    │
+└─────────────────────────────────┘
+```
+
+---
+
+## Key Files
+
+### CMS Config
+- `apps/cms/src/payload.config.ts` - Payload configuration
+- `apps/cms/wrangler.toml` - Worker bindings
+
+### Frontend Config
+- `apps/frontend/src/lib/payload.ts` - CMS API client
+- `apps/frontend/wrangler.jsonc` - Worker + service binding
+
+---
+
+## Troubleshooting
+
+### Admin UI 500 Error
+- Check PAYLOAD_SECRET is set: `npx wrangler secret list --name tripcanvas-cms`
+- Check database schema matches Payload config
+- Verify D1 bindings in wrangler.toml
+
+### Frontend Not Showing Posts
+- Verify CMS API works: `curl https://tripcanvas-cms.academyt.workers.dev/api/posts`
+- Check service binding in wrangler.jsonc
+- Review middleware.ts for CMS_ENV setup
+
+### Database Schema Issues
+- Never manually write SQL - use `pnpm payload migrate:create`
+- Apply remote: `npx wrangler d1 execute tripcanvas-db --remote --file schema.sql`
 
 ---
 
 ## Next Steps
 
-### Option 1: Debug Initialization Error (Recommended)
-
-1. Check worker logs: `wrangler tail tripcanvas-cms`
-2. Verify PAYLOAD_SECRET is set: `wrangler secret list --name tripcanvas-cms`
-3. Test admin login at `/admin/login`
-4. Create user through UI registration if available
-
-### Option 2: Recreate Database with Fresh Migrations
-
-1. Drop all tables in D1
-2. Create proper migration file matching collection config
-3. Run migrations
-
-### Option 3: Continue Without Admin (API-Only)
-
-The API endpoints may still work even if admin UI has issues.
-Test with GraphQL or REST API.
-
----
-
-## Phase 2 Complete Checklist
-
-- [x] Monorepo setup (pnpm workspaces)
-- [x] Cloudflare D1 database created
-- [x] Cloudflare R2 bucket created
-- [x] Payload CMS installed
-- [x] Collection definitions created
-- [x] Worker deployed to Cloudflare
-- [x] PAYLOAD_SECRET set
-- [ ] Admin UI accessible (blocked - initialization error)
-- [ ] Test post created with multilanguage fields
-
----
-
-## Phase 3 Preview
-
-After Phase 2 completion:
-1. Fix admin UI initialization issue
-2. Set up custom domain `cms.tripcanvas.co` → Worker
-3. Create admin user and verify login
-4. Begin Phase 3: Frontend (Astro on Cloudflare Pages)
+1. Create content (posts, categories, tags)
+2. Enhance CMS collections (localization, relationships)
+3. Improve frontend design
+4. Configure custom domains
+5. Set up CI/CD pipeline

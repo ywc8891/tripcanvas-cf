@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import { buildLocaleUrl, SUPPORTED_LOCALES } from '../lib/locale';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'TripCanvas',
+  description = 'Travel blog and guides'
+} = Astro.props;
+
+const locale = ((Astro.locals as { locale?: string }).locale || 'en').toLowerCase();
+const host = Astro.url.host;
+const path = Astro.url.pathname;
+const homeHref = '/';
+const storiesHref = '/blog';
+---
+
+<!DOCTYPE html>
+<html lang={locale.toLowerCase()}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body class="site-shell">
+    <header class="site-header">
+      <div class="container site-header-inner">
+        <a class="brand" href={homeHref}>
+          <span class="brand-mark">TC</span>
+          <span class="brand-text">
+            <strong>TripCanvas</strong>
+            <small>Travel stories across Southeast Asia</small>
+          </span>
+        </a>
+        <nav class="site-nav" aria-label="Main navigation">
+          <a href={homeHref}>Home</a>
+          <a href={storiesHref}>Stories</a>
+        </nav>
+        <div class="locale-switch" aria-label="Locale switcher">
+          {SUPPORTED_LOCALES.map((nextLocale) => (
+            <a
+              class={`locale-chip${nextLocale === locale ? ' is-active' : ''}`}
+              href={buildLocaleUrl(path, nextLocale, host)}
+              title={`Switch locale to ${nextLocale.toUpperCase()}`}
+            >
+              {nextLocale.toUpperCase()}
+            </a>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <main class="container page-main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer-inner">
+        <p>TripCanvas</p>
+        <p>&copy; 2026 · Edge-powered by Cloudflare</p>
+      </div>
+    </footer>
+  </body>
+</html>

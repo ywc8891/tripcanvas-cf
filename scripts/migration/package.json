@@ -1,0 +1,26 @@
+{
+  "name": "tripcanvas-migration",
+  "private": true,
+  "type": "module",
+  "description": "WordPress → Payload CMS migration scripts for TripCanvas",
+  "scripts": {
+    "export:ssh": "bash export-via-ssh.sh",
+    "migrate:taxonomies": "node migrate-taxonomies.js",
+    "migrate:posts": "node migrate-posts.js",
+    "migrate:media": "node migrate-media.js",
+    "migrate:fix:placeholder-images": "node fix-placeholder-images.js",
+    "migrate:backfill:posts:dry": "node backfill-post-locales.js",
+    "migrate:backfill:posts:live": "node backfill-post-locales.js --live",
+    "migrate:verify": "node verify.js",
+    "migrate:verify:redirects": "node verify-redirects.js",
+    "download-media": "node download-media.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@payloadcms/richtext-lexical": "3.77.0",
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.5",
+    "jsdom": "^24.1.0",
+    "p-limit": "^5.0.0"
+  }
+}

@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getPostBySlug } from '../../lib/payload';
+import { lexicalToHtml } from '../../lib/lexical';
+
+const { slug } = Astro.params;
+const locale = (Astro.locals as { locale?: string }).locale || 'en';
+
+if (!slug) {
+  return Astro.redirect('/blog');
+}
+
+const post = await getPostBySlug(slug, locale);
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const displayTitle = post.title || post.slug;
+const contentHtml = lexicalToHtml(post.content);
+---
+
+<Layout title={`${displayTitle} - TripCanvas`} description={`Read ${displayTitle} on TripCanvas.`}>
+  <article class="content-shell">
+    <p class="eyebrow">Story</p>
+    <h1 class="article-title">{displayTitle}</h1>
+    <time class="article-meta">{new Date(post.createdAt).toLocaleDateString()}</time>
+
+    <div class="article-content" set:html={contentHtml} />
+
+    <a class="back-link" href="/blog">← Back to stories</a>
+  </article>
+</Layout>

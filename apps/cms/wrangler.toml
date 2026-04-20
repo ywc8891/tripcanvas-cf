@@ -2,7 +2,7 @@ name = 'tripcanvas-cms'
 main = '.open-next/worker.js'
 account_id = '055213e96101363c1867d04f82e08d8b'
 compatibility_date = '2025-08-15'
-compatibility_flags = ['nodejs_compat', 'global_fetch_strictly_public']
+compatibility_flags = ['nodejs_compat']
 
 [assets]
 directory = '.open-next/assets'
@@ -19,3 +19,8 @@ bucket_name = 'tripcanvas-media'
 
 [vars]
 ENVIRONMENT = 'production'
+PAYLOAD_PUBLIC_SERVER_URL = 'https://tripcanvas-cms.academyt.workers.dev'
+
+# Allow all workers to consume this service
+[[consumers]]
+service = 'tripcanvas-cms'

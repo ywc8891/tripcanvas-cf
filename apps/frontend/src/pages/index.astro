@@ -1,0 +1,70 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCategories, getPostByWpId, getPosts } from '../lib/payload';
+
+const locale = (Astro.locals as { locale?: string }).locale || 'en';
+const wpIdParam = Astro.url.searchParams.get('p');
+
+if (wpIdParam && /^\d+$/.test(wpIdParam)) {
+  const legacyPost = await getPostByWpId(Number(wpIdParam), locale);
+  if (legacyPost?.slug) {
+    return Astro.redirect(`/blog/${legacyPost.slug}`, 301);
+  }
+}
+
+const posts = await getPosts(locale);
+const categories = await getCategories(locale);
+const featuredPosts = posts.slice(0, 6);
+
+function displayTitle(post: { title?: string; slug: string }): string {
+  return post.title || post.slug.replace(/-/g, ' ');
+}
+
+function displayExcerpt(post: { excerpt?: string }): string {
+  if (post.excerpt) return post.excerpt;
+  return 'Explore practical tips, local food picks, and itinerary ideas from the TripCanvas archive.';
+}
+---
+
+<Layout title="TripCanvas - Travel Blog" description="Destination stories and practical travel guides across Southeast Asia.">
+  <section class="hero">
+    <p class="eyebrow">Southeast Asia Travel Journal</p>
+    <h1>Find where to go next, what to eat, and how to travel smarter.</h1>
+    <p>
+      TripCanvas curates destination stories, local tips, and neighborhood finds for travelers moving through
+      Malaysia, Indonesia, Thailand, and beyond.
+    </p>
+  </section>
+
+  <section>
+    <h2 class="section-title">Featured stories</h2>
+    {featuredPosts.length > 0 ? (
+      <div class="post-grid">
+        {featuredPosts.map((post) => (
+          <article class="post-card">
+            <span class="post-meta">{new Date(post.createdAt).toLocaleDateString()}</span>
+            <h3><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h3>
+            <p class="post-excerpt">{displayExcerpt(post as { excerpt?: string })}</p>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <p>No posts found for this locale yet.</p>
+    )}
+  </section>
+
+  <section>
+    <h2 class="section-title">Browse by category</h2>
+    {categories.length > 0 ? (
+      <div class="chip-row">
+        {categories.slice(0, 18).map((category) => (
+          <a class="chip" href={`/blog?category=${category.slug}`}>
+            {category.name || category.slug.replace(/-/g, ' ')}
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p>Categories will appear once localized names are available for this locale.</p>
+    )}
+  </section>
+</Layout>

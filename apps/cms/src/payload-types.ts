@@ -101,9 +101,6 @@ export interface Config {
   globals: {};
   globalsSelect: {};
   locale: 'en' | 'my' | 'id' | 'th';
-  widgets: {
-    collections: CollectionsWidget;
-  };
   user: User;
   jobs: {
     tasks: unknown;
@@ -184,11 +181,21 @@ export interface Tag {
 export interface Media {
   id: number;
   /**
-   * Describe the image for screen readers and SEO.
+   * Alternative text for accessibility
    */
-  alt?: string | null;
+  alt: string;
+  /**
+   * Caption displayed below the image
+   */
   caption?: string | null;
-  wpId?: number | null;
+  /**
+   * Original WordPress attachment ID
+   */
+  wp_id?: number | null;
+  /**
+   * Original WordPress media URL
+   */
+  wp_original_url?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -196,16 +203,36 @@ export interface Media {
   filename?: string | null;
   mimeType?: string | null;
   filesize?: number | null;
-  /**
-   * Original image width in pixels
-   */
   width?: number | null;
-  /**
-   * Original image height in pixels
-   */
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * Travel articles and guides
@@ -387,7 +414,8 @@ export interface TagsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
-  wpId?: T;
+  wp_id?: T;
+  wp_original_url?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -399,6 +427,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -464,16 +526,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "collections_widget".
- */
-export interface CollectionsWidget {
-  data?: {
-    [k: string]: unknown;
-  };
-  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

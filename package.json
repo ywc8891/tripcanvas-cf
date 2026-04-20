@@ -1,5 +1,13 @@
 {
   "name": "tripcanvas",
   "private": true,
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev:cms": "cd apps/cms && pnpm dev",
+    "dev:frontend": "cd apps/frontend && pnpm dev",
+    "build:cms": "cd apps/cms && pnpm build",
+    "build:frontend": "cd apps/frontend && pnpm build",
+    "deploy:cms": "cd apps/cms && pnpm deploy",
+    "deploy:frontend": "cd apps/frontend && pnpm deploy"
+  }
 }
