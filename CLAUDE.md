@@ -155,10 +155,16 @@ Required vars (documented, not valued here):
     - `/?p=<wpId>` → `/blog/<slug>` (301)
   - ✅ Added redirect QA automation: `scripts/migration/verify-redirects.js`
   - ✅ Redirect QA passed live: `36/36` checks (`pnpm migrate:verify:redirects`)
-  - ⏳ Remaining: visual parity/polish pass against legacy tripcanvas.co pages
+  - ✅ Image rendering fixed: R2 bucket public access enabled (pub-2faca0649c2047a1859536a3114d3f95.r2.dev)
+    - `lexical.ts`: detects "Image reference (r2://...)" text paragraphs, renders as `<figure><img>` with HTTPS URL
+    - `Posts.ts`: afterRead hook updated to emit upload nodes for new placeholder-image nodes
+  - ✅ Blog index pagination: 12 posts/page, prev/next nav, total count in hero
+  - ✅ Typography: Google Fonts (DM Sans + Fraunces) loaded via Layout.astro
+  - ✅ Post dates use locale-formatted `publishedAt` with proper `<time datetime>` attribute
+  - ✅ Post excerpt used as `<meta description>` on post pages
 - [ ] Phase 6 — DNS cutover
 
-**Active phase: Phase 5 — Frontend polish + locale/domain behavior**
+**Active phase: Phase 6 — DNS cutover**
 
 > Note on numbering mismatch: the `AGENTS-phaseN.md` files were authored before the frontend work was pulled forward. `AGENTS-phase3.md` = data migration, `AGENTS-phase4.md` = Astro frontend (already done).
 
