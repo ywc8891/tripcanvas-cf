@@ -19,17 +19,18 @@ function displayExcerpt(post: { excerpt?: string }): string {
 ---
 
 <Layout title={`Stories${currentPage > 1 ? ` — Page ${currentPage}` : ''} - TripCanvas`} description="Travel stories, destination ideas, and itineraries from the TripCanvas editorial archive.">
-  <section class="hero">
-    <p class="eyebrow">Editorial archive</p>
-    <h1>Stories, tips, and destination deep-dives.</h1>
-    <p>Browse guides written for real trips — from city weekends to slow island escapes.</p>
-    <p class="hero-count"><strong>{totalDocs}</strong> stories in this collection</p>
-  </section>
+  <div class="page-banner">
+    <div class="container">
+      <h1>Latest Stories</h1>
+      <p>Destination guides, food finds, and travel tips from across Southeast Asia.</p>
+      {totalDocs > 0 && <p class="page-banner-meta">{totalDocs} articles · Page {currentPage} of {totalPages}</p>}
+    </div>
+  </div>
 
-  <section>
-    <h2 class="section-title">
-      {currentPage > 1 ? `Page ${currentPage} of ${totalPages}` : 'Latest posts'}
-    </h2>
+  <section class="container">
+    <p class="section-title">
+      {currentPage > 1 ? `Page ${currentPage} of ${totalPages}` : 'All stories'}
+    </p>
     {posts.length > 0 ? (
       <div class="post-grid">
         {posts.map((post) => {

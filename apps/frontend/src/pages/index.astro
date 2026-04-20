@@ -12,71 +12,111 @@ if (wpIdParam && /^\d+$/.test(wpIdParam)) {
   }
 }
 
-const { docs: allPosts } = await getPosts(locale);
+const { docs: allPosts, totalDocs } = await getPosts(locale);
 const categories = await getCategories(locale);
 const featuredPosts = allPosts.slice(0, 6);
+const isEnglishHub = locale === 'en' && totalDocs <= 2;
+
+const LOCALE_META: Record<string, { name: string; tagline: string }> = {
+  my: { name: 'TripCanvas Malaysia', tagline: 'Not Your Usual Malaysia Travel Guide' },
+  id: { name: 'TripCanvas Indonesia', tagline: 'Not Your Usual Indonesia Travel Guide' },
+  th: { name: 'TripCanvas Thailand', tagline: 'Not Your Usual Thailand Travel Guide' },
+  en: { name: 'TripCanvas', tagline: 'Not Your Usual Southeast Asia Travel Guide' },
+};
+const meta = LOCALE_META[locale] || LOCALE_META.en;
 
 function displayTitle(post: { title?: string; slug: string }): string {
   return post.title || post.slug.replace(/-/g, ' ');
 }
-
-function displayExcerpt(post: { excerpt?: string }): string {
-  if (post.excerpt) return post.excerpt;
-  return 'Explore practical tips, local food picks, and itinerary ideas from the TripCanvas archive.';
-}
 ---
 
-<Layout title="TripCanvas - Travel Blog" description="Destination stories and practical travel guides across Southeast Asia.">
-  <section class="hero">
-    <p class="eyebrow">Southeast Asia Travel Journal</p>
-    <h1>Find where to go next, what to eat, and how to travel smarter.</h1>
-    <p>
-      TripCanvas curates destination stories, local tips, and neighborhood finds for travelers moving through
-      Malaysia, Indonesia, Thailand, and beyond.
-    </p>
-  </section>
-
-  <section>
-    <h2 class="section-title">Featured stories</h2>
-    {featuredPosts.length > 0 ? (
-      <div class="post-grid">
-        {featuredPosts.map((post) => {
-          const excerpt = displayExcerpt(post as { excerpt?: string });
-          const thumb = firstImageUrl(post.content);
-          return (
-            <article class="post-card">
-              <a class="post-card-thumb" href={`/blog/${post.slug}`} tabindex="-1" aria-hidden="true">
-                {thumb
-                  ? <img src={thumb} alt="" loading="lazy" decoding="async" />
-                  : <div class="post-card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0022.5 18.75V5.25A1.5 1.5 0 0021 3.75H3A1.5 1.5 0 001.5 5.25v13.5A1.5 1.5 0 003 20.25z"/></svg></div>
-                }
-              </a>
-              <div class="post-card-body">
-                <h3><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h3>
-                {excerpt && excerpt !== 'Explore practical tips, local food picks, and itinerary ideas from the TripCanvas archive.' && <p class="post-excerpt">{excerpt}</p>}
-                <span class="post-meta">{new Date(post.createdAt).toLocaleDateString()}</span>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    ) : (
-      <p>No posts found for this locale yet.</p>
-    )}
-  </section>
-
-  <section>
-    <h2 class="section-title">Browse by category</h2>
-    {categories.length > 0 ? (
-      <div class="chip-row">
-        {categories.slice(0, 18).map((category) => (
-          <a class="chip" href={`/blog?category=${category.slug}`}>
-            {category.name || category.slug.replace(/-/g, ' ')}
-          </a>
-        ))}
-      </div>
-    ) : (
-      <p>Categories will appear once localized names are available for this locale.</p>
-    )}
-  </section>
+{isEnglishHub ? (
+<Layout title="TripCanvas - Southeast Asia Travel Guides" description="Travel guides, local tips, and destination stories for Malaysia, Indonesia and Thailand.">
+  <div class="dest-hero">
+    <div class="container">
+      <h1>TripCanvas</h1>
+      <p>Not your usual Southeast Asia travel guide — local stories, real tips, hidden finds.</p>
+    </div>
+  </div>
+  <div class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+    <p class="section-title">Choose your destination</p>
+    <div class="dest-grid">
+      <a class="dest-card" href="https://malaysia.tripcanvas.co">
+        <div class="dest-card-flag">🇲🇾</div>
+        <div class="dest-card-body">
+          <h2>Malaysia</h2>
+          <p>KL, Penang, Langkawi, Johor, Melaka and beyond.</p>
+        </div>
+      </a>
+      <a class="dest-card" href="https://indonesia.tripcanvas.co">
+        <div class="dest-card-flag">🇮🇩</div>
+        <div class="dest-card-body">
+          <h2>Indonesia</h2>
+          <p>Bali, Jakarta, Yogyakarta, and island escapes.</p>
+        </div>
+      </a>
+      <a class="dest-card" href="https://thailand.tripcanvas.co">
+        <div class="dest-card-flag">🇹🇭</div>
+        <div class="dest-card-body">
+          <h2>Thailand</h2>
+          <p>Bangkok, Chiang Mai, Phuket, Koh Samui and more.</p>
+        </div>
+      </a>
+    </div>
+  </div>
 </Layout>
+) : (
+<Layout title={`${meta.name} - Travel Blog`} description={`${meta.tagline}. Destination guides, food finds, and travel tips.`}>
+  <div class="page-banner">
+    <div class="container">
+      <h1>{meta.name}</h1>
+      <p>{meta.tagline}</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
+    {featuredPosts.length > 0 ? (
+      <>
+        <p class="section-title">Featured</p>
+        <div class="post-grid">
+          {featuredPosts.map((post) => {
+            const thumb = firstImageUrl(post.content);
+            return (
+              <article class="post-card">
+                <a class="post-card-thumb" href={`/blog/${post.slug}`} tabindex="-1" aria-hidden="true">
+                  {thumb
+                    ? <img src={thumb} alt="" loading="lazy" decoding="async" />
+                    : <div class="post-card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0022.5 18.75V5.25A1.5 1.5 0 0021 3.75H3A1.5 1.5 0 001.5 5.25v13.5A1.5 1.5 0 003 20.25z"/></svg></div>
+                  }
+                </a>
+                <div class="post-card-body">
+                  <h3><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h3>
+                  <span class="post-meta">{new Date(post.createdAt).toLocaleDateString()}</span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <div style="margin-top:1.5rem; text-align:right;">
+          <a href="/blog" style="font-size:0.88rem; font-weight:600; color:var(--brand);">View all {totalDocs} stories →</a>
+        </div>
+      </>
+    ) : (
+      <p style="color:var(--muted);">No stories found for this locale yet.</p>
+    )}
+
+    {categories.length > 0 && (
+      <>
+        <p class="section-title" style="margin-top:2.5rem;">Browse by category</p>
+        <div class="chip-row">
+          {categories.slice(0, 20).map((category) => (
+            <a class="chip" href={`/blog?category=${category.slug}`}>
+              {category.name || category.slug.replace(/-/g, ' ')}
+            </a>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+</Layout>
+)}

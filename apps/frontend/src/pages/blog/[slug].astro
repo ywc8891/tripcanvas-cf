@@ -24,15 +24,18 @@ const contentHtml = lexicalToHtml(post.content);
 ---
 
 <Layout title={`${displayTitle} - TripCanvas`} description={metaDesc}>
-  <article class="content-shell">
-    <p class="eyebrow">Story</p>
-    <h1 class="article-title">{displayTitle}</h1>
-    <time class="article-meta" datetime={displayDate}>
-      {new Date(displayDate).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
-    </time>
+  <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
+    <article class="content-shell">
+      <header class="article-header">
+        <h1 class="article-title">{displayTitle}</h1>
+        <time class="article-meta" datetime={displayDate}>
+          {new Date(displayDate).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
+        </time>
+      </header>
 
-    <div class="article-content" set:html={contentHtml} />
+      <div class="article-content" set:html={contentHtml} />
 
-    <a class="back-link" href="/blog">← Back to stories</a>
-  </article>
+      <a class="back-link" href="/blog">← Back to all stories</a>
+    </article>
+  </div>
 </Layout>
