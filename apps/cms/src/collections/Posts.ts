@@ -2,6 +2,18 @@ import { CollectionConfig } from 'payload'
 
 const LOCALES = ['en', 'my', 'id', 'th'] as const
 
+const R2_PUBLIC_URL = 'https://pub-2faca0649c2047a1859536a3114d3f95.r2.dev'
+
+function r2ToHttps(url: string): string {
+  if (url.startsWith('r2://')) {
+    const withoutScheme = url.slice('r2://'.length)
+    const slashIndex = withoutScheme.indexOf('/')
+    const key = slashIndex >= 0 ? withoutScheme.slice(slashIndex + 1) : withoutScheme
+    return `${R2_PUBLIC_URL}/${key}`
+  }
+  return url
+}
+
 type LexicalNode = {
   type?: string
   version?: number
@@ -10,29 +22,6 @@ type LexicalNode = {
   direction?: string | null
   children?: LexicalNode[]
   [key: string]: unknown
-}
-
-function textNode(text: string): LexicalNode {
-  return {
-    type: 'text',
-    version: 1,
-    detail: 0,
-    mode: 'normal',
-    style: '',
-    format: 0,
-    text,
-  }
-}
-
-function paragraphNode(children: LexicalNode[]): LexicalNode {
-  return {
-    type: 'paragraph',
-    version: 1,
-    format: '',
-    indent: 0,
-    direction: 'ltr',
-    children,
-  }
 }
 
 function sanitizeChildren(children: unknown): LexicalNode[] {
@@ -45,12 +34,17 @@ function sanitizeChildren(children: unknown): LexicalNode[] {
     const node = child as LexicalNode
 
     if (node.type === 'placeholder-image') {
-      const url = typeof node.wp_url === 'string' ? node.wp_url : ''
+      const r2Url = typeof node.wp_url === 'string' ? node.wp_url : ''
       const alt = typeof node.alt === 'string' ? node.alt.trim() : ''
 
-      if (url) {
-        const label = alt ? `Image: ${alt}` : 'Image reference'
-        out.push(paragraphNode([textNode(label), textNode(` (${url})`)]))
+      if (r2Url) {
+        const httpsUrl = r2ToHttps(r2Url)
+        out.push({
+          type: 'upload',
+          version: 1,
+          relationTo: 'media',
+          value: { url: httpsUrl, alt },
+        })
       }
 
       continue

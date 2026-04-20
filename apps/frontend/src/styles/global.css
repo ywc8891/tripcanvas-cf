@@ -208,6 +208,12 @@ a:hover {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
+.hero-count {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0.4rem 0 0;
+}
+
 .post-card {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -215,8 +221,19 @@ a:hover {
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  justify-content: space-between;
+  gap: 0.6rem;
   padding: 1rem;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.post-card:hover {
+  border-color: rgba(15, 118, 110, 0.35);
+  box-shadow: 0 14px 36px rgba(24, 38, 43, 0.12);
+}
+
+.post-card-body {
+  flex: 1;
 }
 
 .post-card h3,
@@ -336,6 +353,44 @@ a:hover {
   font-style: italic;
   margin-left: 0;
   padding-left: 1rem;
+}
+
+.pagination {
+  align-items: center;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  margin-top: 2.2rem;
+  padding: 0.4rem 0 0;
+}
+
+.pagination-btn {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--brand-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.5rem 1.15rem;
+  text-decoration: none;
+  transition: background 0.14s, border-color 0.14s;
+}
+
+.pagination-btn:hover {
+  background: rgba(15, 118, 110, 0.1);
+  border-color: var(--brand);
+}
+
+.pagination-btn.is-disabled {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.pagination-info {
+  color: var(--muted);
+  font-size: 0.88rem;
 }
 
 .back-link {

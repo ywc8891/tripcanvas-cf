@@ -4,9 +4,20 @@ export interface Post {
   wpId?: number;
   title: string;
   slug: string;
+  excerpt?: string;
+  publishedAt?: string;
   content: unknown;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PostsResult {
+  docs: Post[];
+  totalDocs: number;
+  totalPages: number;
+  page: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
 export interface Category {
@@ -122,16 +133,39 @@ export async function fetchPayload<T>(
   }
 }
 
+const R2_IMG_RE = /\(r2:\/\/[^/]+\/([^)]+)\)/;
+const R2_PUBLIC_URL = 'https://pub-2faca0649c2047a1859536a3114d3f95.r2.dev';
+
+export function firstImageUrl(content: unknown): string | null {
+  if (!content || typeof content !== 'object') return null;
+  const json = JSON.stringify(content);
+  const m = R2_IMG_RE.exec(json);
+  return m ? `${R2_PUBLIC_URL}/${m[1]}` : null;
+}
+
 // Helper functions
-export async function getPosts(locale?: string): Promise<Post[]> {
+export async function getPosts(
+  locale?: string,
+  page = 1,
+  limit = 12,
+): Promise<PostsResult> {
   const resolvedLocale = locale || getRuntimeLocale();
   const result = await fetchPayload<Post>('posts', {
     locale: resolvedLocale,
-    depth: 1,
+    depth: 0,
     sort: '-createdAt',
+    limit,
+    page,
     'where[title][exists]': 'true',
   });
-  return result.docs;
+  return {
+    docs: result.docs,
+    totalDocs: result.totalDocs ?? 0,
+    totalPages: (result as unknown as { totalPages?: number }).totalPages ?? 1,
+    page: (result as unknown as { page?: number }).page ?? page,
+    hasNextPage: (result as unknown as { hasNextPage?: boolean }).hasNextPage ?? false,
+    hasPrevPage: (result as unknown as { hasPrevPage?: boolean }).hasPrevPage ?? false,
+  };
 }
 
 export async function getPostBySlug(slug: string, locale?: string): Promise<Post | null> {

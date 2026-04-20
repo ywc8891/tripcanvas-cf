@@ -3,7 +3,10 @@ import Layout from '../../layouts/Layout.astro';
 import { getPosts } from '../../lib/payload';
 
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
-const posts = await getPosts(locale);
+const pageParam = Number(Astro.url.searchParams.get('page') || '1');
+const currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+
+const { docs: posts, totalDocs, totalPages, hasNextPage, hasPrevPage } = await getPosts(locale, currentPage);
 
 function displayTitle(post: { title?: string; slug: string }): string {
   return post.title || post.slug.replace(/-/g, ' ');
@@ -11,31 +14,53 @@ function displayTitle(post: { title?: string; slug: string }): string {
 
 function displayExcerpt(post: { excerpt?: string }): string {
   if (post.excerpt) return post.excerpt;
-  return 'A practical travel story from the TripCanvas archive.';
+  return '';
 }
 ---
 
-<Layout title="Stories - TripCanvas" description="Travel stories, destination ideas, and itineraries from the TripCanvas editorial archive.">
+<Layout title={`Stories${currentPage > 1 ? ` — Page ${currentPage}` : ''} - TripCanvas`} description="Travel stories, destination ideas, and itineraries from the TripCanvas editorial archive.">
   <section class="hero">
     <p class="eyebrow">Editorial archive</p>
     <h1>Stories, tips, and destination deep-dives.</h1>
     <p>Browse guides written for real trips — from city weekends to slow island escapes.</p>
+    <p class="hero-count"><strong>{totalDocs}</strong> stories in this collection</p>
   </section>
 
   <section>
-    <h2 class="section-title">Latest posts</h2>
+    <h2 class="section-title">
+      {currentPage > 1 ? `Page ${currentPage} of ${totalPages}` : 'Latest posts'}
+    </h2>
     {posts.length > 0 ? (
       <div class="post-grid">
-        {posts.map((post) => (
-          <article class="post-card">
-            <span class="post-meta">{new Date(post.createdAt).toLocaleDateString()}</span>
-            <h2><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h2>
-            <p class="post-excerpt">{displayExcerpt(post as { excerpt?: string })}</p>
-          </article>
-        ))}
+        {posts.map((post) => {
+          const excerpt = displayExcerpt(post);
+          return (
+            <article class="post-card">
+              <div class="post-card-body">
+                <h2><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h2>
+                {excerpt && <p class="post-excerpt">{excerpt}</p>}
+              </div>
+              <span class="post-meta">{new Date(post.publishedAt || post.createdAt).toLocaleDateString()}</span>
+            </article>
+          );
+        })}
       </div>
     ) : (
       <p>No posts found for this locale yet.</p>
+    )}
+
+    {(hasPrevPage || hasNextPage) && (
+      <nav class="pagination" aria-label="Page navigation">
+        {hasPrevPage
+          ? <a class="pagination-btn" href={`/blog?page=${currentPage - 1}`}>← Previous</a>
+          : <span class="pagination-btn is-disabled">← Previous</span>
+        }
+        <span class="pagination-info">Page {currentPage} of {totalPages}</span>
+        {hasNextPage
+          ? <a class="pagination-btn" href={`/blog?page=${currentPage + 1}`}>Next →</a>
+          : <span class="pagination-btn is-disabled">Next →</span>
+        }
+      </nav>
     )}
   </section>
 </Layout>

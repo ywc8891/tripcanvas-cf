@@ -38,6 +38,20 @@ type LexicalRoot = {
   root: LexicalNode;
 };
 
+const R2_PUBLIC_URL = 'https://pub-2faca0649c2047a1859536a3114d3f95.r2.dev';
+
+function r2ToHttps(url: string): string {
+  if (url.startsWith('r2://')) {
+    const withoutScheme = url.slice('r2://'.length);
+    const slash = withoutScheme.indexOf('/');
+    const key = slash >= 0 ? withoutScheme.slice(slash + 1) : withoutScheme;
+    return `${R2_PUBLIC_URL}/${key}`;
+  }
+  return url;
+}
+
+const R2_PARA_RE = /^(Image[^(]*) \(r2:\/\/([^)]+)\)$/;
+
 const TEXT_FORMAT = {
   BOLD: 1,
   ITALIC: 2,
@@ -89,8 +103,18 @@ function renderNode(node: LexicalNode): string {
     case 'linebreak':
       return '<br />';
 
-    case 'paragraph':
+    case 'paragraph': {
+      const rawText = (node.children ?? [])
+        .map((c) => (c.type === 'text' ? (c.text ?? '') : ''))
+        .join('');
+      const m = R2_PARA_RE.exec(rawText);
+      if (m) {
+        const altLabel = m[1].startsWith('Image:') ? m[1].slice('Image:'.length).trim() : '';
+        const httpsUrl = r2ToHttps(`r2://${m[2]}`);
+        return `<figure><img src="${escapeAttr(httpsUrl)}" alt="${escapeAttr(altLabel)}" loading="lazy" /></figure>`;
+      }
       return `<p>${renderChildren(node.children)}</p>`;
+    }
 
     case 'heading': {
       const tag = node.tag && /^h[1-6]$/.test(node.tag) ? node.tag : 'h2';
