@@ -129,6 +129,7 @@ export async function getPosts(locale?: string): Promise<Post[]> {
     locale: resolvedLocale,
     depth: 1,
     sort: '-createdAt',
+    'where[title][exists]': 'true',
   });
   return result.docs;
 }
@@ -160,6 +161,7 @@ export async function getCategories(locale?: string): Promise<Category[]> {
     locale: resolvedLocale,
     depth: 0,
     sort: 'name',
+    'where[name][exists]': 'true',
   });
   return result.docs;
 }
