@@ -58,13 +58,23 @@ export function splitLocaleFromPath(pathname: string): {
   };
 }
 
-// Builds a full URL switching to a different locale's subdomain.
-// e.g. on malaysia.tripcanvas.co, buildLocaleUrl('/blog/foo', 'id', host)
-//      → 'https://indonesia.tripcanvas.co/blog/foo'
-// On non-production hosts (dev workers.dev), falls back to path prefix.
-export function buildLocaleUrl(pathname: string, targetLocale: SupportedLocale, _currentHost: string): string {
+// Returns true when running on a non-production host (staging / local dev).
+export function isDevHost(host: string): boolean {
+  return host.endsWith('.workers.dev') || host.startsWith('localhost') || host.startsWith('127.');
+}
+
+// Builds a URL that switches locale.
+// Production: switches subdomain → https://malaysia.tripcanvas.co/blog/foo
+// Staging/dev: stays on same origin, adds ?locale=my → /blog/foo?locale=my
+export function buildLocaleUrl(pathname: string, targetLocale: SupportedLocale, currentHost: string): string {
   const { pathWithoutLocale } = splitLocaleFromPath(pathname || '/');
   const cleanPath = pathWithoutLocale.startsWith('/') ? pathWithoutLocale : `/${pathWithoutLocale}`;
+
+  if (isDevHost(currentHost)) {
+    const sep = cleanPath.includes('?') ? '&' : '?';
+    return `${cleanPath}${sep}locale=${targetLocale}`;
+  }
+
   const targetSubdomain = LOCALE_SUBDOMAIN_MAP[targetLocale];
   return `https://${targetSubdomain}${cleanPath}`;
 }

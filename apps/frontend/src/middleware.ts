@@ -1,6 +1,7 @@
 import { getPostBySlug } from './lib/payload';
 import {
   isSupportedLocale,
+  isDevHost,
   localeFromHost,
   normalizeHost,
 } from './lib/locale';
@@ -46,7 +47,11 @@ export async function onRequest(
 
   const headerLocaleRaw = context.request.headers.get('x-tc-locale');
   const headerLocale = isSupportedLocale(headerLocaleRaw) ? headerLocaleRaw.toLowerCase() : null;
-  const locale = headerLocale || localeFromHost(host);
+
+  const queryLocaleRaw = isDevHost(host) ? url.searchParams.get('locale') : null;
+  const queryLocale = isSupportedLocale(queryLocaleRaw) ? queryLocaleRaw!.toLowerCase() : null;
+
+  const locale = headerLocale || queryLocale || localeFromHost(host);
 
   locals.locale = locale;
   locals.host = host;
