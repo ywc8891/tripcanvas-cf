@@ -2,5 +2,11 @@
 media-download/
 media-download-errors.json
 
+# Temporary media staging (2GB+)
+.tmp-media/
+
+# Large source export dumps (20-37MB each)
+export/site-*.json
+
 # Environment files
 .env

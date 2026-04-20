@@ -38,10 +38,18 @@ async function checkRedirect({ host, path, expectedLocation }) {
     redirect: 'manual',
   });
 
-  const location = res.headers.get('location') || '';
+  const rawLocation = res.headers.get('location') || '';
+  // Normalize to path+search only so both relative and absolute Location values compare equally
+  let location = rawLocation;
+  try {
+    if (rawLocation.startsWith('http')) {
+      const u = new URL(rawLocation);
+      location = u.pathname + u.search;
+    }
+  } catch {}
   const ok = res.status === 301 && location === expectedLocation;
 
-  return { ok, status: res.status, location };
+  return { ok, status: res.status, location: rawLocation };
 }
 
 async function runLocaleSuite({ host, locale }) {
