@@ -145,6 +145,10 @@ Required vars (documented, not valued here):
 - [ ] Phase 5 — Frontend polish + visual replication of tripcanvas.co (includes locale-by-domain routing)
   - ✅ Domain-based locale routing deployed and validated (`tripcanvas=en`, `malaysia=my`, `indonesia=id`, `thailand=th`)
   - ✅ Header override routing validated (`x-tc-locale`)
+  - ✅ Locale routing architecture fixed: subdomain-only (no path prefixes for primary locales)
+    - Locale switcher generates full subdomain URLs via `buildLocaleUrl()` in `locale.ts`
+    - All internal links use clean paths (`/blog/slug`), no locale prefix in URL
+    - Secondary locale path support (e.g. `/zh/`) deferred until content migrated
   - ✅ Legacy WordPress path redirects live:
     - `/<slug>` → `/blog/<slug>` (301)
     - `/<category>/<slug>` → `/blog/<slug>` (301)
