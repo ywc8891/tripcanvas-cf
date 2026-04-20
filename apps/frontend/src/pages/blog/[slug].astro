@@ -17,14 +17,19 @@ if (!post) {
 }
 
 const displayTitle = post.title || post.slug;
+const displayDate = post.publishedAt || post.createdAt;
+const metaDesc = (post as unknown as { excerpt?: string }).excerpt
+  || `Read ${displayTitle} on TripCanvas.`;
 const contentHtml = lexicalToHtml(post.content);
 ---
 
-<Layout title={`${displayTitle} - TripCanvas`} description={`Read ${displayTitle} on TripCanvas.`}>
+<Layout title={`${displayTitle} - TripCanvas`} description={metaDesc}>
   <article class="content-shell">
     <p class="eyebrow">Story</p>
     <h1 class="article-title">{displayTitle}</h1>
-    <time class="article-meta">{new Date(post.createdAt).toLocaleDateString()}</time>
+    <time class="article-meta" datetime={displayDate}>
+      {new Date(displayDate).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
+    </time>
 
     <div class="article-content" set:html={contentHtml} />
 

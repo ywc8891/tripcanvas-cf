@@ -12,9 +12,9 @@ if (wpIdParam && /^\d+$/.test(wpIdParam)) {
   }
 }
 
-const posts = await getPosts(locale);
+const { docs: allPosts } = await getPosts(locale);
 const categories = await getCategories(locale);
-const featuredPosts = posts.slice(0, 6);
+const featuredPosts = allPosts.slice(0, 6);
 
 function displayTitle(post: { title?: string; slug: string }): string {
   return post.title || post.slug.replace(/-/g, ' ');
@@ -40,13 +40,18 @@ function displayExcerpt(post: { excerpt?: string }): string {
     <h2 class="section-title">Featured stories</h2>
     {featuredPosts.length > 0 ? (
       <div class="post-grid">
-        {featuredPosts.map((post) => (
-          <article class="post-card">
-            <span class="post-meta">{new Date(post.createdAt).toLocaleDateString()}</span>
-            <h3><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h3>
-            <p class="post-excerpt">{displayExcerpt(post as { excerpt?: string })}</p>
-          </article>
-        ))}
+        {featuredPosts.map((post) => {
+          const excerpt = displayExcerpt(post as { excerpt?: string });
+          return (
+            <article class="post-card">
+              <div class="post-card-body">
+                <h3><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h3>
+                {excerpt && excerpt !== 'Explore practical tips, local food picks, and itinerary ideas from the TripCanvas archive.' && <p class="post-excerpt">{excerpt}</p>}
+              </div>
+              <span class="post-meta">{new Date(post.createdAt).toLocaleDateString()}</span>
+            </article>
+          );
+        })}
       </div>
     ) : (
       <p>No posts found for this locale yet.</p>
