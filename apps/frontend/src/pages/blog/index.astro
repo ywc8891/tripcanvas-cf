@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getPosts } from '../../lib/payload';
+import { getPosts, firstImageUrl } from '../../lib/payload';
 
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
 const pageParam = Number(Astro.url.searchParams.get('page') || '1');
@@ -34,13 +34,20 @@ function displayExcerpt(post: { excerpt?: string }): string {
       <div class="post-grid">
         {posts.map((post) => {
           const excerpt = displayExcerpt(post);
+          const thumb = firstImageUrl(post.content);
           return (
             <article class="post-card">
+              <a class="post-card-thumb" href={`/blog/${post.slug}`} tabindex="-1" aria-hidden="true">
+                {thumb
+                  ? <img src={thumb} alt="" loading="lazy" decoding="async" />
+                  : <div class="post-card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0022.5 18.75V5.25A1.5 1.5 0 0021 3.75H3A1.5 1.5 0 001.5 5.25v13.5A1.5 1.5 0 003 20.25z"/></svg></div>
+                }
+              </a>
               <div class="post-card-body">
                 <h2><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h2>
                 {excerpt && <p class="post-excerpt">{excerpt}</p>}
+                <span class="post-meta">{new Date(post.publishedAt || post.createdAt).toLocaleDateString()}</span>
               </div>
-              <span class="post-meta">{new Date(post.publishedAt || post.createdAt).toLocaleDateString()}</span>
             </article>
           );
         })}
