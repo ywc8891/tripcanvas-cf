@@ -1,7 +1,3 @@
-// Simple i18n utility for UI strings.
-// Market locales (en/my/id/th) use their own labels.
-// ZH locale uses Chinese translations.
-
 type TranslationKey =
   | 'nav.home'
   | 'nav.stories'
@@ -14,7 +10,8 @@ type TranslationKey =
   | 'home.featured'
   | 'home.browseCategory'
   | 'home.viewAll'
-  | 'home.noStories';
+  | 'home.noStories'
+  | 'search.placeholder';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -30,6 +27,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.browseCategory': 'Browse by category',
     'home.viewAll': 'View all stories →',
     'home.noStories': 'No stories found for this locale yet.',
+    'search.placeholder': 'What are you looking for?',
   },
   my: {
     'nav.home': 'Utama',
@@ -44,6 +42,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.browseCategory': 'Layari mengikut kategori',
     'home.viewAll': 'Lihat semua cerita →',
     'home.noStories': 'Tiada cerita ditemui untuk lokasi ini.',
+    'search.placeholder': 'Apa yang anda cari?',
   },
   id: {
     'nav.home': 'Beranda',
@@ -58,6 +57,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.browseCategory': 'Jelajahi berdasarkan kategori',
     'home.viewAll': 'Lihat semua cerita →',
     'home.noStories': 'Belum ada cerita untuk lokasi ini.',
+    'search.placeholder': 'Apa yang anda cari?',
   },
   th: {
     'nav.home': 'หน้าแรก',
@@ -72,6 +72,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.browseCategory': 'เรียกดูตามหมวดหมู่',
     'home.viewAll': 'ดูเรื่องทั้งหมด →',
     'home.noStories': 'ยังไม่พบเรื่องราวสำหรับภาษานี้',
+    'search.placeholder': 'คุณกำลังมองหาอะไร?',
   },
   zh: {
     'nav.home': '首页',
@@ -86,9 +87,155 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.browseCategory': '按类别浏览',
     'home.viewAll': '查看所有文章 →',
     'home.noStories': '暂时没有找到文章。',
+    'search.placeholder': '您在找什么？',
   },
 };
 
 export function t(key: TranslationKey, locale: string): string {
   return translations[locale]?.[key] ?? translations.en[key] ?? key;
 }
+
+export interface NavItem {
+  label: string;
+  href: string;
+  children?: NavItem[];
+}
+
+export interface MarketNav {
+  topLevel: NavItem[];
+  staticPages: NavItem[];
+}
+
+export interface SocialLinks {
+  facebook: string;
+  twitter: string;
+  youtube: string;
+  instagram: string;
+}
+
+export const MARKET_SOCIAL: Record<string, SocialLinks> = {
+  my: {
+    facebook: 'https://www.facebook.com/tripcanvas.malaysia',
+    twitter: 'https://twitter.com/tripcanvas',
+    youtube: 'https://www.youtube.com/channel/UCMR27IYwg4JOlEHrs0K0ODQ',
+    instagram: 'https://instagram.com/tripcanvas.travel',
+  },
+  id: {
+    facebook: 'https://www.facebook.com/tripcanvas',
+    twitter: 'https://twitter.com/tripcanvas',
+    youtube: 'https://www.youtube.com/channel/UCMR27IYwg4JOlEHrs0K0ODQ',
+    instagram: 'https://instagram.com/tripcanvas.travel',
+  },
+  th: {
+    facebook: 'https://www.facebook.com/tripcanvas.thailand',
+    twitter: 'https://twitter.com/tripcanvas',
+    youtube: 'https://www.youtube.com/channel/UCMR27IYwg4JOlEHrs0K0ODQ',
+    instagram: 'https://instagram.com/tripcanvas.travel',
+  },
+};
+
+export const MARKET_NAV: Record<string, MarketNav> = {
+  my: {
+    topLevel: [
+      { label: 'KL & Selangor', href: '/kuala-lumpur/' },
+      { label: 'Johor', href: '/johor/' },
+      { label: 'Melaka', href: '/melaka/' },
+      { label: 'Kedah & Langkawi', href: '/kedah/' },
+      { label: 'Penang', href: '/penang/' },
+      { label: 'Perak', href: '/perak/' },
+      { label: 'Pahang', href: '/pahang/' },
+      { label: 'Sabah', href: '/sabah/' },
+      { label: 'Terengganu', href: '/terengganu/' },
+      { label: 'Negeri Sembilan', href: '/negeri-sembilan/' },
+      { label: 'Best of Malaysia', href: '/best-of-malaysia/' },
+      { label: 'Inspiration', href: '/inspiration/' },
+    ],
+    staticPages: [
+      { label: 'About Us', href: '/about/' },
+      { label: 'Contact Us', href: '/contact/' },
+      { label: 'Terms & Conditions', href: '/terms/' },
+      { label: 'Privacy Policy', href: '/privacy/' },
+    ],
+  },
+  id: {
+    topLevel: [
+      {
+        label: 'Bali', href: '/bali/', children: [
+          { label: 'Where to stay', href: '/hotels-villas-bali/' },
+          { label: 'Things to do', href: '/attractions-activities-bali/' },
+          { label: 'Where to eat', href: '/restaurants-cafes-bars-bali/' },
+          { label: 'Guides & Tips', href: '/travel-guide-tips-bali/' },
+          { label: 'Itineraries', href: '/itineraries/' },
+          { label: 'Our hotel reviews', href: '/hotel-experience-reviews/' },
+        ]
+      },
+      {
+        label: 'Java', href: '/java/', children: [
+          { label: 'Jakarta', href: '/jakarta/' },
+          { label: 'Yogyakarta', href: '/jogja/' },
+          { label: 'Bandung', href: '/bandung/' },
+          { label: 'Malang', href: '/malang/' },
+          { label: 'Surabaya', href: '/surabaya/' },
+          { label: 'Semarang', href: '/semarang/' },
+          { label: 'Bogor', href: '/bogor/' },
+          { label: 'Banyuwangi', href: '/banyuwangi/' },
+        ]
+      },
+      { label: 'Lombok', href: '/lombok/' },
+      { label: 'Medan & Lake Toba', href: '/sumatra/' },
+      { label: 'Bintan & Batam', href: '/bintan-batam/' },
+      { label: 'Flores', href: '/flores/' },
+      { label: 'Sulawesi', href: '/sulawesi/' },
+      { label: 'West Papua', href: '/west-papua/' },
+      { label: 'Best of Indonesia', href: '/best-of-indonesia/' },
+      { label: 'Inspiration', href: '/inspiration/' },
+    ],
+    staticPages: [
+      { label: 'About Us', href: '/about/' },
+      { label: 'Contact Us', href: '/contact/' },
+      { label: 'Terms & Conditions', href: '/terms/' },
+      { label: 'Privacy Policy', href: '/privacy/' },
+    ],
+  },
+  th: {
+    topLevel: [
+      { label: 'Bangkok', href: '/bangkok/' },
+      {
+        label: 'Southern Thailand', href: '/southern-thailand/', children: [
+          { label: 'Phuket', href: '/phuket/' },
+          { label: 'Hat Yai', href: '/hat-yai/' },
+          { label: 'Krabi', href: '/krabi/' },
+          { label: 'Koh Lipe & Satun', href: '/satun/' },
+          { label: 'Phang Nga', href: '/phang-nga/' },
+          { label: 'Koh Samui', href: '/koh-samui/' },
+          { label: 'Surat Thani', href: '/surat-thani/' },
+        ]
+      },
+      {
+        label: 'Central Thailand', href: '/central-thailand/', children: [
+          { label: 'Khao Yai', href: '/khao-yai/' },
+          { label: 'Hua Hin', href: '/hua-hin/' },
+          { label: 'Kanchanaburi', href: '/kanchanaburi/' },
+          { label: 'Pattaya & Chonburi', href: '/chonburi/' },
+          { label: 'Ratchaburi', href: '/ratchaburi/' },
+        ]
+      },
+      {
+        label: 'Northern Thailand', href: '/northern-thailand/', children: [
+          { label: 'Chiang Mai', href: '/chiang-mai/' },
+          { label: 'Chiang Rai', href: '/chiang-rai/' },
+          { label: 'Phetchabun', href: '/phetchabun/' },
+          { label: 'Nan', href: '/nan/' },
+        ]
+      },
+      { label: 'Best of Thailand', href: '/best-of-thailand/' },
+      { label: 'Inspiration', href: '/inspiration/' },
+    ],
+    staticPages: [
+      { label: 'About Us', href: '/about/' },
+      { label: 'Contact Us', href: '/contact/' },
+      { label: 'Terms & Conditions', href: '/terms/' },
+      { label: 'Privacy Policy', href: '/privacy/' },
+    ],
+  },
+};

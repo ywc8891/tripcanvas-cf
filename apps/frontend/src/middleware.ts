@@ -26,6 +26,7 @@ function shouldHandleLegacyRedirect(pathname: string): boolean {
   if (pathname.startsWith('/_astro/') || pathname.startsWith('/_image/')) return false;
   if (pathname.startsWith('/admin')) return false;
   if (pathname === '/favicon.svg' || pathname === '/robots.txt' || pathname === '/sitemap.xml') return false;
+  if (pathname === '/about/' || pathname === '/contact/' || pathname === '/terms/' || pathname === '/privacy/') return false;
 
   const segments = pathname.split('/').filter(Boolean);
   // 2-segment paths are canonical post URLs (/[location]/[slug]) — serve directly

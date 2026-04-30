@@ -59,10 +59,41 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 1.25rem;
 }
 
+/* ── Top Bar (social icons) ── */
+.top-bar {
+  background: #222;
+  color: #fff;
+  font-size: 0.85rem;
+}
+
+.top-bar-inner {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  min-height: 32px;
+}
+
+.topbar-right {
+  display: inline-flex;
+  gap: 0.75rem;
+}
+
+.topbar-right a {
+  color: #bbb;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.topbar-right a:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
 /* ── Header ── */
 .site-header {
   background: #fff;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 2px solid #e3e3e3;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -71,96 +102,160 @@ h1, h2, h3, h4, h5, h6 {
 .site-header-inner {
   align-items: center;
   display: flex;
-  gap: 1rem;
-  min-height: 64px;
+  gap: 0;
+  min-height: 50px;
 }
 
 .brand {
   align-items: center;
-  color: var(--ink);
   display: inline-flex;
   flex-shrink: 0;
-  gap: 0.6rem;
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: -0.01em;
-  text-decoration: none;
+  line-height: 1;
+  padding-right: 1.5rem;
 }
 
 .brand:hover {
-  color: var(--brand);
   text-decoration: none;
 }
 
-.brand-mark {
-  align-items: center;
-  background: var(--brand);
-  border-radius: 8px;
-  color: #fff;
-  display: inline-flex;
-  font-size: 0.85rem;
-  font-weight: 800;
-  height: 2rem;
-  justify-content: center;
-  letter-spacing: 0;
-  width: 2rem;
-}
-
-.brand-text {
-  display: inline-flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.brand-text strong {
-  font-size: 1rem;
-}
-
-.brand-text small {
-  color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 400;
+.brand-logo {
+  display: block;
+  height: 30px;
+  width: auto;
 }
 
 .site-nav {
   display: inline-flex;
   flex: 1;
   gap: 0;
-  margin-left: 1.5rem;
 }
 
-.site-nav a {
+.site-nav .nav-link {
   color: #333;
-  font-family: "Oswald", Arial, sans-serif;
-  font-size: 0.9rem;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 0.8rem;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.75rem 0.7rem;
   text-decoration: none;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.site-nav a:hover {
+.site-nav .nav-link:hover {
   color: var(--brand);
   text-decoration: none;
 }
 
+.nav-arrow {
+  font-size: 0.55rem;
+  margin-left: 0.2rem;
+  vertical-align: middle;
+}
+
+/* ── Dropdown ── */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-menu {
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: none;
+  left: 0;
+  min-width: 200px;
+  padding: 0.5rem 0;
+  position: absolute;
+  top: 100%;
+  z-index: 200;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+  display: block;
+}
+
+.nav-dropdown-menu a {
+  color: #333;
+  display: block;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-dropdown-menu a:hover {
+  background: #f5f5f5;
+  color: var(--brand);
+  text-decoration: none;
+}
+
+/* ── Nav right (search + locale + mobile toggle) ── */
+.nav-right {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+/* ── Search ── */
+.nav-search {
+  align-items: center;
+  display: inline-flex;
+  position: relative;
+}
+
+.search-form {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 200;
+}
+
+.search-form.is-open {
+  display: block;
+}
+
+.search-field {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 0.82rem;
+  outline: none;
+  padding: 0.5rem 0.75rem;
+  width: 260px;
+}
+
+.search-toggle {
+  color: #333;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.search-toggle:hover {
+  color: var(--brand);
+}
+
+/* ── Locale Switch ── */
 .locale-switch {
   display: inline-flex;
-  gap: 0.3rem;
-  margin-left: auto;
+  gap: 0.2rem;
 }
 
 .locale-chip {
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 3px;
   color: #555;
   display: inline-flex;
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  padding: 0.25rem 0.5rem;
+  padding: 0.15rem 0.35rem;
   text-decoration: none;
   transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
@@ -175,6 +270,112 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--brand);
   border-color: var(--brand);
   color: #fff;
+}
+
+/* ── Mobile Toggle ── */
+.mobile-toggle {
+  color: #333;
+  display: none;
+  font-size: 1.1rem;
+  padding: 0.25rem;
+  text-decoration: none;
+}
+
+.mobile-toggle:hover {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+/* ── Mobile Menu ── */
+.mobile-menu {
+  background: #fff;
+  border-bottom: 2px solid #e3e3e3;
+  display: none;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.mobile-menu.is-open {
+  display: block;
+}
+
+.mobile-menu a {
+  border-top: 1px solid #f0f0f0;
+  color: #333;
+  display: block;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+}
+
+.mobile-menu a:hover {
+  background: #f9f9f9;
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.mobile-menu-parent {
+  border-top: 1px solid #f0f0f0;
+  color: #999;
+  display: block;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 1.25rem 0.25rem;
+  text-transform: uppercase;
+}
+
+.mobile-menu-child {
+  padding-left: 2.5rem !important;
+  font-size: 0.8rem !important;
+}
+
+.mobile-market-links a {
+  color: var(--brand) !important;
+  font-weight: 600 !important;
+}
+
+@media (max-width: 900px) {
+  .site-nav {
+    display: none;
+  }
+
+  .locale-switch {
+    display: none;
+  }
+
+  .mobile-toggle {
+    display: inline-flex;
+  }
+
+  .brand-logo {
+    height: 24px;
+  }
+}
+
+@media (min-width: 901px) {
+  .mobile-menu {
+    display: none !important;
+  }
+}
+
+/* ── Footer ── */
+.footer-nav {
+  margin-bottom: 0.5rem;
+}
+
+.footer-nav a {
+  color: var(--brand);
+  font-size: 0.8rem;
+  margin: 0 0.5rem;
+  text-decoration: none;
+}
+
+.footer-nav a:hover {
+  text-decoration: underline;
 }
 
 /* ── Page main ── */

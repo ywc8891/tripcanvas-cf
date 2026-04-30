@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { marketFromHost } from '../../lib/locale';
+
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
+const market = marketFromHost(host);
+const marketName: Record<string, string> = {
+  en: 'Southeast Asia',
+  my: 'Malaysia',
+  id: 'Indonesia',
+  th: 'Thailand',
+};
+const name = marketName[market] || 'Southeast Asia';
+---
+
+<Layout title={`About TripCanvas ${name}`} description={`Learn about TripCanvas ${name} — our story, mission, and team.`}>
+  <div class="page-banner">
+    <div class="container">
+      <h1>About TripCanvas</h1>
+      <p>Not Your Usual {name} Travel Guide</p>
+    </div>
+  </div>
+  <div class="container" style="max-width:720px; padding-bottom:4rem;">
+    <p>TripCanvas is a travel blog covering {name.toLowerCase()} — sharing unique information on hotels, villas, things to do and dining places that you never knew existed.</p>
+    <p>Our mission is to help travelers discover authentic experiences beyond the typical tourist trail. From hidden food spots to boutique accommodations, we bring you local stories, real tips, and hidden finds.</p>
+    <p>Founded in 2015, we've grown to cover Malaysia, Indonesia, and Thailand across multiple languages.</p>
+    <p>Get in touch: <a href="https://tripcanvas.co/contact/">contact us</a>.</p>
+  </div>
+</Layout>

@@ -1,0 +1,29 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { marketFromHost } from '../../lib/locale';
+
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
+const market = marketFromHost(host);
+const marketName: Record<string, string> = {
+  en: 'Southeast Asia',
+  my: 'Malaysia',
+  id: 'Indonesia',
+  th: 'Thailand',
+};
+const name = marketName[market] || 'Southeast Asia';
+---
+
+<Layout title={`Contact TripCanvas ${name}`} description={`Get in touch with TripCanvas ${name}.`}>
+  <div class="page-banner">
+    <div class="container">
+      <h1>Contact Us</h1>
+      <p>Get in touch with TripCanvas {name}</p>
+    </div>
+  </div>
+  <div class="container" style="max-width:720px; padding-bottom:4rem;">
+    <p>We'd love to hear from you! Whether you have a question, feedback, or a collaboration idea, reach out to us:</p>
+    <p><strong>Email:</strong> <a href="mailto:hello@tripcanvas.co">hello@tripcanvas.co</a></p>
+    <p><strong>Phone:</strong> +603 8408 5542</p>
+    <p>Follow us on <a href="https://www.facebook.com/tripcanvas">Facebook</a>, <a href="https://twitter.com/tripcanvas">Twitter</a>, and <a href="https://instagram.com/tripcanvas.travel">Instagram</a>.</p>
+  </div>
+</Layout>

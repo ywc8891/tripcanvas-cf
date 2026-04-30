@@ -1,7 +1,9 @@
 ---
 import '../styles/global.css';
-import { localePath } from '../lib/locale';
+import { localePath, marketFromHost, isStagingWorker, MARKET_LOCALES, isLanguagePathLocale, buildLocaleUrl } from '../lib/locale';
 import { t } from '../lib/i18n';
+import { MARKET_SOCIAL, MARKET_NAV } from '../lib/i18n';
+import type { SupportedLocale } from '../lib/locale';
 
 interface Props {
   title?: string;
@@ -13,9 +15,41 @@ const {
   description = 'Travel blog and guides'
 } = Astro.props;
 
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
 const locale = ((Astro.locals as { locale?: string }).locale || 'en').toLowerCase();
+const market = marketFromHost(host);
+const staging = isStagingWorker(host);
+
 const homeHref = localePath('/', locale);
 const storiesHref = localePath('/blog', locale);
+const nav = MARKET_NAV[market];
+const social = MARKET_SOCIAL[market];
+const isHub = market === 'en';
+const currentPath = Astro.url.pathname;
+
+function navLinkHref(href: string): string {
+  return localePath(href, locale);
+}
+
+const marketDomains: Record<string, string> = {
+  en: 'tripcanvas.co',
+  my: 'malaysia.tripcanvas.co',
+  id: 'indonesia.tripcanvas.co',
+  th: 'thailand.tripcanvas.co',
+};
+
+const stagingDomains: Record<string, string> = {
+  en: 'tripcanvas.academyt.workers.dev',
+  my: 'tripcanvas-my.academyt.workers.dev',
+  id: 'tripcanvas-id.academyt.workers.dev',
+  th: 'tripcanvas-th.academyt.workers.dev',
+};
+
+function marketUrl(targetMarket: string): string {
+  const domain = staging ? stagingDomains[targetMarket] : marketDomains[targetMarket];
+  const path = locale === 'en' ? '/' : `/${locale}/`;
+  return `https://${domain}${path}`;
+}
 ---
 
 <!DOCTYPE html>
@@ -26,25 +60,108 @@ const storiesHref = localePath('/blog', locale);
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Open+Sans:wght@300;400;600&family=Oswald:wght@400;600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Open+Sans:wght@300;400;600;700&family=Oswald:wght@400;600&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
   <body>
+    {!isHub && social && (
+    <div class="top-bar">
+      <div class="container top-bar-inner">
+        <div class="topbar-left"></div>
+        <div class="topbar-right">
+          <a href={social.facebook} target="_blank" rel="noopener"><i class="fa fa-facebook"></i></a>
+          <a href={social.twitter} target="_blank" rel="noopener"><i class="fa fa-twitter"></i></a>
+          <a href={social.youtube} target="_blank" rel="noopener"><i class="fa fa-youtube-play"></i></a>
+          <a href={social.instagram} target="_blank" rel="noopener"><i class="fa fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    )}
     <header class="site-header">
       <div class="container site-header-inner">
         <a class="brand" href={homeHref}>
-          <span class="brand-mark">TC</span>
-          <span class="brand-text">
-            <strong>TripCanvas</strong>
-            <small>{t('brand.tagline', locale)}</small>
-          </span>
+          <img class="brand-logo" src="https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/tripcanvas-menubar.png" alt="TripCanvas" width="188" height="30" />
         </a>
+
         <nav class="site-nav" aria-label="Main navigation">
-          <a href={homeHref}>{t('nav.home', locale)}</a>
-          <a href={storiesHref}>{t('nav.stories', locale)}</a>
+          {!isHub && nav?.topLevel?.map((item) => (
+            item.children ? (
+            <div class="nav-dropdown">
+              <a href={navLinkHref(item.href)} class="nav-link">
+                {item.label} <i class="fa fa-chevron-down nav-arrow"></i>
+              </a>
+              <div class="nav-dropdown-menu">
+                {item.children.map((child) => (
+                  <a href={navLinkHref(child.href)}>{child.label}</a>
+                ))}
+              </div>
+            </div>
+            ) : (
+            <a href={navLinkHref(item.href)} class="nav-link">{item.label}</a>
+            )
+          ))}
         </nav>
+
+        <div class="nav-right">
+          <div class="nav-search">
+            <form role="search" method="get" class="search-form" action={homeHref}>
+              <input type="search" class="search-field" placeholder={t('search.placeholder', locale)} name="s" />
+            </form>
+            <i class="fa fa-search search-toggle"></i>
+          </div>
+
+          {!isHub && (
+          <div class="locale-switch">
+            {MARKET_LOCALES[market]?.map((l: SupportedLocale) => {
+              const isActive = l === locale;
+              const switchHref = isLanguagePathLocale(l)
+                ? `${currentPath.replace(/^\/[a-z]{2}(\/|$)/, `/${l}$1`)}`
+                : currentPath.replace(/^\/[a-z]{2}(\/|$)/, '/');
+              return (
+                <a
+                  href={isActive ? '#' : switchHref || '/'}
+                  class={`locale-chip${isActive ? ' is-active' : ''}`}
+                  aria-label={l}
+                >{l.toUpperCase()}</a>
+              );
+            })}
+          </div>
+          )}
+
+          <a href="javascript:;" class="mobile-toggle" aria-label="Menu"><i class="fa fa-bars"></i></a>
+        </div>
       </div>
+
+      <nav class="mobile-menu" aria-label="Mobile navigation">
+        <a href={homeHref}>{t('nav.home', locale)}</a>
+        {!isHub && nav?.topLevel?.map((item) => (
+          item.children ? (
+          <>
+            <span class="mobile-menu-parent">{item.label}</span>
+            {item.children.map((child) => (
+              <a href={navLinkHref(child.href)} class="mobile-menu-child">{child.label}</a>
+            ))}
+          </>
+          ) : (
+          <a href={navLinkHref(item.href)}>{item.label}</a>
+          )
+        ))}
+        {!isHub && nav?.staticPages?.map((page) => (
+          <a href={navLinkHref(page.href)}>{page.label}</a>
+        ))}
+        {!isHub && (
+        <div class="mobile-market-links">
+          <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999; padding: 0.75rem 1.25rem 0.25rem; display:block;">
+            Other Markets
+          </span>
+          {['my', 'id', 'th'].filter(m => m !== market).map((m) => (
+            <a href={marketUrl(m)}>{m.toUpperCase()}</a>
+          ))}
+        </div>
+        )}
+      </nav>
     </header>
 
     <main class="page-main">
@@ -53,9 +170,35 @@ const storiesHref = localePath('/blog', locale);
 
     <footer class="site-footer">
       <div class="container site-footer-inner">
-        <p>TripCanvas</p>
-        <p>&copy; 2026 · Edge-powered by Cloudflare</p>
+        <div class="footer-nav">
+          {!isHub && nav?.staticPages?.map((page) => (
+            <a href={navLinkHref(page.href)}>{page.label}</a>
+          ))}
+        </div>
+        <p>© 2026 TripCanvas</p>
       </div>
     </footer>
   </body>
 </html>
+
+<script>
+const searchToggle = document.querySelector('.search-toggle');
+const searchForm = document.querySelector('.search-form');
+if (searchToggle && searchForm) {
+  searchToggle.addEventListener('click', () => {
+    searchForm.classList.toggle('is-open');
+    if (searchForm.classList.contains('is-open')) {
+      (searchForm.querySelector('.search-field') as HTMLInputElement)?.focus();
+    }
+  });
+}
+
+const mobileToggle = document.querySelector('.mobile-toggle');
+const mobileMenu = document.querySelector('.mobile-menu');
+if (mobileToggle && mobileMenu) {
+  mobileToggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    mobileMenu.classList.toggle('is-open');
+  });
+}
+</script>

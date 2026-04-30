@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCategories, getPostByWpId, getPosts, firstImageUrl } from '../lib/payload';
-import { getPostUrl, primaryCategory, localePath, marketFromHost } from '../lib/locale';
+import { getPostUrl, primaryCategory, localePath, marketFromHost, isStagingWorker } from '../lib/locale';
 import { t } from '../lib/i18n';
 
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
@@ -16,6 +16,12 @@ if (wpIdParam && /^\d+$/.test(wpIdParam)) {
 
 const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
 const market = marketFromHost(host);
+const staging = isStagingWorker(host);
+const MARKET_DOMAIN: Record<string, string> = {
+  my: staging ? 'tripcanvas-my.academyt.workers.dev' : 'malaysia.tripcanvas.co',
+  id: staging ? 'tripcanvas-id.academyt.workers.dev' : 'indonesia.tripcanvas.co',
+  th: staging ? 'tripcanvas-th.academyt.workers.dev' : 'thailand.tripcanvas.co',
+};
 
 const isZh = locale === 'zh';
 const { docs: rawPosts, totalDocs: rawTotal } = await getPosts(locale, 1, isZh ? 80 : 12, isZh ? { fallbackLocale: 'none' } : undefined);
@@ -59,21 +65,21 @@ function displayTitle(post: { title?: string; slug: string }): string {
   <div class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
     <p class="section-title">Choose your destination</p>
     <div class="dest-grid">
-      <a class="dest-card" href="https://malaysia.tripcanvas.co">
+      <a class="dest-card" href={`https://${MARKET_DOMAIN.my}`}>
         <div class="dest-card-flag">🇲🇾</div>
         <div class="dest-card-body">
           <h2>Malaysia</h2>
           <p>KL, Penang, Langkawi, Johor, Melaka and beyond.</p>
         </div>
       </a>
-      <a class="dest-card" href="https://indonesia.tripcanvas.co">
+      <a class="dest-card" href={`https://${MARKET_DOMAIN.id}`}>
         <div class="dest-card-flag">🇮🇩</div>
         <div class="dest-card-body">
           <h2>Indonesia</h2>
           <p>Bali, Jakarta, Yogyakarta, and island escapes.</p>
         </div>
       </a>
-      <a class="dest-card" href="https://thailand.tripcanvas.co">
+      <a class="dest-card" href={`https://${MARKET_DOMAIN.th}`}>
         <div class="dest-card-flag">🇹🇭</div>
         <div class="dest-card-body">
           <h2>Thailand</h2>
@@ -92,9 +98,9 @@ function displayTitle(post: { title?: string; slug: string }): string {
         <h1>{meta.name}</h1>
         <p class="locale-hero-subtitle">{meta.tagline}</p>
         <div class="locale-hero-links">
-          {locale !== 'my' && <a href="https://malaysia.tripcanvas.co">Malaysia Guide</a>}
-          {locale !== 'id' && <a href="https://indonesia.tripcanvas.co">Indonesia Guide</a>}
-          {locale !== 'th' && <a href="https://thailand.tripcanvas.co">Thailand Guide</a>}
+          {locale !== 'my' && <a href={`https://${MARKET_DOMAIN.my}`}>Malaysia Guide</a>}
+          {locale !== 'id' && <a href={`https://${MARKET_DOMAIN.id}`}>Indonesia Guide</a>}
+          {locale !== 'th' && <a href={`https://${MARKET_DOMAIN.th}`}>Thailand Guide</a>}
         </div>
       </div>
     </div>
