@@ -21,11 +21,12 @@ const market = marketFromHost(host);
 const staging = isStagingWorker(host);
 
 const homeHref = localePath('/', locale);
-const storiesHref = localePath('/blog', locale);
 const nav = MARKET_NAV[market];
 const social = MARKET_SOCIAL[market];
 const isHub = market === 'en';
 const currentPath = Astro.url.pathname;
+
+const marketName: Record<string, string> = { en: '', my: ' Malaysia', id: ' Indonesia', th: ' Thailand' };
 
 function navLinkHref(href: string): string {
   return localePath(href, locale);
@@ -65,10 +66,10 @@ function marketUrl(targetMarket: string): string {
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
-  <body>
+  <body class="edition desktop-device regular-nav sticky-nav-enabled">
     {!isHub && social && (
     <div class="top-bar">
-      <div class="container top-bar-inner">
+      <div class="container">
         <div class="topbar-left"></div>
         <div class="topbar-right">
           <a href={social.facebook} target="_blank" rel="noopener"><i class="fa fa-facebook"></i></a>
@@ -79,90 +80,110 @@ function marketUrl(targetMarket: string): string {
       </div>
     </div>
     )}
-    <header class="site-header">
-      <div class="container site-header-inner">
-        <a class="brand" href={homeHref}>
-          <img class="brand-logo" src="https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/tripcanvas-menubar.png" alt="TripCanvas" width="188" height="30" />
-        </a>
 
-        <nav class="site-nav" aria-label="Main navigation">
-          {!isHub && nav?.topLevel?.map((item) => (
-            item.children ? (
-            <div class="nav-dropdown">
-              <a href={navLinkHref(item.href)} class="nav-link">
-                {item.label} <i class="fa fa-chevron-down nav-arrow"></i>
+    {!isHub ? (
+    <div class="top-nav regular-nav">
+      <div class="table top-nav-inner" style="background-color:#FFF;">
+        <div class="table-row">
+          <div class="table-cell" id="logo">
+            <h1>
+              <a href={homeHref}>
+                <img src="https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/tripcanvas-menubar.png" alt={`TripCanvas${marketName[market] || ''}`} width="188" height="30" />
               </a>
-              <div class="nav-dropdown-menu">
-                {item.children.map((child) => (
-                  <a href={navLinkHref(child.href)}>{child.label}</a>
-                ))}
+            </h1>
+          </div>
+
+          <div class="mobile-link table-cell">
+            <a href="javascript:;" onclick="var m=document.getElementById('mobilemenu');if(m.style.display==='block'){m.style.display='none'}else{m.style.display='block'}" style="padding-left:5px;">
+              <i class="fa fa-bars"></i>
+            </a>
+          </div>
+
+          <div class="table-cell" id="menu">
+            <ul class="sf-menu sf-arrows">
+              {nav?.topLevel?.map((item) => (
+                item.children ? (
+                <li class="menu-item menu-item-has-children">
+                  <a href={navLinkHref(item.href)} class="sf-with-ul">{item.label}</a>
+                  <ul class="sub-menu">
+                    {item.children.map((child) => (
+                      <li><a href={navLinkHref(child.href)}>{child.label}</a></li>
+                    ))}
+                  </ul>
+                </li>
+                ) : (
+                <li><a href={navLinkHref(item.href)}>{item.label}</a></li>
+                )
+              ))}
+            </ul>
+
+            <div class="alignright searchnav">
+              <div class="search-form search" style="display:inline-block;">
+                <form role="search" method="get" class="search-form" action={homeHref}>
+                  <label>
+                    <input type="search" class="search-field" placeholder={t('search.placeholder', locale)} value="" name="s" title={t('search.placeholder', locale)} />
+                  </label>
+                </form>
+                <i class="fa fa-search searchbutton"></i>
               </div>
             </div>
-            ) : (
-            <a href={navLinkHref(item.href)} class="nav-link">{item.label}</a>
-            )
-          ))}
-        </nav>
 
-        <div class="nav-right">
-          <div class="nav-search">
-            <form role="search" method="get" class="search-form" action={homeHref}>
-              <input type="search" class="search-field" placeholder={t('search.placeholder', locale)} name="s" />
-            </form>
-            <i class="fa fa-search search-toggle"></i>
+            <div class="lang-switch">
+              {MARKET_LOCALES[market]?.map((l: SupportedLocale) => {
+                const isActive = l === locale;
+                const switchHref = isLanguagePathLocale(l)
+                  ? `${currentPath.replace(/^\/[a-z]{2}(\/|$)/, `/${l}$1`)}`
+                  : currentPath.replace(/^\/[a-z]{2}(\/|$)/, '/');
+                return (
+                  <a
+                    href={isActive ? '#' : switchHref || '/'}
+                    class={isActive ? 'is-active' : ''}
+                    aria-label={l}
+                  >{l.toUpperCase()}</a>
+                );
+              })}
+            </div>
+
+            <div class="clear"></div>
           </div>
-
-          {!isHub && (
-          <div class="locale-switch">
-            {MARKET_LOCALES[market]?.map((l: SupportedLocale) => {
-              const isActive = l === locale;
-              const switchHref = isLanguagePathLocale(l)
-                ? `${currentPath.replace(/^\/[a-z]{2}(\/|$)/, `/${l}$1`)}`
-                : currentPath.replace(/^\/[a-z]{2}(\/|$)/, '/');
-              return (
-                <a
-                  href={isActive ? '#' : switchHref || '/'}
-                  class={`locale-chip${isActive ? ' is-active' : ''}`}
-                  aria-label={l}
-                >{l.toUpperCase()}</a>
-              );
-            })}
-          </div>
-          )}
-
-          <a href="javascript:;" class="mobile-toggle" aria-label="Menu"><i class="fa fa-bars"></i></a>
         </div>
+        <div class="clear"></div>
       </div>
 
-      <nav class="mobile-menu" aria-label="Mobile navigation">
-        <a href={homeHref}>{t('nav.home', locale)}</a>
-        {!isHub && nav?.topLevel?.map((item) => (
-          item.children ? (
-          <>
-            <span class="mobile-menu-parent">{item.label}</span>
-            {item.children.map((child) => (
-              <a href={navLinkHref(child.href)} class="mobile-menu-child">{child.label}</a>
-            ))}
-          </>
-          ) : (
-          <a href={navLinkHref(item.href)}>{item.label}</a>
-          )
-        ))}
-        {!isHub && nav?.staticPages?.map((page) => (
-          <a href={navLinkHref(page.href)}>{page.label}</a>
-        ))}
-        {!isHub && (
-        <div class="mobile-market-links">
-          <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999; padding: 0.75rem 1.25rem 0.25rem; display:block;">
-            Other Markets
-          </span>
-          {['my', 'id', 'th'].filter(m => m !== market).map((m) => (
-            <a href={marketUrl(m)}>{m.toUpperCase()}</a>
+      <nav id="mobilemenu" style="background-color:#FFF; height:470px; overflow:scroll;">
+        <ul>
+          <li><a href={homeHref}>{t('nav.home', locale)}</a></li>
+          {nav?.topLevel?.map((item) => (
+            item.children ? (
+            <li class="menu-item menu-item-has-children">
+              <a href={navLinkHref(item.href)}>{item.label}</a>
+              <ul class="sub-menu">
+                {item.children.map((child) => (
+                  <li><a href={navLinkHref(child.href)}>{child.label}</a></li>
+                ))}
+              </ul>
+            </li>
+            ) : (
+            <li class="menu-item"><a href={navLinkHref(item.href)}>{item.label}</a></li>
+            )
           ))}
-        </div>
-        )}
+          {nav?.staticPages?.map((page) => (
+            <li class="menu-item"><a href={navLinkHref(page.href)}>{page.label}</a></li>
+          ))}
+          <li style="border:none; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999; padding:0.75rem 1.25rem 0.25rem;">Other Markets</li>
+          {['my', 'id', 'th'].filter(m => m !== market).map((m) => (
+            <li class="menu-item"><a href={marketUrl(m)}>{m.toUpperCase()}</a></li>
+          ))}
+        </ul>
       </nav>
-    </header>
+    </div>
+    ) : (
+    <div style="text-align:center; padding:20px 0;">
+      <a href="/">
+        <img src="https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/tripcanvas-menubar.png" alt="TripCanvas" width="188" height="30" />
+      </a>
+    </div>
+    )}
 
     <main class="page-main">
       <slot />
@@ -175,30 +196,11 @@ function marketUrl(targetMarket: string): string {
             <a href={navLinkHref(page.href)}>{page.label}</a>
           ))}
         </div>
-        <p>© 2026 TripCanvas</p>
+        <p>&copy; 2026 TripCanvas</p>
+        {staging && <p style="font-size:0.7rem; opacity:0.5;">Edge-powered by Cloudflare</p>}
       </div>
     </footer>
+
+    <a href="#" class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">&#8593;</a>
   </body>
 </html>
-
-<script>
-const searchToggle = document.querySelector('.search-toggle');
-const searchForm = document.querySelector('.search-form');
-if (searchToggle && searchForm) {
-  searchToggle.addEventListener('click', () => {
-    searchForm.classList.toggle('is-open');
-    if (searchForm.classList.contains('is-open')) {
-      (searchForm.querySelector('.search-field') as HTMLInputElement)?.focus();
-    }
-  });
-}
-
-const mobileToggle = document.querySelector('.mobile-toggle');
-const mobileMenu = document.querySelector('.mobile-menu');
-if (mobileToggle && mobileMenu) {
-  mobileToggle.addEventListener('click', (e) => {
-    e.preventDefault();
-    mobileMenu.classList.toggle('is-open');
-  });
-}
-</script>

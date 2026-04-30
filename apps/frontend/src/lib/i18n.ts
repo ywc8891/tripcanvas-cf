@@ -151,10 +151,10 @@ export const MARKET_NAV: Record<string, MarketNav> = {
       { label: 'Inspiration', href: '/inspiration/' },
     ],
     staticPages: [
-      { label: 'About Us', href: '/about/' },
+      { label: 'About Us', href: '/about-us/' },
       { label: 'Contact Us', href: '/contact/' },
-      { label: 'Terms & Conditions', href: '/terms/' },
-      { label: 'Privacy Policy', href: '/privacy/' },
+      { label: 'Terms & Conditions', href: '/terms-and-conditions/' },
+      { label: 'Privacy Policy', href: '/privacy-policy/' },
     ],
   },
   id: {
@@ -191,10 +191,10 @@ export const MARKET_NAV: Record<string, MarketNav> = {
       { label: 'Inspiration', href: '/inspiration/' },
     ],
     staticPages: [
-      { label: 'About Us', href: '/about/' },
+      { label: 'About Us', href: '/about-us/' },
       { label: 'Contact Us', href: '/contact/' },
-      { label: 'Terms & Conditions', href: '/terms/' },
-      { label: 'Privacy Policy', href: '/privacy/' },
+      { label: 'Terms & Conditions', href: '/terms-and-conditions/' },
+      { label: 'Privacy Policy', href: '/privacy-policy/' },
     ],
   },
   th: {
@@ -232,10 +232,10 @@ export const MARKET_NAV: Record<string, MarketNav> = {
       { label: 'Inspiration', href: '/inspiration/' },
     ],
     staticPages: [
-      { label: 'About Us', href: '/about/' },
+      { label: 'About Us', href: '/about-us/' },
       { label: 'Contact Us', href: '/contact/' },
-      { label: 'Terms & Conditions', href: '/terms/' },
-      { label: 'Privacy Policy', href: '/privacy/' },
+      { label: 'Terms & Conditions', href: '/terms-and-conditions/' },
+      { label: 'Privacy Policy', href: '/privacy-policy/' },
     ],
   },
 };
