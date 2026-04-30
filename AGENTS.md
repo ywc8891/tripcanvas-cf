@@ -202,6 +202,15 @@ Market TH → locales: th, zh
 | **Media** | ✅ Decided | Kept global. Referenced by market-scoped posts; no separate isolation needed. |
 | **Per-market admin users** | ✅ Created | 4 editor accounts: admin-en/my/id/th@tripcanvas.com. Market isolation verified (TH:277, MY:126, ID:438, EN:1). |
 
+### 🟢 P0 — Resolved
+
+| Issue | Status | Details |
+|---|---|---|
+| **Uncommitted files** | ✅ Committed | 42 files (access.ts, i18n.ts, wrangler configs, migration scripts, etc.) |
+| **CMS build failure** | ✅ Fixed | `payload.config.ts` wraps `getCloudflareContext` in try-catch; pages use `force-dynamic`. Build via `npx opennextjs-cloudflare build` |
+| **Migration artifacts** | ✅ Cleaned | Removed 419 SQL batch files, `.tmp-zh-media/`, migration export JSONs |
+| **Broken `.env`** | ✅ Fixed | `PAYLOAD_LOG_LEVEL` was concatenated to `PAYLOAD_SECRET` on same line |
+
 ### 🟢 Future Enhancements
 
 | Feature | Priority | Notes |
@@ -228,11 +237,14 @@ cd apps/frontend && pnpm dev
 ### Build & Deploy — CMS
 For schema changes, the FULL pipeline is required:
 ```bash
-cd apps/cms && pnpm build              # next build → .next
-cd apps/cms && npx opennextjs-cloudflare build  # .next → .open-next/worker.js
+cd apps/cms && npx opennextjs-cloudflare build  # next build + bundle → .open-next/worker.js
 cd apps/cms && npx wrangler deploy
 ```
-`pnpm build` alone does NOT update `.open-next/worker.js`.
+`opennextjs-cloudflare build` handles both `next build` and the worker bundle step.
+Do NOT run `pnpm build` standalone — it fails during page data collection (SQLITE_BUSY
+from parallel workerd instances). The `payload.config.ts` wraps `getCloudflareContext`
+in a try-catch with mock fallback for build-time, and both CMS pages use
+`force-dynamic` to skip static generation.
 
 ### Build & Deploy — Frontend
 ```bash
