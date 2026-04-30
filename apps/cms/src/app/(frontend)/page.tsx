@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url'
 import config from '@/payload.config'
 import './styles.css'
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const headers = await getHeaders()
   const payloadConfig = await config

@@ -21,11 +21,7 @@ const realpath = (value: string) => (fs.existsSync(value) ? fs.realpathSync(valu
 
 const isCLI = process.argv.some((value) => realpath(value).endsWith(path.join('payload', 'bin.js')))
 const isProduction = process.env.NODE_ENV === 'production'
-
-const cloudflare =
-  isCLI || !isProduction
-    ? await getCloudflareContextFromWrangler()
-    : await getCloudflareContext({ async: true })
+const cloudflare: CloudflareContext = await getCloudflareContextSafe()
 
 export default buildConfig({
   admin: {
@@ -78,6 +74,17 @@ export default buildConfig({
     }),
   ],
 })
+
+async function getCloudflareContextSafe(): Promise<CloudflareContext> {
+  try {
+    if (isCLI || !isProduction) {
+      return await getCloudflareContextFromWrangler()
+    }
+    return await getCloudflareContext({ async: true })
+  } catch {
+    return { env: {} as any, cf: {} as any, ctx: {} as any }
+  }
+}
 
 function getCloudflareContextFromWrangler(): Promise<CloudflareContext> {
   return import(/* webpackIgnore: true */ `${'__wrangler'.replaceAll('_', '')}`).then(
