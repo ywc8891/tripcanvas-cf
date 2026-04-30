@@ -1,0 +1,16 @@
+{
+  "name": "tripcanvas-my",
+  "account_id": "055213e96101363c1867d04f82e08d8b",
+  "compatibility_date": "2025-08-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./dist/_worker.js/index.js",
+  "assets": {
+    "directory": "./dist"
+  },
+  "services": [
+    {
+      "binding": "CMS_SERVICE",
+      "service": "tripcanvas-cms"
+    }
+  ]
+}

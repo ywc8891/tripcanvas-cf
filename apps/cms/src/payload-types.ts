@@ -96,11 +96,11 @@ export interface Config {
     | ('false' | 'none' | 'null')
     | false
     | null
-    | ('en' | 'my' | 'id' | 'th')
-    | ('en' | 'my' | 'id' | 'th')[];
+    | ('en' | 'my' | 'id' | 'th' | 'zh')
+    | ('en' | 'my' | 'id' | 'th' | 'zh')[];
   globals: {};
   globalsSelect: {};
-  locale: 'en' | 'my' | 'id' | 'th';
+  locale: 'en' | 'my' | 'id' | 'th' | 'zh';
   user: User;
   jobs: {
     tasks: unknown;
@@ -131,6 +131,11 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  role: 'admin' | 'editor';
+  /**
+   * Markets this user can manage. Admin role overrides this.
+   */
+  allowedMarkets?: ('en' | 'my' | 'id' | 'th')[] | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -272,6 +277,10 @@ export interface Post {
     title?: string | null;
     description?: string | null;
   };
+  /**
+   * Which market this post belongs to
+   */
+  market?: ('en' | 'my' | 'id' | 'th') | null;
   wpId?: number | null;
   updatedAt: string;
   createdAt: string;
@@ -368,6 +377,8 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
+  allowedMarkets?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -482,6 +493,7 @@ export interface PostsSelect<T extends boolean = true> {
         title?: T;
         description?: T;
       };
+  market?: T;
   wpId?: T;
   updatedAt?: T;
   createdAt?: T;

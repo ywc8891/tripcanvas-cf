@@ -35,7 +35,7 @@ export default buildConfig({
     },
   },
   localization: {
-    locales: ['en', 'my', 'id', 'th'],
+    locales: ['en', 'my', 'id', 'th', 'zh'],
     defaultLocale: 'en',
   },
   collections: [Users, Categories, Tags, Media, Posts],
@@ -46,11 +46,21 @@ export default buildConfig({
   cors: [
     'https://tripcanvas-cms.academyt.workers.dev',
     'https://tripcanvas.academyt.workers.dev',
+    'https://tripcanvas-my.academyt.workers.dev',
+    'https://tripcanvas-id.academyt.workers.dev',
+    'https://tripcanvas-th.academyt.workers.dev',
+    'https://tripcanvas-my-zh.academyt.workers.dev',
+    'https://tripcanvas-th-zh.academyt.workers.dev',
     'http://localhost:4321',
   ],
   csrf: [
     'https://tripcanvas-cms.academyt.workers.dev',
     'https://tripcanvas.academyt.workers.dev',
+    'https://tripcanvas-my.academyt.workers.dev',
+    'https://tripcanvas-id.academyt.workers.dev',
+    'https://tripcanvas-th.academyt.workers.dev',
+    'https://tripcanvas-my-zh.academyt.workers.dev',
+    'https://tripcanvas-th-zh.academyt.workers.dev',
     'http://localhost:4321',
   ],
   typescript: {

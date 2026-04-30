@@ -160,6 +160,16 @@ function renderNode(node: LexicalNode): string {
       return '';
     }
 
+    case 'placeholder-image': {
+      const n = node as unknown as { wp_url?: string; alt?: string; width?: number | null; height?: number | null };
+      const url = n.wp_url ?? '';
+      if (!url.startsWith('https://')) return '';
+      const alt = escapeAttr(String(n.alt ?? ''));
+      const width = n.width ? ` width="${n.width}"` : '';
+      const height = n.height ? ` height="${n.height}"` : '';
+      return `<figure><img src="${escapeAttr(url)}" alt="${alt}"${width}${height} loading="lazy" /></figure>`;
+    }
+
     case 'horizontalrule':
       return '<hr />';
 

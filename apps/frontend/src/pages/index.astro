@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCategories, getPostByWpId, getPosts, firstImageUrl } from '../lib/payload';
+import { getPostUrl, primaryCategory, localePath, marketFromHost } from '../lib/locale';
+import { t } from '../lib/i18n';
 
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
 const wpIdParam = Astro.url.searchParams.get('p');
@@ -8,22 +10,38 @@ const wpIdParam = Astro.url.searchParams.get('p');
 if (wpIdParam && /^\d+$/.test(wpIdParam)) {
   const legacyPost = await getPostByWpId(Number(wpIdParam), locale);
   if (legacyPost?.slug) {
-    return Astro.redirect(`/blog/${legacyPost.slug}`, 301);
+    return Astro.redirect(getPostUrl(legacyPost.slug, locale, primaryCategory(legacyPost.categories)), 301);
   }
 }
 
-const { docs: allPosts, totalDocs } = await getPosts(locale);
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
+const market = marketFromHost(host);
+
+const isZh = locale === 'zh';
+const { docs: rawPosts, totalDocs: rawTotal } = await getPosts(locale, 1, isZh ? 80 : 12, isZh ? { fallbackLocale: 'none' } : undefined);
+// For ZH, filter to only posts with actual Chinese content
+const allPosts = isZh ? rawPosts.filter(p => p.title) : rawPosts;
+const totalDocs = isZh ? allPosts.length : rawTotal;
 const categories = await getCategories(locale);
 const featuredPosts = allPosts.slice(0, 6);
-const isEnglishHub = locale === 'en' && totalDocs <= 2;
+// Show hub layout only for the EN market worker (tripcanvas.co)
+const isEnglishHub = market === 'en';
+const heroImage = featuredPosts[0] ? firstImageUrl(featuredPosts[0].content) : null;
 
-const LOCALE_META: Record<string, { name: string; tagline: string }> = {
+const MARKET_META: Record<string, { name: string; tagline: string }> = {
   my: { name: 'TripCanvas Malaysia', tagline: 'Not Your Usual Malaysia Travel Guide' },
   id: { name: 'TripCanvas Indonesia', tagline: 'Not Your Usual Indonesia Travel Guide' },
   th: { name: 'TripCanvas Thailand', tagline: 'Not Your Usual Thailand Travel Guide' },
   en: { name: 'TripCanvas', tagline: 'Not Your Usual Southeast Asia Travel Guide' },
 };
-const meta = LOCALE_META[locale] || LOCALE_META.en;
+// Locale-specific overrides for non-English locales
+const LOCALE_META: Record<string, { name: string; tagline: string }> = {
+  zh: { name: 'TripCanvas', tagline: '东南亚旅行指南' },
+  my: { name: 'TripCanvas Malaysia', tagline: 'Panduan Travel Malaysia Anda' },
+  id: { name: 'TripCanvas Indonesia', tagline: 'Panduan Wisata Indonesia Anda' },
+  th: { name: 'TripCanvas Thailand', tagline: 'ไกด์ท่องเที่ยวไทย' },
+};
+const meta = (locale !== 'en' ? LOCALE_META[locale] : null) || MARKET_META[market] || MARKET_META.en;
 
 function displayTitle(post: { title?: string; slug: string }): string {
   return post.title || post.slug.replace(/-/g, ' ');
@@ -67,50 +85,60 @@ function displayTitle(post: { title?: string; slug: string }): string {
 </Layout>
 ) : (
 <Layout title={`${meta.name} - Travel Blog`} description={`${meta.tagline}. Destination guides, food finds, and travel tips.`}>
-  <div class="page-banner">
-    <div class="container">
-      <h1>{meta.name}</h1>
-      <p>{meta.tagline}</p>
+  <div class="locale-hero" style={heroImage ? `background-image: url('${heroImage}')` : ''}>
+    <div class="locale-hero-overlay"></div>
+    <div class="locale-hero-content">
+      <div class="container">
+        <h1>{meta.name}</h1>
+        <p class="locale-hero-subtitle">{meta.tagline}</p>
+        <div class="locale-hero-links">
+          {locale !== 'my' && <a href="https://malaysia.tripcanvas.co">Malaysia Guide</a>}
+          {locale !== 'id' && <a href="https://indonesia.tripcanvas.co">Indonesia Guide</a>}
+          {locale !== 'th' && <a href="https://thailand.tripcanvas.co">Thailand Guide</a>}
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
     {featuredPosts.length > 0 ? (
       <>
-        <p class="section-title">Featured</p>
-        <div class="post-grid">
+        <p class="section-title">{t('home.featured', locale)} <span style="font-weight:300; letter-spacing:0;">|</span> {meta.name}</p>
+        <div class="featured-grid">
           {featuredPosts.map((post) => {
             const thumb = firstImageUrl(post.content);
+            const postDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
             return (
               <article class="post-card">
-                <a class="post-card-thumb" href={`/blog/${post.slug}`} tabindex="-1" aria-hidden="true">
+                <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1" aria-hidden="true">
                   {thumb
                     ? <img src={thumb} alt="" loading="lazy" decoding="async" />
-                    : <div class="post-card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0022.5 18.75V5.25A1.5 1.5 0 0021 3.75H3A1.5 1.5 0 001.5 5.25v13.5A1.5 1.5 0 003 20.25z"/></svg></div>
+                    : <div class="post-card-thumb-placeholder"></div>
                   }
                 </a>
+                <span class="post-card-date">{postDate}</span>
                 <div class="post-card-body">
-                  <h3><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h3>
-                  <span class="post-meta">{new Date(post.createdAt).toLocaleDateString()}</span>
+                  <h3><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h3>
+                  <a class="post-card-btn" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{t('post.readMore', locale)}</a>
                 </div>
               </article>
             );
           })}
         </div>
         <div style="margin-top:1.5rem; text-align:right;">
-          <a href="/blog" style="font-size:0.88rem; font-weight:600; color:var(--brand);">View all {totalDocs} stories →</a>
+          <a href={localePath('/blog', locale)} style="font-size:0.88rem; font-weight:600; color:var(--brand);">{t('home.viewAll', locale)}</a>
         </div>
       </>
     ) : (
-      <p style="color:var(--muted);">No stories found for this locale yet.</p>
+      <p style="color:var(--muted);">{t('home.noStories', locale)}</p>
     )}
 
     {categories.length > 0 && (
       <>
-        <p class="section-title" style="margin-top:2.5rem;">Browse by category</p>
+        <p class="section-title" style="margin-top:2.5rem;">{t('home.browseCategory', locale)}</p>
         <div class="chip-row">
           {categories.slice(0, 20).map((category) => (
-            <a class="chip" href={`/blog?category=${category.slug}`}>
+            <a class="chip" href={localePath(`/${category.slug}`, locale)}>
               {category.name || category.slug.replace(/-/g, ' ')}
             </a>
           ))}

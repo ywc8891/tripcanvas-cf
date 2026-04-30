@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 
 const EXPORT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'export')
 
-export const LOCALES = ['en', 'my', 'id', 'th']
+export const LOCALES = ['en', 'my', 'id', 'th', 'zh']
 
 export function loadAllSites() {
   const sites = {}

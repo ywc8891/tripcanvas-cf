@@ -1,20 +1,57 @@
-export const SUPPORTED_LOCALES = ['en', 'my', 'id', 'th'] as const;
+export const SUPPORTED_LOCALES = ['en', 'my', 'id', 'th', 'zh'] as const;
 
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+export type MarketLocale = 'en' | 'my' | 'id' | 'th';
 
-const HOST_LOCALE_MAP: Record<string, SupportedLocale> = {
+// All non-English locales are path-prefixed (e.g. /id/, /th/, /my/, /zh/)
+export const LANGUAGE_PATH_LOCALES: readonly string[] = ['my', 'id', 'th', 'zh'];
+
+export function isLanguagePathLocale(locale: string): boolean {
+  return LANGUAGE_PATH_LOCALES.includes(locale);
+}
+
+// Which locales each market supports (for locale switcher UI)
+export const MARKET_LOCALES: Record<MarketLocale, readonly SupportedLocale[]> = {
+  en: ['en'],
+  my: ['en', 'my', 'zh'],
+  id: ['en', 'id'],
+  th: ['en', 'th', 'zh'],
+};
+
+// Returns the market for a given locale (non-market locales like zh fall back to 'en')
+export function marketLocaleOf(locale: SupportedLocale): MarketLocale {
+  if (locale === 'zh') return 'en';
+  return locale as MarketLocale;
+}
+
+// Maps hostname → market (country). All markets default to 'en' locale.
+const HOST_MARKET_MAP: Record<string, MarketLocale> = {
+  // Production subdomains
   'tripcanvas.co': 'en',
   'www.tripcanvas.co': 'en',
   'malaysia.tripcanvas.co': 'my',
   'indonesia.tripcanvas.co': 'id',
   'thailand.tripcanvas.co': 'th',
+  // Staging named workers
+  'tripcanvas.academyt.workers.dev': 'en',
+  'tripcanvas-my.academyt.workers.dev': 'my',
+  'tripcanvas-id.academyt.workers.dev': 'id',
+  'tripcanvas-th.academyt.workers.dev': 'th',
 };
 
-export const LOCALE_SUBDOMAIN_MAP: Record<SupportedLocale, string> = {
+export const LOCALE_SUBDOMAIN_MAP: Record<MarketLocale, string> = {
   en: 'tripcanvas.co',
   my: 'malaysia.tripcanvas.co',
   id: 'indonesia.tripcanvas.co',
   th: 'thailand.tripcanvas.co',
+};
+
+// Staging workers map — mirrors production subdomain routing
+const STAGING_WORKER_MAP: Record<MarketLocale, string> = {
+  en: 'tripcanvas.academyt.workers.dev',
+  my: 'tripcanvas-my.academyt.workers.dev',
+  id: 'tripcanvas-id.academyt.workers.dev',
+  th: 'tripcanvas-th.academyt.workers.dev',
 };
 
 const SUPPORTED_LOCALE_SET = new Set<string>(SUPPORTED_LOCALES);
@@ -33,8 +70,15 @@ export function normalizeLocale(value: string | null | undefined, fallback: Supp
   return isSupportedLocale(locale) ? locale : fallback;
 }
 
-export function localeFromHost(host: string): SupportedLocale {
-  return HOST_LOCALE_MAP[host] || 'en';
+// Returns the market (country) for a given host — NOT the content locale.
+export function marketFromHost(host: string): MarketLocale {
+  return HOST_MARKET_MAP[host] || 'en';
+}
+
+// Default locale is always 'en' for all markets.
+// Kept for backward compatibility but now always returns 'en'.
+export function localeFromHost(_host: string): SupportedLocale {
+  return 'en';
 }
 
 export function splitLocaleFromPath(pathname: string): {
@@ -58,23 +102,67 @@ export function splitLocaleFromPath(pathname: string): {
   };
 }
 
-// Returns true when running on a non-production host (staging / local dev).
+// Returns true when running on a known staging worker host.
+export function isStagingWorker(host: string): boolean {
+  return Object.values(STAGING_WORKER_MAP).includes(host);
+}
+
+// Returns true when running on a local dev host (not staging workers).
 export function isDevHost(host: string): boolean {
+  if (isStagingWorker(host)) return false;
   return host.endsWith('.workers.dev') || host.startsWith('localhost') || host.startsWith('127.');
 }
 
-// Builds a URL that switches locale.
-// Production: switches subdomain → https://malaysia.tripcanvas.co/blog/foo
-// Staging/dev: stays on same origin, adds ?locale=my → /blog/foo?locale=my
-export function buildLocaleUrl(pathname: string, targetLocale: SupportedLocale, currentHost: string): string {
-  const { pathWithoutLocale } = splitLocaleFromPath(pathname || '/');
-  const cleanPath = pathWithoutLocale.startsWith('/') ? pathWithoutLocale : `/${pathWithoutLocale}`;
+// Returns a locale-aware path. Non-English locales get path prefix: /id/blog/foo, /zh/blog/foo, etc.
+export function localePath(path: string, locale: string): string {
+  const clean = path.startsWith('/') ? path : `/${path}`;
+  if (isLanguagePathLocale(locale)) return `/${locale}${clean}`;
+  return clean;
+}
 
-  if (isDevHost(currentHost)) {
-    const sep = cleanPath.includes('?') ? '&' : '?';
-    return `${cleanPath}${sep}locale=${targetLocale}`;
+// Returns the canonical post URL: /[primaryCategory]/[slug] with optional /zh/ prefix.
+// Falls back to /blog/[slug] if no category is available.
+export function getPostUrl(
+  slug: string,
+  locale: string,
+  primaryCategorySlug?: string | null,
+): string {
+  const path = primaryCategorySlug
+    ? `/${primaryCategorySlug}/${slug}`
+    : `/blog/${slug}`;
+  return localePath(path, locale);
+}
+
+// Extract the primary category slug from a post's categories array.
+export function primaryCategory(
+  categories?: { slug?: string }[] | null,
+): string | null {
+  const first = categories?.[0];
+  return first?.slug ?? null;
+}
+
+// Builds a URL that switches locale within the same market host.
+// All non-English locales use path prefix (/id/, /th/, /my/, /zh/).
+// English (default) has no prefix.
+export function buildLocaleUrl(pathname: string, targetLocale: SupportedLocale, currentHost: string): string {
+  // Strip any existing locale prefix from the path
+  const strippedPath = stripLocalePrefix(pathname);
+  const cleanPath = strippedPath.startsWith('/') ? strippedPath : `/${strippedPath}`;
+
+  // Non-English locales get path prefix, stay on same host
+  if (isLanguagePathLocale(targetLocale)) {
+    return `/${targetLocale}${cleanPath}`;
   }
 
-  const targetSubdomain = LOCALE_SUBDOMAIN_MAP[targetLocale];
-  return `https://${targetSubdomain}${cleanPath}`;
+  // English = no prefix
+  return cleanPath;
+}
+
+// Strip any leading locale prefix from a path (e.g. /zh/blog/foo → /blog/foo)
+export function stripLocalePrefix(pathname: string): string {
+  const match = pathname.match(/^\/([a-z]{2})(\/.*)?$/);
+  if (match && LANGUAGE_PATH_LOCALES.includes(match[1])) {
+    return match[2] || '/';
+  }
+  return pathname;
 }

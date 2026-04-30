@@ -1,5 +1,6 @@
 ---
-import { getPostBySlug } from '../lib/payload';
+import { getPostBySlug, getPostsByCategory } from '../lib/payload';
+import { getPostUrl, primaryCategory, localePath } from '../lib/locale';
 
 const rawSlug = Astro.params.slug;
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
@@ -14,21 +15,29 @@ if (isInternalAssetPath || hasFileExtension) {
 }
 
 if (!rawSlug) {
-  return Astro.redirect('/blog');
+  return Astro.redirect('/');
 }
 
 const segments = rawSlug.split('/').filter(Boolean);
 const finalSlug = segments[segments.length - 1];
 
 if (!finalSlug) {
-  return Astro.redirect('/blog');
+  return Astro.redirect('/');
 }
 
+// Try to resolve as a post first
 const post = await getPostBySlug(finalSlug, locale);
-
-if (!post) {
-  return Astro.redirect('/404');
+if (post) {
+  return Astro.redirect(getPostUrl(post.slug, locale, primaryCategory(post.categories)), 301);
 }
 
-return Astro.redirect(`/blog/${post.slug}`, 301);
+// Single-segment path that didn't match a post — try as a category
+if (segments.length === 1) {
+  const catResult = await getPostsByCategory(finalSlug, locale, 1, 1);
+  if (catResult.totalDocs > 0) {
+    return Astro.redirect(localePath(`/${finalSlug}`, locale), 301);
+  }
+}
+
+return Astro.redirect('/404');
 ---

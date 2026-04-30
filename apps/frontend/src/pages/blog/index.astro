@@ -1,12 +1,21 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getPosts, firstImageUrl } from '../../lib/payload';
+import { getPostUrl, primaryCategory, localePath } from '../../lib/locale';
+import { t } from '../../lib/i18n';
 
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
 const pageParam = Number(Astro.url.searchParams.get('page') || '1');
 const currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
-const { docs: posts, totalDocs, totalPages, hasNextPage, hasPrevPage } = await getPosts(locale, currentPage);
+const isZh = locale === 'zh';
+const { docs: rawPosts, totalDocs: rawTotal, totalPages: rawPages, hasNextPage: rawNext, hasPrevPage: rawPrev } = await getPosts(locale, isZh ? 1 : currentPage, isZh ? 200 : 12, isZh ? { fallbackLocale: 'none' } : undefined);
+// For ZH, filter to only posts with actual Chinese content
+const posts = isZh ? rawPosts.filter(p => p.title) : rawPosts;
+const totalDocs = isZh ? posts.length : rawTotal;
+const totalPages = isZh ? 1 : rawPages;
+const hasNextPage = isZh ? false : rawNext;
+const hasPrevPage = isZh ? false : rawPrev;
 
 function displayTitle(post: { title?: string; slug: string }): string {
   return post.title || post.slug.replace(/-/g, ' ');
@@ -21,8 +30,8 @@ function displayExcerpt(post: { excerpt?: string }): string {
 <Layout title={`Stories${currentPage > 1 ? ` — Page ${currentPage}` : ''} - TripCanvas`} description="Travel stories, destination ideas, and itineraries from the TripCanvas editorial archive.">
   <div class="page-banner">
     <div class="container">
-      <h1>Latest Stories</h1>
-      <p>Destination guides, food finds, and travel tips from across Southeast Asia.</p>
+      <h1>{t('nav.stories', locale)}</h1>
+      <p>{t('brand.tagline', locale)}</p>
       {totalDocs > 0 && <p class="page-banner-meta">{totalDocs} articles · Page {currentPage} of {totalPages}</p>}
     </div>
   </div>
@@ -38,34 +47,34 @@ function displayExcerpt(post: { excerpt?: string }): string {
           const thumb = firstImageUrl(post.content);
           return (
             <article class="post-card">
-              <a class="post-card-thumb" href={`/blog/${post.slug}`} tabindex="-1" aria-hidden="true">
+              <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1" aria-hidden="true">
                 {thumb
                   ? <img src={thumb} alt="" loading="lazy" decoding="async" />
-                  : <div class="post-card-thumb-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 20.25h18A1.5 1.5 0 0022.5 18.75V5.25A1.5 1.5 0 0021 3.75H3A1.5 1.5 0 001.5 5.25v13.5A1.5 1.5 0 003 20.25z"/></svg></div>
+                  : <div class="post-card-thumb-placeholder"></div>
                 }
               </a>
+              <span class="post-card-date">{new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
               <div class="post-card-body">
-                <h2><a href={`/blog/${post.slug}`}>{displayTitle(post)}</a></h2>
-                {excerpt && <p class="post-excerpt">{excerpt}</p>}
-                <span class="post-meta">{new Date(post.publishedAt || post.createdAt).toLocaleDateString()}</span>
+                <h2><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h2>
+                <a class="post-card-btn" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{t('post.readMore', locale)}</a>
               </div>
             </article>
           );
         })}
       </div>
     ) : (
-      <p>No posts found for this locale yet.</p>
+      <p>{t('home.noStories', locale)}</p>
     )}
 
     {(hasPrevPage || hasNextPage) && (
       <nav class="pagination" aria-label="Page navigation">
         {hasPrevPage
-          ? <a class="pagination-btn" href={`/blog?page=${currentPage - 1}`}>← Previous</a>
+          ? <a class="pagination-btn" href={localePath(`/blog?page=${currentPage - 1}`, locale)}>← Previous</a>
           : <span class="pagination-btn is-disabled">← Previous</span>
         }
         <span class="pagination-info">Page {currentPage} of {totalPages}</span>
         {hasNextPage
-          ? <a class="pagination-btn" href={`/blog?page=${currentPage + 1}`}>Next →</a>
+          ? <a class="pagination-btn" href={localePath(`/blog?page=${currentPage + 1}`, locale)}>Next →</a>
           : <span class="pagination-btn is-disabled">Next →</span>
         }
       </nav>

@@ -1,0 +1,152 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getPostBySlug, getPosts, getCategories, firstImageUrl } from '../../lib/payload';
+import { lexicalToHtml } from '../../lib/lexical';
+import { getPostUrl, primaryCategory, localePath, marketFromHost } from '../../lib/locale';
+import { t } from '../../lib/i18n';
+
+const { location, slug } = Astro.params;
+const locale = (Astro.locals as { locale?: string }).locale || 'en';
+
+if (!slug) {
+  return Astro.redirect('/');
+}
+
+const isZh = locale === 'zh';
+const [post, { docs: recentPosts }, categories] = await Promise.all([
+  getPostBySlug(slug, locale),
+  getPosts(locale, 1, isZh ? 80 : 10, isZh ? { fallbackLocale: 'none' } : undefined),
+  getCategories(locale),
+]);
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+// Market isolation: post.market must match the host market
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
+const hostMarket = marketFromHost(host);
+const postMarket = (post as unknown as { market?: string }).market;
+if (postMarket && postMarket !== 'en' && postMarket !== hostMarket) {
+  return Astro.redirect('/404');
+}
+
+// Canonical URL check: if accessed with wrong location prefix, redirect to canonical
+const canonicalCat = primaryCategory(post.categories);
+if (canonicalCat && location !== canonicalCat) {
+  return Astro.redirect(getPostUrl(post.slug, locale, canonicalCat), 301);
+}
+
+const displayTitle = post.title || post.slug;
+const displayDate = post.publishedAt || post.createdAt;
+const metaDesc = (post as unknown as { excerpt?: string }).excerpt
+  || `Read ${displayTitle} on TripCanvas.`;
+const contentHtml = lexicalToHtml(post.content);
+const heroImage = firstImageUrl(post.content);
+
+const formattedDate = new Date(displayDate).toLocaleDateString('en-GB', {
+  day: 'numeric', month: 'short', year: 'numeric',
+});
+
+const validPosts = recentPosts.filter(p => p.slug !== slug && p.title);
+const sidebarPosts = validPosts.slice(0, 7);
+const relatedPosts = validPosts.slice(0, 3);
+---
+
+<Layout title={`${displayTitle} - TripCanvas`} description={metaDesc}>
+
+  <!-- Article hero -->
+  <div class="article-hero" style={heroImage ? `background-image:url('${heroImage}')` : ''}>
+    <div class="article-hero-overlay"></div>
+    <div class="article-hero-content">
+      <div class="container">
+        <h1 class="article-hero-title">{displayTitle}</h1>
+        <p class="article-hero-meta">
+          <time datetime={displayDate}>{formattedDate}</time>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="container article-layout">
+
+    <main class="article-main">
+      <div class="article-content" set:html={contentHtml} />
+      <a class="back-link" href={localePath('/', locale)}>{t('post.backToAll', locale)}</a>
+    </main>
+
+    <aside class="article-sidebar">
+      {categories.length > 0 && (
+        <div class="sidebar-section">
+          <h4 class="sidebar-title">{t('sidebar.destinations', locale)}</h4>
+          <ul class="sidebar-categories">
+            {categories.map(cat => (
+              <li><a href={localePath(`/${cat.slug}`, locale)}>{cat.name}</a></li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {sidebarPosts.length > 0 && (
+        <div class="sidebar-section">
+          <h4 class="sidebar-title">{t('sidebar.recentPosts', locale)}</h4>
+          {sidebarPosts.map(p => {
+            const thumb = firstImageUrl(p.content);
+            const postUrl = getPostUrl(p.slug, locale, primaryCategory(p.categories));
+            return (
+              <div class="sidebar-post">
+                {thumb && (
+                  <a href={postUrl} class="sidebar-post-thumb" tabindex="-1">
+                    <img src={thumb} alt="" loading="lazy" />
+                  </a>
+                )}
+                <div class="sidebar-post-body">
+                  <h5><a href={postUrl}>{p.title || p.slug}</a></h5>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </aside>
+
+  </div>
+
+  <!-- You Might Also Like -->
+  {relatedPosts.length > 0 && (
+    <div class="related-section">
+      <div class="container">
+        <div class="section-title" style="font-size:1.1rem; letter-spacing:0; text-transform:none; font-weight:700; border-bottom-color:#ddd;">
+          {t('related.title', locale)}
+        </div>
+        <div class="related-grid">
+          {relatedPosts.map(rp => {
+            const thumb = firstImageUrl(rp.content);
+            const rpDate = new Date(rp.publishedAt || rp.createdAt).toLocaleDateString('en-GB', {
+              day: 'numeric', month: 'short', year: 'numeric',
+            });
+            const rpUrl = getPostUrl(rp.slug, locale, primaryCategory(rp.categories));
+            return (
+              <div class="related-card">
+                <div class="related-card-inner">
+                  {thumb
+                    ? <img src={thumb} alt="" loading="lazy" />
+                    : <div class="related-card-placeholder"></div>
+                  }
+                  <span class="thumboverdate">{rpDate}</span>
+                  <div class="thumbovertext">
+                    <h2 class="title"><a href={rpUrl}>{rp.title || rp.slug}</a></h2>
+                    <a class="button outline" href={rpUrl}>{t('post.readMore', locale)}</a>
+                  </div>
+                  <a class="brick-thumb-link" href={rpUrl} aria-label={rp.title || rp.slug}></a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  )}
+
+</Layout>

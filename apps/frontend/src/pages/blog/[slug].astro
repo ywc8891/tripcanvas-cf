@@ -1,13 +1,12 @@
 ---
-import Layout from '../../layouts/Layout.astro';
 import { getPostBySlug } from '../../lib/payload';
-import { lexicalToHtml } from '../../lib/lexical';
+import { getPostUrl, primaryCategory } from '../../lib/locale';
 
 const { slug } = Astro.params;
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
 
 if (!slug) {
-  return Astro.redirect('/blog');
+  return Astro.redirect('/');
 }
 
 const post = await getPostBySlug(slug, locale);
@@ -16,26 +15,6 @@ if (!post) {
   return Astro.redirect('/404');
 }
 
-const displayTitle = post.title || post.slug;
-const displayDate = post.publishedAt || post.createdAt;
-const metaDesc = (post as unknown as { excerpt?: string }).excerpt
-  || `Read ${displayTitle} on TripCanvas.`;
-const contentHtml = lexicalToHtml(post.content);
+const canonicalCat = primaryCategory(post.categories);
+return Astro.redirect(getPostUrl(post.slug, locale, canonicalCat), 301);
 ---
-
-<Layout title={`${displayTitle} - TripCanvas`} description={metaDesc}>
-  <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
-    <article class="content-shell">
-      <header class="article-header">
-        <h1 class="article-title">{displayTitle}</h1>
-        <time class="article-meta" datetime={displayDate}>
-          {new Date(displayDate).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
-        </time>
-      </header>
-
-      <div class="article-content" set:html={contentHtml} />
-
-      <a class="back-link" href="/blog">← Back to all stories</a>
-    </article>
-  </div>
-</Layout>

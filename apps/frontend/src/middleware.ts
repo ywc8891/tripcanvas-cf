@@ -2,15 +2,23 @@ import { getPostBySlug } from './lib/payload';
 import {
   isSupportedLocale,
   isDevHost,
-  localeFromHost,
   normalizeHost,
+  isLanguagePathLocale,
+  getPostUrl,
+  primaryCategory,
+  marketFromHost,
+  type SupportedLocale,
 } from './lib/locale';
 
-// Expose Cloudflare bindings to non-Astro modules (e.g. src/lib/payload.ts)
-// via a global. The Cloudflare adapter places bindings on
-// `locals.runtime.env`. We surface only what we need.
-//
-// Typed loosely to avoid depending on `astro:middleware` virtual types here.
+// Returns the language path prefix if the pathname starts with a known path locale (/zh/).
+function extractPathLocale(pathname: string): { pathLocale: string; strippedPath: string } | null {
+  const match = pathname.match(/^\/([a-z]{2})(\/.*)?$/);
+  if (!match) return null;
+  const candidate = match[1];
+  if (!isLanguagePathLocale(candidate)) return null;
+  return { pathLocale: candidate, strippedPath: match[2] || '/' };
+}
+
 function shouldHandleLegacyRedirect(pathname: string): boolean {
   if (!pathname || pathname === '/' || pathname === '/404') return false;
   if (pathname === '/blog' || pathname.startsWith('/blog/')) return false;
@@ -19,7 +27,11 @@ function shouldHandleLegacyRedirect(pathname: string): boolean {
   if (pathname.startsWith('/admin')) return false;
   if (pathname === '/favicon.svg' || pathname === '/robots.txt' || pathname === '/sitemap.xml') return false;
 
-  const lastSegment = pathname.split('/').filter(Boolean).pop() || '';
+  const segments = pathname.split('/').filter(Boolean);
+  // 2-segment paths are canonical post URLs (/[location]/[slug]) — serve directly
+  if (segments.length === 2) return false;
+
+  const lastSegment = segments[segments.length - 1] || '';
   if (/\.[a-z0-9]+$/i.test(lastSegment)) return false;
 
   return true;
@@ -51,7 +63,18 @@ export async function onRequest(
   const queryLocaleRaw = isDevHost(host) ? url.searchParams.get('locale') : null;
   const queryLocale = isSupportedLocale(queryLocaleRaw) ? queryLocaleRaw!.toLowerCase() : null;
 
-  const locale = headerLocale || queryLocale || localeFromHost(host);
+  // _lp is set internally when a path-locale rewrite is in progress
+  // (middleware re-runs on rewritten URL)
+  const internalLocaleRaw = url.searchParams.get('_lp');
+  const internalLocale = isSupportedLocale(internalLocaleRaw) ? (internalLocaleRaw!.toLowerCase() as string) : null;
+
+  const pathLocaleMatch = extractPathLocale(url.pathname);
+
+  // Locale priority: header override > internal rewrite > query param > path prefix > default (en)
+  const locale = headerLocale || internalLocale || queryLocale || (pathLocaleMatch?.pathLocale as any) || 'en';
+
+  // Market is always derived from the host (en/my/id/th), independent of locale
+  const market = marketFromHost(host);
 
   locals.locale = locale;
   locals.host = host;
@@ -62,12 +85,24 @@ export async function onRequest(
         CMS_SERVICE?: unknown;
         locale?: string;
         host?: string;
+        market?: string;
       };
     }).__CMS_ENV__ = {
       CMS_SERVICE: (env as { CMS_SERVICE?: unknown }).CMS_SERVICE,
       locale,
       host,
+      market,
     };
+  }
+
+  // For path-locale URLs (e.g. /id/blog/foo, /zh/blog/foo), rewrite to the
+  // canonical path (/blog/foo?_lp=id) so Astro routes match. The _lp param
+  // carries the locale through the second middleware run.
+  if (pathLocaleMatch && !internalLocale && (context.request.method === 'GET' || context.request.method === 'HEAD')) {
+    const rewriteUrl = new URL(url);
+    rewriteUrl.pathname = pathLocaleMatch.strippedPath;
+    rewriteUrl.searchParams.set('_lp', pathLocaleMatch.pathLocale);
+    return (context as any).rewrite(rewriteUrl);
   }
 
   if (context.request.method === 'GET' || context.request.method === 'HEAD') {
@@ -80,7 +115,8 @@ export async function onRequest(
       if (finalSlug) {
         const legacyPost = await getPostBySlug(finalSlug, locale);
         if (legacyPost?.slug) {
-          return Response.redirect(new URL(`/blog/${legacyPost.slug}`, url).toString(), 301);
+          const canonicalPath = getPostUrl(legacyPost.slug, locale, primaryCategory(legacyPost.categories));
+          return Response.redirect(new URL(canonicalPath, url).toString(), 301);
         }
       }
     }

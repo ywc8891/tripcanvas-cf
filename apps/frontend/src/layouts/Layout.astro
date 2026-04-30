@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
-import { buildLocaleUrl, SUPPORTED_LOCALES } from '../lib/locale';
+import { localePath } from '../lib/locale';
+import { t } from '../lib/i18n';
 
 interface Props {
   title?: string;
@@ -13,10 +14,8 @@ const {
 } = Astro.props;
 
 const locale = ((Astro.locals as { locale?: string }).locale || 'en').toLowerCase();
-const host = Astro.url.host;
-const path = Astro.url.pathname;
-const homeHref = '/';
-const storiesHref = '/blog';
+const homeHref = localePath('/', locale);
+const storiesHref = localePath('/blog', locale);
 ---
 
 <!DOCTYPE html>
@@ -27,7 +26,7 @@ const storiesHref = '/blog';
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Open+Sans:wght@300;400;600&family=Oswald:wght@400;600&display=swap" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>
@@ -38,24 +37,13 @@ const storiesHref = '/blog';
           <span class="brand-mark">TC</span>
           <span class="brand-text">
             <strong>TripCanvas</strong>
-            <small>Travel stories across Southeast Asia</small>
+            <small>{t('brand.tagline', locale)}</small>
           </span>
         </a>
         <nav class="site-nav" aria-label="Main navigation">
-          <a href={homeHref}>Home</a>
-          <a href={storiesHref}>Stories</a>
+          <a href={homeHref}>{t('nav.home', locale)}</a>
+          <a href={storiesHref}>{t('nav.stories', locale)}</a>
         </nav>
-        <div class="locale-switch" aria-label="Locale switcher">
-          {SUPPORTED_LOCALES.map((nextLocale) => (
-            <a
-              class={`locale-chip${nextLocale === locale ? ' is-active' : ''}`}
-              href={buildLocaleUrl(path, nextLocale, host)}
-              title={`Switch locale to ${nextLocale.toUpperCase()}`}
-            >
-              {nextLocale.toUpperCase()}
-            </a>
-          ))}
-        </div>
       </div>
     </header>
 

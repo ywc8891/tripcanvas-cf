@@ -13,7 +13,16 @@
     "migrate:backfill:posts:live": "node backfill-post-locales.js --live",
     "migrate:verify": "node verify.js",
     "migrate:verify:redirects": "node verify-redirects.js",
-    "download-media": "node download-media.js"
+    "download-media": "node download-media.js",
+    "export:zh": "node export-zh-posts.js",
+    "migrate:zh:dry": "node migrate-zh-locale.js",
+    "migrate:zh:live": "node migrate-zh-locale.js --live",
+    "migrate:zh:force": "node migrate-zh-locale.js --live --force",
+    "migrate:zh:reset": "node migrate-zh-locale.js --live --force --clear-first",
+    "backfill:market:dry": "node backfill-market.js",
+    "backfill:market:live": "node backfill-market.js --live",
+    "migrate:zh:media": "node migrate-zh-media.js",
+    "migrate:zh:media:dry": "DRY_RUN=1 node migrate-zh-media.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",

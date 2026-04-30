@@ -1,4 +1,10 @@
 // Types for Payload collections
+export interface PostCategory {
+  id: string | number;
+  slug: string;
+  name: string;
+}
+
 export interface Post {
   id: string | number;
   wpId?: number;
@@ -9,6 +15,8 @@ export interface Post {
   content: unknown;
   createdAt: string;
   updatedAt: string;
+  market?: string;
+  categories?: PostCategory[];
 }
 
 export interface PostsResult {
@@ -44,10 +52,21 @@ const DEFAULT_LOCALE = 'en';
 function getRuntimeLocale(): string {
   const env = (globalThis as unknown as { __CMS_ENV__?: { locale?: string } }).__CMS_ENV__;
   const locale = env?.locale;
-  if (locale === 'en' || locale === 'my' || locale === 'id' || locale === 'th') {
+  if (locale === 'en' || locale === 'my' || locale === 'id' || locale === 'th' || locale === 'zh') {
     return locale;
   }
   return DEFAULT_LOCALE;
+}
+
+// Returns the market (country) for the current context — always host-derived (en/my/id/th).
+// Independent of content locale (a post can be in locale 'en' on the 'id' market).
+function getRuntimeMarket(): string {
+  const env = (globalThis as unknown as { __CMS_ENV__?: { market?: string } }).__CMS_ENV__;
+  const market = env?.market;
+  if (market === 'en' || market === 'my' || market === 'id' || market === 'th') {
+    return market;
+  }
+  return DEFAULT_LOCALE; // 'en'
 }
 
 // Simple fetch with retry for handling transient errors
@@ -107,7 +126,13 @@ export async function fetchPayload<T>(
   const { baseUrl, fetcher } = resolveCmsClient();
 
   const params = new URLSearchParams();
-  Object.entries(query).forEach(([key, value]) => {
+  
+  const finalQuery = { ...query };
+  if (!('fallback-locale' in finalQuery)) {
+    finalQuery['fallback-locale'] = 'en';
+  }
+
+  Object.entries(finalQuery).forEach(([key, value]) => {
     if (Array.isArray(value)) {
       value.forEach(v => params.append(key, String(v)));
     } else if (value !== undefined && value !== null) {
@@ -136,8 +161,33 @@ export async function fetchPayload<T>(
 const R2_IMG_RE = /\(r2:\/\/[^/]+\/([^)]+)\)/;
 const R2_PUBLIC_URL = 'https://pub-2faca0649c2047a1859536a3114d3f95.r2.dev';
 
+type LexicalLike = { type?: string; wp_url?: string; value?: unknown; children?: LexicalLike[]; root?: LexicalLike };
+
+function findFirstImageInNodes(nodes: LexicalLike[] | undefined): string | null {
+  if (!Array.isArray(nodes)) return null;
+  for (const node of nodes) {
+    if (!node || typeof node !== 'object') continue;
+    if (node.type === 'placeholder-image') {
+      const url = node.wp_url;
+      if (typeof url === 'string' && url.startsWith('https://')) return url;
+    }
+    if (node.type === 'upload') {
+      const v = node.value as { url?: string } | null;
+      if (v && typeof v.url === 'string' && v.url.startsWith('https://')) return v.url;
+    }
+    const fromChildren = findFirstImageInNodes(node.children);
+    if (fromChildren) return fromChildren;
+  }
+  return null;
+}
+
 export function firstImageUrl(content: unknown): string | null {
   if (!content || typeof content !== 'object') return null;
+  const root = (content as LexicalLike).root;
+  if (root) {
+    const fromNodes = findFirstImageInNodes(root.children);
+    if (fromNodes) return fromNodes;
+  }
   const json = JSON.stringify(content);
   const m = R2_IMG_RE.exec(json);
   return m ? `${R2_PUBLIC_URL}/${m[1]}` : null;
@@ -148,15 +198,51 @@ export async function getPosts(
   locale?: string,
   page = 1,
   limit = 12,
+  options?: { fallbackLocale?: string },
 ): Promise<PostsResult> {
   const resolvedLocale = locale || getRuntimeLocale();
+  // Market is always host-derived, independent of content locale
+  const market = getRuntimeMarket();
+  const marketFilter = market !== 'en' ? { 'where[market][equals]': market } : {};
+  const fallbackOverride = options?.fallbackLocale !== undefined
+    ? { 'fallback-locale': options.fallbackLocale }
+    : {};
   const result = await fetchPayload<Post>('posts', {
     locale: resolvedLocale,
-    depth: 0,
+    depth: 1,
     sort: '-createdAt',
     limit,
     page,
-    'where[title][exists]': 'true',
+    ...marketFilter,
+    ...fallbackOverride,
+  });
+  return {
+    docs: result.docs,
+    totalDocs: result.totalDocs ?? 0,
+    totalPages: (result as unknown as { totalPages?: number }).totalPages ?? 1,
+    page: (result as unknown as { page?: number }).page ?? page,
+    hasNextPage: (result as unknown as { hasNextPage?: boolean }).hasNextPage ?? false,
+    hasPrevPage: (result as unknown as { hasPrevPage?: boolean }).hasPrevPage ?? false,
+  };
+}
+
+export async function getPostsByCategory(
+  categorySlug: string,
+  locale?: string,
+  page = 1,
+  limit = 12,
+): Promise<PostsResult> {
+  const resolvedLocale = locale || getRuntimeLocale();
+  const market = getRuntimeMarket();
+  const marketFilter = market !== 'en' ? { 'where[market][equals]': market } : {};
+  const result = await fetchPayload<Post>('posts', {
+    locale: resolvedLocale,
+    depth: 1,
+    sort: '-createdAt',
+    limit,
+    page,
+    'where[categories.slug][equals]': categorySlug,
+    ...marketFilter,
   });
   return {
     docs: result.docs,
@@ -173,7 +259,7 @@ export async function getPostBySlug(slug: string, locale?: string): Promise<Post
   const result = await fetchPayload<Post>('posts', {
     locale: resolvedLocale,
     'where[slug][equals]': slug,
-    depth: 2,
+    depth: 1,
   });
   return result.docs[0] || null;
 }
@@ -183,7 +269,7 @@ export async function getPostByWpId(wpId: number, locale?: string): Promise<Post
   const result = await fetchPayload<Post>('posts', {
     locale: resolvedLocale,
     'where[wpId][equals]': wpId,
-    depth: 0,
+    depth: 1,
     limit: 1,
   });
   return result.docs[0] || null;
@@ -195,7 +281,6 @@ export async function getCategories(locale?: string): Promise<Category[]> {
     locale: resolvedLocale,
     depth: 0,
     sort: 'name',
-    'where[name][exists]': 'true',
   });
   return result.docs;
 }
