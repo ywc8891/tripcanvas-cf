@@ -9,9 +9,11 @@
     "deploy": "pnpm build && printf '_worker.js\\n' > dist/.assetsignore && wrangler deploy"
   },
   "dependencies": {
-    "astro": "^5.2.5",
     "@astrojs/cloudflare": "^12.2.2",
     "@astrojs/react": "^4.2.0",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.2",
+    "astro": "^5.2.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
