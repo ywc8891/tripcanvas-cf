@@ -1,9 +1,9 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import FullImageHero from '../../components/FullImageHero.astro';
-import SubscriptionBox from '../../components/SubscriptionBox.astro';
-import { getPosts, getCategoriesByMarket, firstImageUrl } from '../../lib/payload';
-import { getPostUrl, primaryCategory, localePath, isStagingWorker } from '../../lib/locale';
+import PostCard from '../../components/PostCard.astro';
+import { getPosts } from '../../lib/payload';
+import { localePath, isStagingWorker } from '../../lib/locale';
 import { t } from '../../lib/i18n';
 
 const locale = 'en';
@@ -12,15 +12,10 @@ const market = 'my';
 const staging = isStagingWorker(host);
 const MARKET_DOMAIN: Record<string, string> = { my: staging ? 'tripcanvas-my.academyt.workers.dev' : 'malaysia.tripcanvas.co' };
 const meta = { name: 'TripCanvas - Not Your Usual Malaysia Travel Guide', tagline: 'Not Your Usual Malaysia Travel Guide', description: 'We share unique information on hotels, villas, things to do and dining places in Malaysia that you never knew existed.' };
-const { docs: rawPosts } = await getPosts(locale, 1, 8);
-const featuredPosts = rawPosts.slice(0, 8);
-const categories = await getCategoriesByMarket(locale, market);
-const ogImage = featuredPosts[0] ? firstImageUrl(featuredPosts[0].content) : undefined;
+const { docs: homePosts } = await getPosts(locale, 1, 8);
+const { firstImageUrl } = await import('../../lib/payload');
+const ogImage = homePosts[0] ? firstImageUrl(homePosts[0].content) : undefined;
 const canonical = staging ? undefined : `https://${MARKET_DOMAIN.my}/`;
-
-function displayTitle(post: { title?: string; slug: string }): string {
-  return post.title || post.slug.replace(/-/g, ' ');
-}
 ---
 
 <Layout title={meta.name} description={meta.description} ogImage={ogImage} canonical={canonical}>
@@ -34,56 +29,37 @@ function displayTitle(post: { title?: string; slug: string }): string {
     </div>
   </div>
 
-  <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
-    {featuredPosts.length > 0 ? (
-      <>
-        <p class="section-title">{t('home.featured', locale)} <span style="font-weight:300; letter-spacing:0;">|</span> {meta.tagline}</p>
-        <div class="featured-grid">
-          {featuredPosts.map((post, idx) => {
-            const thumb = firstImageUrl(post.content);
-            const postDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            const cats = post.categories || [];
-            return (
-              <article class={`post-card${idx === 0 ? ' post-card-featured' : ''}`}>
-                <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1" aria-hidden="true">
-                  {thumb ? <img src={thumb} alt="" loading="lazy" decoding="async" /> : <div class="post-card-thumb-placeholder"></div>}
-                </a>
-                <span class="post-card-date"><i class="fa fa-bookmark"></i> {postDate}</span>
-                <div class="post-card-body">
-                  <div class="badge">
-                    {cats.slice(0, 2).map((cat: any) => (
-                      <a href={localePath(`/${cat.slug}`, locale)} class="category-chip">{cat.name || cat.slug.replace(/-/g, ' ')}</a>
-                    ))}
-                    <div class="clear"></div>
-                  </div>
-                  <h3><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h3>
-                  <a class="button-outline" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{t('post.readMore', locale)}</a>
-                </div>
-              </article>
-            );
-          })}
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <div class="section-title"><span>{t('home.featured', locale)}</span><p>{meta.tagline}</p></div>
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            <div class="isotopecontainer" data-value="3">{homePosts.map(post => <PostCard post={post} locale={locale} />)}</div>
+          </div>
         </div>
-        <div style="margin-top:1.5rem; text-align:right;">
-          <a href="/blog" class="home-view-all">{t('home.viewAll', locale)}</a>
-        </div>
-      </>
-    ) : (
-      <p style="color:var(--muted);">{t('home.noStories', locale)}</p>
-    )}
-
-    {categories.length > 0 && (
-      <>
-        <p class="section-title" style="margin-top:2.5rem;">{t('home.browseCategory', locale)}</p>
-        <div class="chip-row">
-          {categories.slice(0, 20).map((category: any) => (
-            <a class="chip" href={localePath(`/${category.slug}`, locale)}>
-              {category.name || category.slug.replace(/-/g, ' ')}
-            </a>
-          ))}
-        </div>
-      </>
-    )}
+      </div>
+    </div>
   </div>
 
-  <SubscriptionBox market={market} locale={locale} />
+  <div class="content-section content-full section not-first-section subscription-wrapper">
+    <div class="col-md-12" style="padding-left:0;padding-right:0;">
+      <div class="subscription-box">
+        <div class="container">
+          <h2 class="subscription-box-title">Get more Malaysia travel ideas <span>in your inbox!</span></h2>
+          <p class="subscription-box-desc">Sign up for our monthly email and be inspired with Malaysia travel ideas that you'd love.</p>
+          <form class="subscription-box-form" method="post" target="_blank">
+            <input type="email" class="subscription-box-input" placeholder="Enter Your Email Address" required />
+            <input type="submit" class="subscription-box-btn" value="Sign me up!" />
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+
+  <div class="content-section content-full section not-first-section">
+    <div class="col-md-12" style="padding-left:0;padding-right:0;"><div class="ad-slot">Advertisement</div></div>
+    <div class="clear"></div>
+  </div>
 </Layout>

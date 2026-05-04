@@ -1,11 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import FullImageHero from '../../components/FullImageHero.astro';
-import SubscriptionBox from '../../components/SubscriptionBox.astro';
-import { getPosts, getPostsByCategory, firstImageUrl } from '../../lib/payload';
-import { getPostUrl, primaryCategory, localePath, isStagingWorker } from '../../lib/locale';
+import PostCard from '../../components/PostCard.astro';
+import { getPosts, getPostsByCategory } from '../../lib/payload';
+import { localePath, isStagingWorker } from '../../lib/locale';
 import { t } from '../../lib/i18n';
-import { MARKET_SOCIAL } from '../../lib/i18n';
 
 const locale = 'id';
 const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
@@ -13,64 +12,21 @@ const market = 'id';
 const staging = isStagingWorker(host);
 const MARKET_DOMAIN: Record<string, string> = { id: staging ? 'tripcanvas-id.academyt.workers.dev' : 'indonesia.tripcanvas.co' };
 const meta = { name: 'TripCanvas Indonesia', tagline: 'Not Your Usual Indonesia Travel Guide', description: 'We share unique information on hotels, villas, things to do and dining places in Indonesia that you never knew existed.' };
-const { docs: rawPosts } = await getPosts(locale, 1, 8);
-const featuredPosts = rawPosts.slice(0, 8);
-const ogImage = featuredPosts[0] ? firstImageUrl(featuredPosts[0].content) : undefined;
+const { docs: homeSection2 } = await getPosts(locale, 1, 8);
+const { docs: homeSection3 } = await getPosts(locale, 1, 8);
+const bestOfBali = await getPostsByCategory('bali', locale, 1, 8);
+const bestOfBandung = await getPostsByCategory('bandung', locale, 1, 8);
+const bestOfJogja = await getPostsByCategory('jogja', locale, 1, 4);
+const bestOfLombok = await getPostsByCategory('lombok', locale, 1, 4);
+const { firstImageUrl } = await import('../../lib/payload');
+const ogImage = homeSection2[0] ? firstImageUrl(homeSection2[0].content) : undefined;
 const canonical = staging ? undefined : `https://${MARKET_DOMAIN.id}/id/`;
-const social = MARKET_SOCIAL[market];
 
-const categorySections = [
-  { slug: 'best-of-indonesia', heading: 'Best of Indonesia', limit: 8 },
-  { slug: 'bali', heading: 'Best of Bali', limit: 8 },
-  { slug: 'bandung', heading: 'Best of Bandung', limit: 8 },
-  { slug: 'jogja', heading: 'Best of Jogja', limit: 4 },
-  { slug: 'lombok', heading: 'Best of Lombok', limit: 4 },
-];
-
-const sectionPosts = await Promise.all(
-  categorySections.map(s => getPostsByCategory(s.slug, locale, 1, s.limit).then(r => ({ ...s, posts: r.docs })))
-);
-
-function displayTitle(post: any) { return post.title || post.slug.replace(/-/g, ' '); }
 function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
 ---
 
 <Layout title={meta.name} description={meta.description} ogImage={ogImage} canonical={canonical}>
   <FullImageHero market={market} locale={locale} />
-
-  <div class="most-popular">
-    <div class="container">
-      <p class="section-title">{t('home.mostPopular.title', locale)}</p>
-      <div class="most-popular-grid">
-        {featuredPosts.slice(0, 6).map((post: any) => {
-          const thumb = firstImageUrl(post.content);
-          return (
-            <a class="most-popular-card" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>
-              <div class="most-popular-card-thumb">{thumb && <img src={thumb} alt="" />}</div>
-              <div class="most-popular-card-body">
-                <h4 class="most-popular-card-title">{displayTitle(post)}</h4>
-                <p class="most-popular-card-desc">{post.excerpt || ''}</p>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-
-  {social && (
-    <div class="follow-bar">
-      <div class="container">
-        <span class="follow-bar-title">{t('home.followUs', locale)} Indonesia</span>
-        <div class="follow-bar-links">
-          <a href={social.facebook} target="_blank"><i class="fa fa-facebook"></i></a>
-          <a href={social.twitter} target="_blank"><i class="fa fa-twitter"></i></a>
-          <a href={social.youtube} target="_blank"><i class="fa fa-youtube-play"></i></a>
-          <a href={social.instagram} target="_blank"><i class="fa fa-instagram"></i></a>
-        </div>
-      </div>
-    </div>
-  )}
 
   <div class="covid-banner">
     <div class="container">
@@ -80,74 +36,127 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
     </div>
   </div>
 
-  <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
-    {featuredPosts.length > 0 ? (
-      <>
-        <p class="section-title">{t('home.featured', locale)} | {meta.tagline}</p>
-        <div class="featured-grid">
-          {featuredPosts.map((post, idx) => {
-            const thumb = firstImageUrl(post.content);
-            const postDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-            const cats = post.categories || [];
-            return (
-              <article class={`post-card${idx === 0 ? ' post-card-featured' : ''}`}>
-                <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1">
-                  {thumb ? <img src={thumb} alt="" loading="lazy" /> : <div class="post-card-thumb-placeholder"></div>}
-                </a>
-                <span class="post-card-date"><i class="fa fa-bookmark"></i> {postDate}</span>
-                <div class="post-card-body">
-                  <div class="badge">{cats.slice(0, 2).map((cat: any) => <a href={localePath(`/${cat.slug}`, locale)} class="category-chip">{cat.name || cat.slug}</a>)}<div class="clear"></div></div>
-                  <h3><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h3>
-                  <a class="button-outline" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{t('post.readMore', locale)}</a>
-                </div>
-              </article>
-            );
-          })}
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <div class="section-title"><span>{t('home.featured', locale)}</span><p>{meta.tagline}</p></div>
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            <div class="isotopecontainer" data-value="3">{homeSection2.map(post => <PostCard post={post} locale={locale} />)}</div>
+          </div>
         </div>
-        <div style="margin-top:1.5rem; text-align:right;">
-          <a href={localePath('/blog', locale)} class="home-view-all">{t('home.viewAll', locale)}</a>
-        </div>
-      </>
-    ) : (
-      <p style="color:var(--muted);">{t('home.noStories', locale)}</p>
-    )}
-  </div>
-
-  {sectionPosts.map((section) => (
-    <div class="category-section">
-      <div class="container">
-        <div class="category-section-header">
-          <h3 class="category-section-title">{section.heading}</h3>
-        </div>
-        <div class="category-section-grid">
-          {section.posts.slice(0, section.limit).map((post: any) => {
-            const thumb = firstImageUrl(post.content);
-            const cats = post.categories || [];
-            return (
-              <article class="post-card">
-                <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1">
-                  {thumb ? <img src={thumb} alt="" loading="lazy" /> : <div class="post-card-thumb-placeholder"></div>}
-                </a>
-                <span class="post-card-date"><i class="fa fa-bookmark"></i> {new Date(post.publishedAt || post.createdAt).toLocaleDateString('id-ID', {day:'numeric',month:'short',year:'numeric'})}</span>
-                <div class="post-card-body">
-                  <div class="badge">{cats.slice(0, 1).map((c: any) => <a href={localePath(`/${c.slug}`, locale)} class="category-chip">{c.name || c.slug}</a>)}<div class="clear"></div></div>
-                  <h3><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h3>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-        <a class="category-section-more" href={sectionUrl(section.slug)}>
-          {t('home.categorySection.more', locale, { destination: section.heading.replace('Best of ', '') })}
-        </a>
       </div>
     </div>
-  ))}
+  </div>
 
-  <SubscriptionBox market={market} locale={locale} />
+  <div class="content-section content-full section not-first-section">
+    <div class="col-md-12" style="padding-left:0;padding-right:0;"><div class="ad-slot">Advertisement</div></div>
+    <div class="clear"></div>
+  </div>
 
-  <div class="itinerary-menu">
-    <i class="fa fa-map-signs"></i>
-    <a href={localePath('/bali/itineraries/', locale)}>Itinerary</a>
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>TripCanvas Indonesia</span></p>
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            <div class="isotopecontainer" data-value="3">{homeSection3.map(post => <PostCard post={post} locale={locale} />)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="homesection ad-section section not-first-section">
+    <div class="container"><div class="col-md-12"><a href={localePath('/blog', locale)} class="home-section-cta">{t('home.viewAll', locale)}</a></div></div>
+  </div>
+
+  <div class="content-section content-full section not-first-section subscription-wrapper">
+    <div class="col-md-12" style="padding-left:0;padding-right:0;">
+      <div class="subscription-box">
+        <div class="container">
+          <h2 class="subscription-box-title">Get more Indonesia travel ideas <span>in your inbox!</span></h2>
+          <p class="subscription-box-desc">Sign up for our monthly email and be inspired with Indonesia travel ideas that you'd love.</p>
+          <form class="subscription-box-form" method="post" target="_blank">
+            <input type="email" class="subscription-box-input" placeholder="Enter Your Email Address" required />
+            <input type="submit" class="subscription-box-btn" value="Sign me up!" />
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+
+  <div class="content-section content-full section not-first-section">
+    <div class="col-md-12" style="padding-left:0;padding-right:0;"><div class="ad-slot ad-slot-responsive">Advertisement</div></div>
+    <div class="clear"></div>
+  </div>
+
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>Best of Bali</span></p>
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            <div class="isotopecontainer" data-value="3">{bestOfBali.docs.slice(0, 8).map(post => <PostCard post={post} locale={locale} />)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="homesection ad-section section not-first-section">
+    <div class="container"><div class="col-md-12"><a href={sectionUrl('bali')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bali' })}</a></div></div>
+  </div>
+
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>Best of Bandung</span></p>
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            <div class="isotopecontainer" data-value="3">{bestOfBandung.docs.slice(0, 8).map(post => <PostCard post={post} locale={locale} />)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="homesection ad-section section not-first-section">
+    <div class="container"><div class="col-md-12"><a href={sectionUrl('bandung')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bandung' })}</a></div></div>
+  </div>
+
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>Best of Jogja</span></p>
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            <div class="isotopecontainer" data-value="3">{bestOfJogja.docs.slice(0, 4).map(post => <PostCard post={post} locale={locale} />)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="homesection ad-section section not-first-section">
+    <div class="container"><div class="col-md-12"><a href={sectionUrl('jogja')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Jogja' })}</a></div></div>
+  </div>
+
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>Best of Lombok</span></p>
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            <div class="isotopecontainer" data-value="3">{bestOfLombok.docs.slice(0, 4).map(post => <PostCard post={post} locale={locale} />)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="homesection ad-section section not-first-section">
+    <div class="container"><div class="col-md-12"><a href={sectionUrl('lombok')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Lombok' })}</a></div></div>
   </div>
 </Layout>

@@ -1,0 +1,39 @@
+---
+import { getPostUrl, primaryCategory, localePath } from '../lib/locale';
+import { firstImageUrl } from '../lib/payload';
+
+interface Props {
+  post: any;
+  locale: string;
+  catCount?: number;
+}
+
+const { post, locale, catCount = 1 } = Astro.props;
+const thumb = firstImageUrl(post.content);
+const cats = post.categories || [];
+const postDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-CN' : locale === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const displayTitle = post.title || post.slug.replace(/-/g, ' ');
+const postUrl = getPostUrl(post.slug, locale, primaryCategory(post.categories));
+---
+
+<div class="col-md-4 col-sm-6 col-xs-12 grid-item no-top-margin">
+  <div class="thumbwrapper">
+    <div class="thumbwrap">
+      <a href={postUrl}>
+        {thumb ? <img width="400" height="250" src={thumb} class="attachment-section-thumb" alt="" loading="lazy" /> : <div class="no-thumb"></div>}
+      </a>
+    </div>
+    <div class="thumb-title">
+      <div class="badge">
+        {cats.slice(0, catCount).map((cat: any) => (
+          <a href={localePath(`/${cat.slug}`, locale)} class={`category-${cat.id || ''}`}>{cat.name || cat.slug}</a>
+        ))}
+        <div class="clear"></div>
+      </div>
+      <h4><a href={postUrl}>{displayTitle}</a></h4>
+      <span class="tiny-details">
+        <a href={postUrl}>{postDate}</a>
+      </span>
+    </div>
+  </div>
+</div>
