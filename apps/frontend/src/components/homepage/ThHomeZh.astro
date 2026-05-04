@@ -1,9 +1,101 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import FullImageHero from '../../components/FullImageHero.astro';
+import SubscriptionBox from '../../components/SubscriptionBox.astro';
+import { getPosts, getPostsByCategory, firstImageUrl } from '../../lib/payload';
+import { getPostUrl, primaryCategory, localePath, isStagingWorker } from '../../lib/locale';
+import { t } from '../../lib/i18n';
+
+const locale = 'zh';
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
+const market = 'th';
+const staging = isStagingWorker(host);
+const MARKET_DOMAIN: Record<string, string> = { th: staging ? 'tripcanvas-th.academyt.workers.dev' : 'thailand.tripcanvas.co' };
+const meta = { name: 'TripCanvas 泰国', tagline: '非一般的泰国旅游攻略', description: '非一般的泰国旅游攻略' };
+const { docs: rawPosts } = await getPosts(locale, 1, 80, { fallbackLocale: 'none' });
+const featuredPosts = rawPosts.filter((p: any) => p.title).slice(0, 8);
+const ogImage = featuredPosts[0] ? firstImageUrl(featuredPosts[0].content) : undefined;
+const canonical = staging ? undefined : `https://${MARKET_DOMAIN.th}/zh/`;
+
+const sectionCats = [
+  { slug: 'bangkok', heading: 'Bangkok，曼谷必游', limit: 8 },
+  { slug: 'hua-hin', heading: 'Hua Hin，华欣必游', limit: 5 },
+  { slug: 'khao-yai', heading: 'Khao Yai，考艾必游', limit: 4 },
+];
+const sectionPosts = await Promise.all(
+  sectionCats.map(s => getPostsByCategory(s.slug, locale, 1, s.limit).then(r => ({ ...s, posts: r.docs })))
+);
+
+function displayTitle(post: any) { return post.title || post.slug.replace(/-/g, ' '); }
+function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
 ---
-<Layout title="TripCanvas 泰国" description="东南亚旅行指南">
-  <div class="container" style="padding: 4rem 1rem; text-align: center;">
-    <h1>TripCanvas 泰国</h1>
-    <p>东南亚旅行指南</p>
+
+<Layout title={meta.name} description={meta.description} ogImage={ogImage} canonical={canonical}>
+  <FullImageHero market={market} locale={locale} />
+
+  <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
+    {featuredPosts.length > 0 ? (
+      <>
+        <p class="section-title">{t('home.featured', locale)} | {meta.tagline}</p>
+        <div class="featured-grid">
+          {featuredPosts.map((post: any, idx: number) => {
+            const thumb = firstImageUrl(post.content);
+            const postDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString('zh-CN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const cats = post.categories || [];
+            return (
+              <article class={`post-card${idx === 0 ? ' post-card-featured' : ''}`}>
+                <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1">
+                  {thumb ? <img src={thumb} alt="" loading="lazy" /> : <div class="post-card-thumb-placeholder"></div>}
+                </a>
+                <span class="post-card-date"><i class="fa fa-bookmark"></i> {postDate}</span>
+                <div class="post-card-body">
+                  <div class="badge">{cats.slice(0, 2).map((cat: any) => <a href={localePath(`/${cat.slug}`, locale)} class="category-chip">{cat.name || cat.slug}</a>)}<div class="clear"></div></div>
+                  <h3><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h3>
+                  <a class="button-outline" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{t('post.readMore', locale)}</a>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <div style="margin-top:1.5rem; text-align:right;">
+          <a href="/zh/blog" class="home-view-all">{t('home.viewAll', locale)}</a>
+        </div>
+      </>
+    ) : (
+      <p style="color:var(--muted);">{t('home.noStories', locale)}</p>
+    )}
   </div>
+
+  {sectionPosts.map((section) => (
+    <div class="category-section">
+      <div class="container">
+        <div class="category-section-header">
+          <h3 class="category-section-title">{section.heading}</h3>
+        </div>
+        <div class="category-section-grid">
+          {section.posts.slice(0, section.limit).map((post: any) => {
+            const thumb = firstImageUrl(post.content);
+            const cats = post.categories || [];
+            return (
+              <article class="post-card">
+                <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1">
+                  {thumb ? <img src={thumb} alt="" loading="lazy" /> : <div class="post-card-thumb-placeholder"></div>}
+                </a>
+                <span class="post-card-date"><i class="fa fa-bookmark"></i> {new Date(post.publishedAt || post.createdAt).toLocaleDateString('zh-CN', {day:'numeric',month:'short',year:'numeric'})}</span>
+                <div class="post-card-body">
+                  <div class="badge">{cats.slice(0, 1).map((c: any) => <a href={localePath(`/${c.slug}`, locale)} class="category-chip">{c.name || c.slug}</a>)}<div class="clear"></div></div>
+                  <h3><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h3>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <a class="category-section-more" href={sectionUrl(section.slug)}>
+          {t('home.categorySection.more', locale, { destination: section.heading.replace(/，.*$/, '') })}
+        </a>
+      </div>
+    </div>
+  ))}
+
+  <SubscriptionBox market={market} locale={locale} />
 </Layout>
