@@ -1,55 +1,70 @@
 ---
 import '../styles/global.css';
-import { localePath, marketFromHost, isStagingWorker, MARKET_LOCALES, isLanguagePathLocale } from '../lib/locale';
-import { t } from '../lib/i18n';
-import { MARKET_SOCIAL, MARKET_NAV } from '../lib/i18n';
-import type { SupportedLocale } from '../lib/locale';
+import { localePath, marketFromHost } from '../lib/locale';
+import { MARKET_NAV } from '../lib/i18n';
+import { ANALYTICS } from '../lib/analytics';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
 
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
+  canonical?: string;
+  ogType?: string;
 }
 
 const {
   title = 'TripCanvas',
-  description = 'Travel blog and guides'
+  description = 'Travel blog and guides',
+  ogImage,
+  canonical,
+  ogType = 'website',
 } = Astro.props;
 
 const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
 const locale = ((Astro.locals as { locale?: string }).locale || 'en').toLowerCase();
 const market = marketFromHost(host);
-const staging = isStagingWorker(host);
 
-const homeHref = localePath('/', locale);
-const nav = MARKET_NAV[market];
-const social = MARKET_SOCIAL[market];
+const localeNav = MARKET_NAV[market]?.[locale] || MARKET_NAV[market]?.en;
 const isHub = market === 'en';
 const currentPath = Astro.url.pathname;
+const isZhMyLocale = locale === 'zh' && market === 'my';
+const bodyClass = `edition desktop-device regular-nav sticky-nav-enabled${isZhMyLocale ? ' locale-zh' : ''}`;
 
-const marketName: Record<string, string> = { en: '', my: ' Malaysia', id: ' Indonesia', th: ' Thailand' };
+const analytics = ANALYTICS[market] || {};
+
+const analyticsHeadHtml = (() => {
+  const parts: string[] = [];
+  if (analytics.fbPixel) {
+    parts.push(`<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${analytics.fbPixel}');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${analytics.fbPixel}&ev=PageView&noscript=1" /></noscript>`);
+  }
+  if (analytics.gtm) {
+    parts.push(`<script>
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${analytics.gtm}');
+</script>`);
+  }
+  return parts.join('\n');
+})();
 
 function navLinkHref(href: string): string {
   return localePath(href, locale);
-}
-
-const marketDomains: Record<string, string> = {
-  en: 'tripcanvas.co',
-  my: 'malaysia.tripcanvas.co',
-  id: 'indonesia.tripcanvas.co',
-  th: 'thailand.tripcanvas.co',
-};
-
-const stagingDomains: Record<string, string> = {
-  en: 'tripcanvas.academyt.workers.dev',
-  my: 'tripcanvas-my.academyt.workers.dev',
-  id: 'tripcanvas-id.academyt.workers.dev',
-  th: 'tripcanvas-th.academyt.workers.dev',
-};
-
-function marketUrl(targetMarket: string): string {
-  const domain = staging ? stagingDomains[targetMarket] : marketDomains[targetMarket];
-  const path = locale === 'en' ? '/' : `/${locale}/`;
-  return `https://${domain}${path}`;
 }
 ---
 
@@ -62,145 +77,35 @@ function marketUrl(targetMarket: string): string {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400&family=Open+Sans:wght@300;400;600;700&family=Oswald:wght@400;600&display=swap" />
+    {isZhMyLocale && <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" />}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:site_name" content="TripCanvas" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    {analyticsHeadHtml && <Fragment set:html={analyticsHeadHtml} />}
     <title>{title}</title>
   </head>
-  <body class="edition desktop-device regular-nav sticky-nav-enabled">
-    {!isHub && social && (
-    <div class="top-bar">
-      <div class="container">
-        <div class="topbar-left"></div>
-        <div class="topbar-right">
-          <a href={social.facebook} target="_blank" rel="noopener"><i class="fa fa-facebook"></i></a>
-          <a href={social.twitter} target="_blank" rel="noopener"><i class="fa fa-twitter"></i></a>
-          <a href={social.youtube} target="_blank" rel="noopener"><i class="fa fa-youtube-play"></i></a>
-          <a href={social.instagram} target="_blank" rel="noopener"><i class="fa fa-instagram"></i></a>
-        </div>
-      </div>
-    </div>
-    )}
-
-    {!isHub ? (
-    <div class="top-nav regular-nav">
-      <div class="table top-nav-inner" style="background-color:#FFF;">
-        <div class="table-row">
-          <div class="table-cell" id="logo">
-            <h1>
-              <a href={homeHref}>
-                <img src="https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/tripcanvas-menubar.png" alt={`TripCanvas${marketName[market] || ''}`} width="188" height="30" />
-              </a>
-            </h1>
-          </div>
-
-          <div class="mobile-link table-cell">
-            <a href="javascript:;" onclick="var m=document.getElementById('mobilemenu');if(m.style.display==='block'){m.style.display='none'}else{m.style.display='block'}" style="padding-left:5px;">
-              <i class="fa fa-bars"></i>
-            </a>
-          </div>
-
-          <div class="table-cell" id="menu">
-            <ul class="sf-menu sf-arrows">
-              {nav?.topLevel?.map((item) => (
-                item.children ? (
-                <li class="menu-item menu-item-has-children">
-                  <a href={navLinkHref(item.href)} class="sf-with-ul">{item.label}</a>
-                  <ul class="sub-menu">
-                    {item.children.map((child) => (
-                      <li><a href={navLinkHref(child.href)}>{child.label}</a></li>
-                    ))}
-                  </ul>
-                </li>
-                ) : (
-                <li><a href={navLinkHref(item.href)}>{item.label}</a></li>
-                )
-              ))}
-            </ul>
-
-            <div class="alignright searchnav">
-              <div class="search-form search" style="display:inline-block;">
-                <form role="search" method="get" class="search-form" action={homeHref}>
-                  <label>
-                    <input type="search" class="search-field" placeholder={t('search.placeholder', locale)} value="" name="s" title={t('search.placeholder', locale)} />
-                  </label>
-                </form>
-                <i class="fa fa-search searchbutton"></i>
-              </div>
-            </div>
-
-            <div class="lang-switch">
-              {MARKET_LOCALES[market]?.map((l: SupportedLocale) => {
-                const isActive = l === locale;
-                const switchHref = isLanguagePathLocale(l)
-                  ? `${currentPath.replace(/^\/[a-z]{2}(\/|$)/, `/${l}$1`)}`
-                  : currentPath.replace(/^\/[a-z]{2}(\/|$)/, '/');
-                return (
-                  <a
-                    href={isActive ? '#' : switchHref || '/'}
-                    class={isActive ? 'is-active' : ''}
-                    aria-label={l}
-                  >{l.toUpperCase()}</a>
-                );
-              })}
-            </div>
-
-            <div class="clear"></div>
-          </div>
-        </div>
-        <div class="clear"></div>
-      </div>
-
-      <nav id="mobilemenu" style="background-color:#FFF; height:470px; overflow:scroll;">
-        <ul>
-          <li><a href={homeHref}>{t('nav.home', locale)}</a></li>
-          {nav?.topLevel?.map((item) => (
-            item.children ? (
-            <li class="menu-item menu-item-has-children">
-              <a href={navLinkHref(item.href)}>{item.label}</a>
-              <ul class="sub-menu">
-                {item.children.map((child) => (
-                  <li><a href={navLinkHref(child.href)}>{child.label}</a></li>
-                ))}
-              </ul>
-            </li>
-            ) : (
-            <li class="menu-item"><a href={navLinkHref(item.href)}>{item.label}</a></li>
-            )
-          ))}
-          {nav?.staticPages?.map((page) => (
-            <li class="menu-item"><a href={navLinkHref(page.href)}>{page.label}</a></li>
-          ))}
-          <li style="border:none; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:#999; padding:0.75rem 1.25rem 0.25rem;">Other Markets</li>
-          {['my', 'id', 'th'].filter(m => m !== market).map((m) => (
-            <li class="menu-item"><a href={marketUrl(m)}>{m.toUpperCase()}</a></li>
-          ))}
-        </ul>
-      </nav>
-    </div>
-    ) : (
-    <div style="text-align:center; padding:20px 0;">
-      <a href="/">
-        <img src="https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/tripcanvas-menubar.png" alt="TripCanvas" width="188" height="30" />
-      </a>
-    </div>
-    )}
+  <body class={bodyClass}>
+    <NavBar market={market} locale={locale} host={host} currentPath={currentPath} />
 
     <main class="page-main">
       <slot />
     </main>
 
-    <footer class="site-footer">
-      <div class="container site-footer-inner">
-        <div class="footer-nav">
-          {!isHub && nav?.staticPages?.map((page) => (
-            <a href={navLinkHref(page.href)}>{page.label}</a>
-          ))}
-        </div>
-        <p>&copy; 2026 TripCanvas</p>
-        {staging && <p style="font-size:0.7rem; opacity:0.5;">Edge-powered by Cloudflare</p>}
-      </div>
-    </footer>
+    <Footer market={market} locale={locale} />
 
-    <a href="#" class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">&#8593;</a>
+    <a href="#" class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+      <span class="back-to-top-inner">
+        <span>Top</span>
+      </span>
+    </a>
   </body>
 </html>

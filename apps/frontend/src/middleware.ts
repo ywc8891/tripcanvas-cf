@@ -26,7 +26,13 @@ function shouldHandleLegacyRedirect(pathname: string): boolean {
   if (pathname.startsWith('/_astro/') || pathname.startsWith('/_image/')) return false;
   if (pathname.startsWith('/admin')) return false;
   if (pathname === '/favicon.svg' || pathname === '/robots.txt' || pathname === '/sitemap.xml') return false;
-  if (pathname === '/about-us/' || pathname === '/contact/' || pathname === '/terms-and-conditions/' || pathname === '/privacy-policy/') return false;
+  if (pathname === '/about/' || pathname.startsWith('/about/')) return false;
+  if (pathname === '/contact/' || pathname.startsWith('/contact/')) return false;
+  if (pathname === '/terms/' || pathname.startsWith('/terms/')) return false;
+  if (pathname === '/privacy/' || pathname.startsWith('/privacy/')) return false;
+  if (pathname === '/about-us/' || pathname.startsWith('/about-us/')) return false;
+  if (pathname === '/privacy-policy/' || pathname.startsWith('/privacy-policy/')) return false;
+  if (pathname === '/terms-and-conditions/' || pathname.startsWith('/terms-and-conditions/')) return false;
 
   const segments = pathname.split('/').filter(Boolean);
   // 2-segment paths are canonical post URLs (/[location]/[slug]) — serve directly

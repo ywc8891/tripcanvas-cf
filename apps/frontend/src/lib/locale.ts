@@ -14,8 +14,8 @@ export function isLanguagePathLocale(locale: string): boolean {
 export const MARKET_LOCALES: Record<MarketLocale, readonly SupportedLocale[]> = {
   en: ['en'],
   my: ['en', 'my', 'zh'],
-  id: ['en', 'id'],
-  th: ['en', 'th', 'zh'],
+  id: ['en', 'id', 'zh'],
+  th: ['en', 'th', 'zh', 'id'],
 };
 
 // Returns the market for a given locale (non-market locales like zh fall back to 'en')
@@ -37,6 +37,9 @@ const HOST_MARKET_MAP: Record<string, MarketLocale> = {
   'tripcanvas-my.academyt.workers.dev': 'my',
   'tripcanvas-id.academyt.workers.dev': 'id',
   'tripcanvas-th.academyt.workers.dev': 'th',
+  'tripcanvas-my-zh.academyt.workers.dev': 'my',
+  'tripcanvas-th-zh.academyt.workers.dev': 'th',
+  'tripcanvas-th-id.academyt.workers.dev': 'th',
 };
 
 export const LOCALE_SUBDOMAIN_MAP: Record<MarketLocale, string> = {
