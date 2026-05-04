@@ -1,0 +1,29 @@
+---
+import { localePath } from '../lib/locale';
+
+interface TopicLink {
+  label: string;
+  href: string;
+  image: string;
+}
+
+interface Props {
+  topics: TopicLink[];
+  locale: string;
+  heading?: string;
+}
+
+const { topics, locale, heading = 'Discover more' } = Astro.props;
+---
+
+<div class="topic-cards-section">
+  <h2 class="topic-cards-heading">{heading}</h2>
+  <div class="topic-cards-grid">
+    {topics.map((topic) => (
+      <a href={localePath(topic.href, locale)} class="topic-card">
+        <div class="topic-card-image" style={`background-image: url('${topic.image}')`}></div>
+        <span class="topic-card-label">{topic.label}</span>
+      </a>
+    ))}
+  </div>
+</div>

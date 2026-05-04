@@ -4,6 +4,7 @@ import FullImageHero from '../../components/FullImageHero.astro';
 import PostCard from '../../components/PostCard.astro';
 import SectionNav from '../../components/SectionNav.astro';
 import SectionPostCard from '../../components/SectionPostCard.astro';
+import TopicCards from '../../components/TopicCards.astro';
 import { getPosts, getPostsByCategory, firstImageUrl } from '../../lib/payload';
 import { localePath, isStagingWorker } from '../../lib/locale';
 import { t, SECTION_NAV } from '../../lib/i18n';
@@ -17,7 +18,7 @@ const meta = { name: 'TripCanvas Indonesia', tagline: 'Not Your Usual Indonesia 
 const { docs: featured } = await getPosts(locale, 1, 8);
 const { docs: indonesiaPosts } = await getPosts(locale, 2, 8);
 const bestOfBali = await getPostsByCategory('bali', locale, 1, 8);
-const bestOfBandung = await getPostsByCategory('bandung', locale, 1, 4);
+const bestOfBandung = await getPostsByCategory('bandung', locale, 1, 8);
 const bestOfJogja = await getPostsByCategory('jogja', locale, 1, 4);
 const bestOfLombok = await getPostsByCategory('lombok', locale, 1, 4);
 const ogImage = featured[0] ? firstImageUrl(featured[0].content) : undefined;
@@ -28,8 +29,6 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
 const secNav = SECTION_NAV[market] || {};
 const baliNav = secNav.bali || [];
 const bandungNav = secNav.bandung || [];
-const jogjaNav = secNav.jogja || [];
-const lombokNav = secNav.lombok || [];
 ---
 
 <Layout title={meta.name} description={meta.description} ogImage={ogImage} canonical={canonical}>
@@ -66,6 +65,22 @@ const lombokNav = secNav.lombok || [];
             <div class="isotopecontainer" data-value="3">{featured.map((post, i) => <PostCard post={post} locale={locale} isFirst={i === 0} />)}</div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discover more topics -->
+  <div class="no-top-margin section not-first-section">
+    <div class="container">
+      <div class="col-md-12">
+        <TopicCards
+          locale={locale}
+          topics={[
+            { label: 'Hotels & Accommodations', href: '/bali/hotels-villas-bali/', image: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg' },
+            { label: 'Travel', href: '/best-of-indonesia/', image: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg' },
+            { label: 'Beaches & Islands', href: '/bali/beach-holiday-bali/', image: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg' },
+          ]}
+        />
       </div>
     </div>
   </div>
@@ -167,13 +182,12 @@ const lombokNav = secNav.lombok || [];
     <div class="container"><div class="col-md-12"><a href={sectionUrl('bandung')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bandung' })}</a></div></div>
   </div>
 
-  <!-- Best of Jogja -->
+  <!-- Best of Jogja (no sub-nav) -->
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
         <p class="section-title"><span>Best of Jogja</span></p><h2></h2>
         <div class="loading"></div>
-        <SectionNav links={jogjaNav} locale={locale} />
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             {bestOfJogja.docs.map((post) => (
@@ -195,13 +209,12 @@ const lombokNav = secNav.lombok || [];
     <div class="container"><div class="col-md-12"><a href={sectionUrl('jogja')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Jogja' })}</a></div></div>
   </div>
 
-  <!-- Best of Lombok -->
+  <!-- Best of Lombok (no sub-nav) -->
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
         <p class="section-title"><span>Best of Lombok</span></p><h2></h2>
         <div class="loading"></div>
-        <SectionNav links={lombokNav} locale={locale} />
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             {bestOfLombok.docs.map((post) => (

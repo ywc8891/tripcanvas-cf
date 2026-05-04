@@ -6,10 +6,9 @@ interface Props {
   post: any;
   locale: string;
   categoryLinks?: { label: string; href: string }[];
-  showExcerpt?: boolean;
 }
 
-const { post, locale, categoryLinks, showExcerpt = true } = Astro.props;
+const { post, locale, categoryLinks } = Astro.props;
 const thumb = firstImageUrl(post.content);
 const displayTitle = post.title || post.slug.replace(/-/g, ' ');
 const excerpt = post.excerpt || '';
@@ -33,9 +32,7 @@ const postUrl = localePath(`/blog/${slug}`, locale);
         </span>
       )}
       <h4>{displayTitle}</h4>
-      {showExcerpt && excerpt && (
-        <p class="card-excerpt">{excerpt}</p>
-      )}
+      {excerpt && <p>{excerpt}</p>}
       <span class="read-more-link">Read More &rarr;</span>
     </div>
   </a>
