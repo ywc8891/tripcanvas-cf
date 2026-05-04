@@ -285,6 +285,19 @@ export async function getCategories(locale?: string): Promise<Category[]> {
   return result.docs;
 }
 
+const MARKET_CATEGORY_SLUGS: Record<string, string[]> = {
+  my: ['inspiration', 'johor', 'kedah', 'kuala-lumpur', 'melaka', 'negeri-sembilan', 'others', 'pahang', 'penang', 'perak', 'sabah', 'shopping', 'terengganu', 'best-of-malaysia'],
+  id: ['bali', 'bandung', 'banyuwangi', 'bintan-batam', 'bogor', 'flores', 'health-wellness', 'inspiration', 'jakarta', 'java', 'jogja', 'lombok', 'malang', 'nusa-tenggara', 'semarang', 'shopping', 'sulawesi', 'sumatra', 'surabaya', 'west-papua', 'best-of-indonesia'],
+  th: ['bangkok', 'chiang-mai', 'chiang-rai', 'chonburi', 'hat-yai', 'hua-hin', 'kanchanaburi', 'khao-yai', 'krabi', 'nan', 'phang-nga', 'phetchabun', 'phuket', 'ratchaburi', 'satun', 'shopping', 'koh-samui', 'surat-thani', 'best-of-thailand', 'southern-thailand', 'central-thailand', 'northern-thailand'],
+};
+
+export async function getCategoriesByMarket(locale: string, market: string): Promise<Category[]> {
+  const allCats = await getCategories(locale);
+  const allowedSlugs = MARKET_CATEGORY_SLUGS[market];
+  if (!allowedSlugs) return allCats;
+  return allCats.filter(c => allowedSlugs.includes(c.slug));
+}
+
 export async function getTags(locale?: string): Promise<Tag[]> {
   const resolvedLocale = locale || getRuntimeLocale();
   const result = await fetchPayload<Tag>('tags', {

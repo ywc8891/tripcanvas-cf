@@ -1,0 +1,22 @@
+---
+import { localePath } from '../lib/locale';
+
+interface SectionNavLink {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  links: SectionNavLink[];
+  locale: string;
+}
+
+const { links, locale } = Astro.props;
+if (!links || links.length === 0) return new Response(null, { status: 200 });
+---
+
+<div class="sectionnav">
+  {links.map((link) => (
+    <a href={localePath(link.href, locale)}>{link.label}</a>
+  ))}
+</div>

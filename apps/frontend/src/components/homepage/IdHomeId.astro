@@ -2,9 +2,11 @@
 import Layout from '../../layouts/Layout.astro';
 import FullImageHero from '../../components/FullImageHero.astro';
 import PostCard from '../../components/PostCard.astro';
-import { getPosts, getPostsByCategory } from '../../lib/payload';
+import SectionNav from '../../components/SectionNav.astro';
+import SectionPostCard from '../../components/SectionPostCard.astro';
+import { getPosts, getPostsByCategory, firstImageUrl } from '../../lib/payload';
 import { localePath, isStagingWorker } from '../../lib/locale';
-import { t } from '../../lib/i18n';
+import { t, SECTION_NAV } from '../../lib/i18n';
 
 const locale = (Astro.locals as { locale?: string }).locale || 'id';
 const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
@@ -12,20 +14,26 @@ const market = 'id';
 const staging = isStagingWorker(host);
 const MARKET_DOMAIN: Record<string, string> = { id: staging ? 'tripcanvas-id.academyt.workers.dev' : 'indonesia.tripcanvas.co' };
 const meta = { name: 'TripCanvas Indonesia', tagline: 'Not Your Usual Indonesia Travel Guide', description: 'We share unique information on hotels, villas, things to do and dining places in Indonesia that you never knew existed.' };
-const { docs: homeSection2 } = await getPosts(locale, 1, 8);
-const { docs: homeSection3 } = await getPosts(locale, 1, 8);
+const { docs: featured } = await getPosts(locale, 1, 8);
+const { docs: indonesiaPosts } = await getPosts(locale, 2, 8);
 const bestOfBali = await getPostsByCategory('bali', locale, 1, 8);
 const bestOfBandung = await getPostsByCategory('bandung', locale, 1, 4);
 const bestOfJogja = await getPostsByCategory('jogja', locale, 1, 4);
 const bestOfLombok = await getPostsByCategory('lombok', locale, 1, 4);
-const { firstImageUrl } = await import('../../lib/payload');
-const ogImage = homeSection2[0] ? firstImageUrl(homeSection2[0].content) : undefined;
+const ogImage = featured[0] ? firstImageUrl(featured[0].content) : undefined;
 const canonical = staging ? undefined : `https://${MARKET_DOMAIN.id}/id/`;
 
 function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
+
+const secNav = SECTION_NAV[market] || {};
+const baliNav = secNav.bali || [];
+const bandungNav = secNav.bandung || [];
+const jogjaNav = secNav.jogja || [];
+const lombokNav = secNav.lombok || [];
 ---
 
 <Layout title={meta.name} description={meta.description} ogImage={ogImage} canonical={canonical}>
+  <!-- Hero -->
   <div class="content-section content-full section first-section no-title" style="margin-top:0;">
     <div class="col-md-12" style="padding-left:0;padding-right:0;">
       <FullImageHero market={market} locale={locale} />
@@ -33,12 +41,13 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
     <div class="clear"></div>
   </div>
 
+  <!-- COVID Banner -->
   <div class="content-section content-full section not-first-section no-title" style="margin-top:0;">
     <div class="col-md-12" style="padding-left:0;padding-right:0;">
       <div class="container" style="margin-top:20px;">
         <div class="covid-inner" style="border-color:#e5e3ba;">
-      <div class="covid-box" style="background:#fffccf;border:1px solid #ff6000;color:#333;padding:10px;border-radius:3px;text-align:center;">
-        <a class="su-button su-button-style-default" style="color:#ff6000;font-family:Open Sans;font-size:15px;font-weight:200;" href={localePath('/news/covid19-updates/', locale)}>{t('home.covid.content', locale)} <i class="fa fa-arrow-circle-right"></i></a></div></div>
+          <div class="covid-box" style="background:#fffccf;border:1px solid #ff6000;color:#333;padding:10px;border-radius:3px;text-align:center;">
+            <a class="su-button su-button-style-default" style="color:#ff6000;font-family:Open Sans;font-size:15px;font-weight:200;" href={localePath('/news/covid19-updates/', locale)}>{t('home.covid.content', locale)} <i class="fa fa-arrow-circle-right"></i></a>
           </div>
         </div>
       </div>
@@ -46,6 +55,7 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
     <div class="clear"></div>
   </div>
 
+  <!-- Featured Grid -->
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
@@ -53,36 +63,40 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
         <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
-            <div class="isotopecontainer" data-value="3">{homeSection2.map((post, i) => <PostCard post={post} locale={locale} isFirst={i === 0} />)}</div>
+            <div class="isotopecontainer" data-value="3">{featured.map((post, i) => <PostCard post={post} locale={locale} isFirst={i === 0} />)}</div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Ad -->
   <div class="content-section content-full section not-first-section no-title">
     <div class="col-md-12" style="padding-left:0;padding-right:0;"><div class="ad-slot">Advertisement</div></div>
     <div class="clear"></div>
   </div>
 
+  <!-- Best of Indonesia (full variant) -->
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>TripCanvas Indonesia</span></p><h2></h2>
+        <p class="section-title"><span>{t('home.mostPopular.title', locale)}</span></p><h2></h2>
         <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
-            <div class="isotopecontainer" data-value="3">{homeSection3.map((post, i) => <PostCard post={post} locale={locale} isFirst={i === 0} />)}</div>
+            {indonesiaPosts.slice(0, 8).map((post) => <PostCard post={post} locale={locale} variant="full" />)}
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- View All CTA -->
   <div class="homesection ad-section section not-first-section">
     <div class="container"><div class="col-md-12"><a href={localePath('/blog', locale)} class="home-section-cta">{t('home.viewAll', locale)}</a></div></div>
   </div>
 
+  <!-- Newsletter -->
   <div class="content-section content-full section not-first-section no-title">
     <div class="col-md-12" style="padding-left:0;padding-right:0;">
       <div class="subscription-box">
@@ -99,16 +113,19 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
     <div class="clear"></div>
   </div>
 
+  <!-- Ad -->
   <div class="content-section content-full section not-first-section no-title">
     <div class="col-md-12" style="padding-left:0;padding-right:0;"><div class="ad-slot ad-slot-responsive">Advertisement</div></div>
     <div class="clear"></div>
   </div>
 
+  <!-- Best of Bali -->
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
         <p class="section-title"><span>Best of Bali</span></p><h2></h2>
         <div class="loading"></div>
+        <SectionNav links={baliNav} locale={locale} />
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfBali.docs.slice(0, 8).map((post, i) => <PostCard post={post} locale={locale} isFirst={i === 0} />)}</div>
@@ -122,33 +139,84 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
     <div class="container"><div class="col-md-12"><a href={sectionUrl('bali')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bali' })}</a></div></div>
   </div>
 
-  <div class="homesection ad-section section not-first-section has-title">
-    <div class="container"><div class="col-md-12">
-      <p class="section-title"><span>Best of Bandung</span></p><h2></h2>
-      <a href={sectionUrl('bandung')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bandung' })}</a>
-    </div></div>
+  <!-- Best of Bandung -->
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>Best of Bandung</span></p><h2></h2>
+        <div class="loading"></div>
+        <SectionNav links={bandungNav} locale={locale} />
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            {bestOfBandung.docs.map((post) => (
+              <SectionPostCard
+                post={post}
+                locale={locale}
+                categoryLinks={
+                  (post.categories || []).slice(0, 2).map((c: any) => ({ label: c.name || c.slug, href: `/${c.slug}` }))
+                }
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="homesection ad-section section not-first-section">
     <div class="container"><div class="col-md-12"><a href={sectionUrl('bandung')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bandung' })}</a></div></div>
   </div>
 
-  <div class="homesection ad-section section not-first-section has-title">
-    <div class="container"><div class="col-md-12">
-      <p class="section-title"><span>Best of Jogja</span></p><h2></h2>
-      <a href={sectionUrl('jogja')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Jogja' })}</a>
-    </div></div>
+  <!-- Best of Jogja -->
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>Best of Jogja</span></p><h2></h2>
+        <div class="loading"></div>
+        <SectionNav links={jogjaNav} locale={locale} />
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            {bestOfJogja.docs.map((post) => (
+              <SectionPostCard
+                post={post}
+                locale={locale}
+                categoryLinks={
+                  (post.categories || []).slice(0, 2).map((c: any) => ({ label: c.name || c.slug, href: `/${c.slug}` }))
+                }
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="homesection ad-section section not-first-section">
     <div class="container"><div class="col-md-12"><a href={sectionUrl('jogja')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Jogja' })}</a></div></div>
   </div>
 
-  <div class="homesection ad-section section not-first-section has-title">
-    <div class="container"><div class="col-md-12">
-      <p class="section-title"><span>Best of Lombok</span></p><h2></h2>
-      <a href={sectionUrl('lombok')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Lombok' })}</a>
-    </div></div>
+  <!-- Best of Lombok -->
+  <div class="no-top-margin grid grid-full section not-first-section has-title">
+    <div class="container">
+      <div class="imagegrid full col-md-12">
+        <p class="section-title"><span>Best of Lombok</span></p><h2></h2>
+        <div class="loading"></div>
+        <SectionNav links={lombokNav} locale={locale} />
+        <div class="grid-wrapper">
+          <div class="homeposts grid-full">
+            {bestOfLombok.docs.map((post) => (
+              <SectionPostCard
+                post={post}
+                locale={locale}
+                categoryLinks={
+                  (post.categories || []).slice(0, 2).map((c: any) => ({ label: c.name || c.slug, href: `/${c.slug}` }))
+                }
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="homesection ad-section section not-first-section last-section">

@@ -7,9 +7,10 @@ interface Props {
   locale: string;
   catCount?: number;
   isFirst?: boolean;
+  variant?: 'compact' | 'full';
 }
 
-const { post, locale, catCount = 1, isFirst = false } = Astro.props;
+const { post, locale, catCount = 1, isFirst = false, variant = 'compact' } = Astro.props;
 const size = isFirst ? 'fullgrid' : 'halfgrid';
 const imgClass = isFirst ? 'attachment-big size-big wp-post-image' : 'attachment-half size-half wp-post-image';
 const thumb = firstImageUrl(post.content);
@@ -27,28 +28,60 @@ const dateAgo = (function() {
 const displayTitle = post.title || post.slug.replace(/-/g, ' ');
 const postUrl = getPostUrl(post.slug, locale, primaryCategory(post.categories));
 const catId = cats[0]?.id || '';
+const excerpt = post.excerpt || '';
 ---
 
-<div class="isobrick">
-  <div class={`highlight_category_${catId} has-thumbnail ${size} grid-item`}>
-    <div class="isobrick-inner">
-      <img src={thumb} class={imgClass} alt="" loading="lazy" style="opacity: 0.75;" />
-      <span class="thumboverdate">
-        <i class="fa fa-bookmark"></i>{dateAgo}
-      </span>
-      <div class="thumbovertext">
-        <div class="badge">
-          {cats.slice(0, catCount).map((cat: any) => (
-            <a href={localePath(`/${cat.slug}`, locale)} class={`category-${cat.id || ''}`}>{cat.name || cat.slug}</a>
-          ))}
-          <div class="clear"></div>
-        </div>
-        <h2 class="title">
-          <a href={postUrl}>{displayTitle}</a>
-        </h2>
-        <a class="button outline" href={postUrl}>Read More</a>
+{variant === 'full' ? (
+  <div class="post-card-full">
+    {thumb && (
+      <div class="card-image">
+        <a href={postUrl}>
+          <img src={thumb} alt={displayTitle} loading="lazy" />
+        </a>
       </div>
-      <a class="brick-thumb-link" href={postUrl}>{displayTitle}</a>
+    )}
+    <div class="card-content">
+      {cats.length > 0 && (
+        <div class="badge">
+          {cats.slice(0, 2).map((cat: any) => (
+            <a href={localePath(`/${cat.slug}`, locale)}>{cat.name || cat.slug}</a>
+          ))}
+        </div>
+      )}
+      <div class="card-title">
+        <a href={postUrl}>{displayTitle}</a>
+      </div>
+      {excerpt && (
+        <div class="card-excerpt">{excerpt}</div>
+      )}
+      <div class="card-meta">
+        <span>{dateAgo}</span>
+        <a href={postUrl}>Read More &rarr;</a>
+      </div>
     </div>
   </div>
-</div>
+) : (
+  <div class="isobrick">
+    <div class={`highlight_category_${catId} has-thumbnail ${size} grid-item`}>
+      <div class="isobrick-inner">
+        <img src={thumb} class={imgClass} alt="" loading="lazy" style="opacity: 0.75;" />
+        <span class="thumboverdate">
+          <i class="fa fa-bookmark"></i>{dateAgo}
+        </span>
+        <div class="thumbovertext">
+          <div class="badge">
+            {cats.slice(0, catCount).map((cat: any) => (
+              <a href={localePath(`/${cat.slug}`, locale)} class={`category-${cat.id || ''}`}>{cat.name || cat.slug}</a>
+            ))}
+            <div class="clear"></div>
+          </div>
+          <h2 class="title">
+            <a href={postUrl}>{displayTitle}</a>
+          </h2>
+          <a class="button outline" href={postUrl}>Read More</a>
+        </div>
+        <a class="brick-thumb-link" href={postUrl}>{displayTitle}</a>
+      </div>
+    </div>
+  </div>
+)}

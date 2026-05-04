@@ -494,3 +494,41 @@ export const MARKET_NAV: Record<string, MarketNav> = {
     },
   },
 };
+
+// ─── Section Navigation Data ────────────────────────────────
+// Quick-link rows shown below section headings on homepage.
+// Keyed by market → category slug.
+export interface SectionNavItem {
+  label: string;
+  href: string;
+}
+
+export const SECTION_NAV: Record<string, Record<string, SectionNavItem[]>> = {
+  id: {
+    bali: [
+      { label: 'Where to stay', href: '/bali/hotels-villas-bali/' },
+      { label: 'Things to do', href: '/bali/attractions-activities-bali/' },
+      { label: 'Where to eat', href: '/bali/restaurants-cafes-bars-bali/' },
+      { label: 'Guides and tips', href: '/bali/travel-guide-tips-bali/' },
+    ],
+    bandung: [
+      { label: 'Where to stay', href: '/bandung/hotels-villas/' },
+      { label: 'Things to do', href: '/bandung/attractions-activities/' },
+      { label: 'Where to eat', href: '/bandung/restaurants-cafes-bars/' },
+      { label: 'Guides and tips', href: '/bandung/travel-guide-tips/' },
+    ],
+    jogja: [
+      { label: 'Where to stay', href: '/jogja/' },
+      { label: 'Things to do', href: '/jogja/' },
+      { label: 'Where to eat', href: '/jogja/' },
+      { label: 'Guides and tips', href: '/jogja/' },
+    ],
+    lombok: [
+      { label: 'Where to stay', href: '/lombok/' },
+      { label: 'Things to do', href: '/lombok/' },
+    ],
+  },
+  my: {},
+  th: {},
+  en: {},
+};
