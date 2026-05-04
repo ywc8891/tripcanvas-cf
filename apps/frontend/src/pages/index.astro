@@ -26,10 +26,10 @@ const market = marketFromHost(host);
 ---
 
 {market === 'en' && <HubHome />}
-{market === 'my' && locale === 'en' && <MyHomeEn />}
 {market === 'my' && locale === 'zh' && <MyHomeZh />}
-{market === 'id' && locale === 'id' && <IdHomeId />}
+{market === 'my' && <MyHomeEn />}
 {market === 'id' && locale === 'zh' && <IdHomeZh />}
-{market === 'th' && locale === 'en' && <ThHomeEn />}
+{market === 'id' && <IdHomeId />}
 {market === 'th' && locale === 'zh' && <ThHomeZh />}
 {market === 'th' && locale === 'id' && <ThHomeId />}
+{market === 'th' && <ThHomeEn />}
