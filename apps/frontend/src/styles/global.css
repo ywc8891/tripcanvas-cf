@@ -1849,6 +1849,10 @@ h1, h2, h3, h4, h5, h6 {
 .follow-bar-links a { color: #555; font-size: 1.3rem; }
 .follow-bar-links a:hover { color: var(--brand); }
 
+/* ─── AD SLOTS ──────────────────────────────────────────────── */
+.ad-slot { text-align: center; margin: 1rem 0; min-height: 90px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: .8rem; }
+.ad-slot-responsive { min-height: 250px; }
+
 /* ─── ITINERARY FLOATING MENU ────────────────────────────────── */
 .itinerary-menu {
   position: fixed; bottom: 20px; left: 20px; z-index: 999;
