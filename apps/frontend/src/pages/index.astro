@@ -1,8 +1,15 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { getCategories, getPostByWpId, getPosts, firstImageUrl } from '../lib/payload';
-import { getPostUrl, primaryCategory, localePath, marketFromHost, isStagingWorker } from '../lib/locale';
-import { t } from '../lib/i18n';
+import { marketFromHost, getPostUrl, primaryCategory } from '../lib/locale';
+import { getPostByWpId } from '../lib/payload';
+
+import HubHome from '../components/homepage/HubHome.astro';
+import MyHomeEn from '../components/homepage/MyHomeEn.astro';
+import MyHomeZh from '../components/homepage/MyHomeZh.astro';
+import IdHomeId from '../components/homepage/IdHomeId.astro';
+import IdHomeZh from '../components/homepage/IdHomeZh.astro';
+import ThHomeEn from '../components/homepage/ThHomeEn.astro';
+import ThHomeZh from '../components/homepage/ThHomeZh.astro';
+import ThHomeId from '../components/homepage/ThHomeId.astro';
 
 const locale = (Astro.locals as { locale?: string }).locale || 'en';
 const wpIdParam = Astro.url.searchParams.get('p');
@@ -16,141 +23,13 @@ if (wpIdParam && /^\d+$/.test(wpIdParam)) {
 
 const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
 const market = marketFromHost(host);
-const staging = isStagingWorker(host);
-const MARKET_DOMAIN: Record<string, string> = {
-  my: staging ? 'tripcanvas-my.academyt.workers.dev' : 'malaysia.tripcanvas.co',
-  id: staging ? 'tripcanvas-id.academyt.workers.dev' : 'indonesia.tripcanvas.co',
-  th: staging ? 'tripcanvas-th.academyt.workers.dev' : 'thailand.tripcanvas.co',
-};
-
-const isZh = locale === 'zh';
-const { docs: rawPosts, totalDocs: rawTotal } = await getPosts(locale, 1, isZh ? 80 : 12, isZh ? { fallbackLocale: 'none' } : undefined);
-// For ZH, filter to only posts with actual Chinese content
-const allPosts = isZh ? rawPosts.filter(p => p.title) : rawPosts;
-const totalDocs = isZh ? allPosts.length : rawTotal;
-const categories = await getCategories(locale);
-const featuredPosts = allPosts.slice(0, 6);
-// Show hub layout only for the EN market worker (tripcanvas.co)
-const isEnglishHub = market === 'en';
-const heroImage = featuredPosts[0] ? firstImageUrl(featuredPosts[0].content) : null;
-
-const MARKET_META: Record<string, { name: string; tagline: string }> = {
-  my: { name: 'TripCanvas Malaysia', tagline: 'Not Your Usual Malaysia Travel Guide' },
-  id: { name: 'TripCanvas Indonesia', tagline: 'Not Your Usual Indonesia Travel Guide' },
-  th: { name: 'TripCanvas Thailand', tagline: 'Not Your Usual Thailand Travel Guide' },
-  en: { name: 'TripCanvas', tagline: 'Not Your Usual Southeast Asia Travel Guide' },
-};
-// Locale-specific overrides for non-English locales
-const LOCALE_META: Record<string, { name: string; tagline: string }> = {
-  zh: { name: 'TripCanvas', tagline: '东南亚旅行指南' },
-  my: { name: 'TripCanvas Malaysia', tagline: 'Panduan Travel Malaysia Anda' },
-  id: { name: 'TripCanvas Indonesia', tagline: 'Panduan Wisata Indonesia Anda' },
-  th: { name: 'TripCanvas Thailand', tagline: 'ไกด์ท่องเที่ยวไทย' },
-};
-const meta = (locale !== 'en' ? LOCALE_META[locale] : null) || MARKET_META[market] || MARKET_META.en;
-
-function displayTitle(post: { title?: string; slug: string }): string {
-  return post.title || post.slug.replace(/-/g, ' ');
-}
 ---
 
-{isEnglishHub ? (
-<Layout title="TripCanvas - Southeast Asia Travel Guides" description="Travel guides, local tips, and destination stories for Malaysia, Indonesia and Thailand.">
-  <div class="dest-hero">
-    <div class="container">
-      <h1>TripCanvas</h1>
-      <p>Not your usual Southeast Asia travel guide — local stories, real tips, hidden finds.</p>
-    </div>
-  </div>
-  <div class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
-    <p class="section-title">Choose your destination</p>
-    <div class="dest-grid">
-      <a class="dest-card" href={`https://${MARKET_DOMAIN.my}`}>
-        <div class="dest-card-flag">🇲🇾</div>
-        <div class="dest-card-body">
-          <h2>Malaysia</h2>
-          <p>KL, Penang, Langkawi, Johor, Melaka and beyond.</p>
-        </div>
-      </a>
-      <a class="dest-card" href={`https://${MARKET_DOMAIN.id}`}>
-        <div class="dest-card-flag">🇮🇩</div>
-        <div class="dest-card-body">
-          <h2>Indonesia</h2>
-          <p>Bali, Jakarta, Yogyakarta, and island escapes.</p>
-        </div>
-      </a>
-      <a class="dest-card" href={`https://${MARKET_DOMAIN.th}`}>
-        <div class="dest-card-flag">🇹🇭</div>
-        <div class="dest-card-body">
-          <h2>Thailand</h2>
-          <p>Bangkok, Chiang Mai, Phuket, Koh Samui and more.</p>
-        </div>
-      </a>
-    </div>
-  </div>
-</Layout>
-) : (
-<Layout title={`${meta.name} - Travel Blog`} description={`${meta.tagline}. Destination guides, food finds, and travel tips.`}>
-  <div class="locale-hero" style={heroImage ? `background-image: url('${heroImage}')` : ''}>
-    <div class="locale-hero-overlay"></div>
-    <div class="locale-hero-content">
-      <div class="container">
-        <h1>{meta.name}</h1>
-        <p class="locale-hero-subtitle">{meta.tagline}</p>
-        <div class="locale-hero-links">
-          {locale !== 'my' && <a href={`https://${MARKET_DOMAIN.my}`}>Malaysia Guide</a>}
-          {locale !== 'id' && <a href={`https://${MARKET_DOMAIN.id}`}>Indonesia Guide</a>}
-          {locale !== 'th' && <a href={`https://${MARKET_DOMAIN.th}`}>Thailand Guide</a>}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="container" style="padding-top:2rem; padding-bottom:4rem;">
-    {featuredPosts.length > 0 ? (
-      <>
-        <p class="section-title">{t('home.featured', locale)} <span style="font-weight:300; letter-spacing:0;">|</span> {meta.name}</p>
-        <div class="featured-grid">
-          {featuredPosts.map((post) => {
-            const thumb = firstImageUrl(post.content);
-            const postDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-            return (
-              <article class="post-card">
-                <a class="post-card-thumb" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))} tabindex="-1" aria-hidden="true">
-                  {thumb
-                    ? <img src={thumb} alt="" loading="lazy" decoding="async" />
-                    : <div class="post-card-thumb-placeholder"></div>
-                  }
-                </a>
-                <span class="post-card-date">{postDate}</span>
-                <div class="post-card-body">
-                  <h3><a href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{displayTitle(post)}</a></h3>
-                  <a class="post-card-btn" href={getPostUrl(post.slug, locale, primaryCategory(post.categories))}>{t('post.readMore', locale)}</a>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-        <div style="margin-top:1.5rem; text-align:right;">
-          <a href={localePath('/blog', locale)} style="font-size:0.88rem; font-weight:600; color:var(--brand);">{t('home.viewAll', locale)}</a>
-        </div>
-      </>
-    ) : (
-      <p style="color:var(--muted);">{t('home.noStories', locale)}</p>
-    )}
-
-    {categories.length > 0 && (
-      <>
-        <p class="section-title" style="margin-top:2.5rem;">{t('home.browseCategory', locale)}</p>
-        <div class="chip-row">
-          {categories.slice(0, 20).map((category) => (
-            <a class="chip" href={localePath(`/${category.slug}`, locale)}>
-              {category.name || category.slug.replace(/-/g, ' ')}
-            </a>
-          ))}
-        </div>
-      </>
-    )}
-  </div>
-</Layout>
-)}
+{market === 'en' && <HubHome />}
+{market === 'my' && locale === 'en' && <MyHomeEn />}
+{market === 'my' && locale === 'zh' && <MyHomeZh />}
+{market === 'id' && locale === 'id' && <IdHomeId />}
+{market === 'id' && locale === 'zh' && <IdHomeZh />}
+{market === 'th' && locale === 'en' && <ThHomeEn />}
+{market === 'th' && locale === 'zh' && <ThHomeZh />}
+{market === 'th' && locale === 'id' && <ThHomeId />}

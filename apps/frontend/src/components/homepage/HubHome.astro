@@ -1,0 +1,57 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
+const staging = host.includes('academyt.workers.dev');
+
+const MARKET_DOMAIN: Record<string, string> = {
+  my: staging ? 'tripcanvas-my.academyt.workers.dev' : 'malaysia.tripcanvas.co',
+  id: staging ? 'tripcanvas-id.academyt.workers.dev' : 'indonesia.tripcanvas.co',
+  th: staging ? 'tripcanvas-th.academyt.workers.dev' : 'thailand.tripcanvas.co',
+};
+
+const destinations = [
+  {
+    key: 'id',
+    name: 'Indonesia',
+    flag: '🇮🇩',
+    description: 'Bali, Jakarta, Yogyakarta, Lombok, and island escapes across the archipelago.',
+  },
+  {
+    key: 'my',
+    name: 'Malaysia',
+    flag: '🇲🇾',
+    description: 'KL, Penang, Langkawi, Johor, Melaka, and the best of Malaysian food and culture.',
+  },
+  {
+    key: 'th',
+    name: 'Thailand',
+    flag: '🇹🇭',
+    description: 'Bangkok, Chiang Mai, Phuket, Krabi, Koh Samui, and island paradise.',
+  },
+];
+---
+
+<Layout title="TripCanvas" description="Not your usual Southeast Asia travel guide — local stories, real tips, hidden finds.">
+  <div class="hub-page">
+    <div class="hub-hero">
+      <div class="hub-hero-content">
+        <img src="https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/tripcanvas-menubar.png" alt="TripCanvas" class="hub-logo" />
+        <p class="hub-tagline">Not Your Usual Southeast Asia Travel Guide</p>
+        <p class="hub-subtitle">Local stories, real tips, hidden finds from Malaysia, Indonesia and Thailand.</p>
+      </div>
+    </div>
+    <div class="hub-cards-wrapper">
+      <div class="hub-cards">
+        {destinations.map((d) => (
+          <a class="hub-card" href={`https://${MARKET_DOMAIN[d.key]}`}>
+            <div class="hub-card-flag">{d.flag}</div>
+            <h2 class="hub-card-title">{d.name}</h2>
+            <p class="hub-card-desc">{d.description}</p>
+            <span class="hub-card-cta">Explore {d.name} →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>
