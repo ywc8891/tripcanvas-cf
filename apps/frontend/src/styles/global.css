@@ -1804,3 +1804,16 @@ h1, h2, h3, h4, h5, h6 {
 .hub-card-title { font-family: Merriweather, serif; font-size: 1.4rem; margin: 0 0 .5rem; font-weight: 700; }
 .hub-card-desc { font-family: 'Open Sans', sans-serif; font-size: .9rem; color: rgba(255,255,255,.7); line-height: 1.5; margin-bottom: 1rem; }
 .hub-card-cta { display: inline-block; font-family: 'Open Sans', sans-serif; font-size: .85rem; font-weight: 600; color: #e4741f; border-bottom: 2px solid #e4741f; padding-bottom: 2px; }
+
+/* ─── COVID-19 BANNER ──────────────────────────────────────── */
+.covid-banner {
+  background: linear-gradient(135deg, #1a237e, #283593);
+  color: #fff; padding: 1.5rem 0; text-align: center;
+}
+.covid-banner-title { font-family: Merriweather, serif; font-size: 1.2rem; margin: 0 0 .5rem; }
+.covid-banner-desc { font-size: .9rem; opacity: .9; margin-bottom: .75rem; }
+.covid-banner-link {
+  display: inline-block; background: #fff; color: #1a237e; padding: .4rem 1.2rem;
+  border-radius: 4px; font-size: .85rem; font-weight: 600; text-decoration: none;
+}
+.covid-banner-link:hover { background: #e8eaf6; }

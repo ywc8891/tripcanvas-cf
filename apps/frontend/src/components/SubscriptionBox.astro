@@ -1,0 +1,29 @@
+---
+interface Props {
+  market: string;
+  locale: string;
+}
+
+const { market, locale } = Astro.props;
+
+const COPY: Record<string, { title: string; desc: string; btn: string; placeholder: string }> = {
+  en: { title: 'Get more {name} travel ideas', desc: 'Sign up for our monthly email and be inspired with {name} travel ideas that you\'d love.', btn: 'Sign me up!', placeholder: 'Enter Your Email Address' },
+  id: { title: 'Dapatkan ide liburan di {name}', desc: 'Daftar ke buletin bulanan kami dan Anda akan terinspirasi oleh berbagai ide untuk liburan di {name} yang pasti Anda suka.', btn: 'Daftar!', placeholder: 'Masukkan Alamat Email' },
+  zh: { title: '获取更多{name}旅行灵感', desc: '订阅我们的每月邮件，获取您一定会喜欢的{name}旅行灵感。', btn: '立即订阅！', placeholder: '输入您的邮箱地址' },
+  th: { title: 'รับแนวคิดการเดินทางใน{name}', desc: 'สมัครรับอีเมลรายเดือนของเราและรับแรงบันดาลใจในการเดินทาง', btn: 'สมัครเลย!', placeholder: 'กรอกที่อยู่อีเมล' },
+};
+const marketName: Record<string, string> = { my: 'Malaysia', id: 'Indonesia', th: 'Thailand' };
+const name = marketName[market] || '';
+const copy = COPY[locale] || COPY.en;
+---
+
+<div class="subscription-box">
+  <div class="container">
+    <h2 class="subscription-box-title">{copy.title.replace('{name}', name)} <span>in your inbox!</span></h2>
+    <p class="subscription-box-desc">{copy.desc.replace('{name}', name)}</p>
+    <form class="subscription-box-form" method="post" target="_blank">
+      <input type="email" class="subscription-box-input" placeholder={copy.placeholder} required />
+      <input type="submit" class="subscription-box-btn" value={copy.btn} />
+    </form>
+  </div>
+</div>

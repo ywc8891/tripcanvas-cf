@@ -1,0 +1,141 @@
+---
+import { MARKET_SOCIAL } from '../lib/i18n';
+import { localePath } from '../lib/locale';
+
+interface Props {
+  market: string;
+  locale: string;
+}
+
+const { market, locale } = Astro.props;
+
+const HERO_CONFIG: Record<string, {
+  bgImage: string;
+  bannerLogo: string;
+  tagline: string;
+  guideButtons: { label: string; href: string }[];
+}> = {
+  'my_en': {
+    bgImage: 'https://malaysia.tripcanvas.co/wp-content/uploads/2021/06/78669773_149847319754938_492495314192695296_n.jpg',
+    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    tagline: 'Not Your Usual Malaysia Travel Guide',
+    guideButtons: [
+      { label: 'Kuala Lumpur Guide', href: '/kuala-lumpur/' },
+      { label: 'Penang Guide', href: '/penang/' },
+      { label: 'Johor Guide', href: '/johor/' },
+      { label: 'Langkawi Guide', href: '/kedah/' },
+    ],
+  },
+  'my_zh': {
+    bgImage: 'https://malaysia.tripcanvas.co/wp-content/uploads/2021/06/78669773_149847319754938_492495314192695296_n.jpg',
+    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    tagline: '非一般的大马旅游攻略',
+    guideButtons: [
+      { label: '吉隆坡 & 雪兰莪', href: '/kuala-lumpur/' },
+      { label: '槟城', href: '/penang/' },
+      { label: '柔佛', href: '/johor/' },
+      { label: '霹雳', href: '/perak/' },
+    ],
+  },
+  'id_id': {
+    bgImage: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg',
+    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    tagline: 'Not Your Usual Indonesia Travel Guide',
+    guideButtons: [
+      { label: 'Panduan Bali', href: '/id/bali/' },
+      { label: 'Panduan Bandung', href: '/id/bandung/' },
+      { label: 'Panduan Jogja', href: '/id/jogja/' },
+      { label: 'Panduan Lombok', href: '/id/lombok/' },
+    ],
+  },
+  'id_zh': {
+    bgImage: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg',
+    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    tagline: '非一般的印尼旅游攻略',
+    guideButtons: [
+      { label: '巴厘岛', href: '/zh/bali/' },
+      { label: '日惹', href: '/zh/jogja/' },
+    ],
+  },
+  'th_en': {
+    bgImage: 'https://thailand.tripcanvas.co/wp-content/uploads/2016/03/facebook-cover-tripcanvas-thailand-1200.jpg',
+    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    tagline: 'Not Your Usual Thailand Travel Guide',
+    guideButtons: [
+      { label: 'Bangkok Guide', href: '/bangkok/' },
+      { label: 'Phuket Guide', href: '/phuket/' },
+      { label: 'Chiang Mai Guide', href: '/chiang-mai/' },
+      { label: 'Khao Yai Guide', href: '/khao-yai/' },
+    ],
+  },
+  'th_zh': {
+    bgImage: 'https://thailand.tripcanvas.co/wp-content/uploads/2016/03/facebook-cover-tripcanvas-thailand-1200.jpg',
+    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    tagline: '非一般的泰国旅游攻略',
+    guideButtons: [
+      { label: '曼谷', href: '/zh/bangkok/' },
+      { label: '华欣', href: '/zh/hua-hin/' },
+      { label: '清迈', href: '/zh/chiang-mai/' },
+      { label: '考艾', href: '/zh/khao-yai/' },
+    ],
+  },
+  'th_id': {
+    bgImage: 'https://thailand.tripcanvas.co/wp-content/uploads/2016/03/facebook-cover-tripcanvas-thailand-1200.jpg',
+    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    tagline: 'Bukan Panduan Liburan Thailand Biasa Anda',
+    guideButtons: [
+      { label: 'Panduan Bangkok', href: '/id/bangkok/' },
+      { label: 'Panduan Hua Hin', href: '/id/hua-hin/' },
+      { label: 'Panduan Khao Yai', href: '/id/khao-yai/' },
+      { label: 'Panduan Kanchanaburi', href: '/id/kanchanaburi/' },
+    ],
+  },
+};
+
+const configKey = `${market}_${locale}`;
+const config = HERO_CONFIG[configKey] || HERO_CONFIG[`${market}_en`] || HERO_CONFIG.id_id;
+const social = MARKET_SOCIAL[market];
+
+function lh(href: string): string {
+  if (href.startsWith('http')) return href;
+  return localePath(href, locale);
+}
+---
+
+<div class="full-image-hero" style={`background-image: url('${config.bgImage}');`}>
+  <div class="full-image-hero-overlay"></div>
+  <div class="full-image-hero-content">
+    <div class="container">
+      <h1 class="full-image-hero-logo">
+        <a href={lh('/')}>
+          <img src={config.bannerLogo} alt="TripCanvas" />
+        </a>
+      </h1>
+      <p class="full-image-hero-subtitle">{config.tagline}</p>
+
+      <div class="full-image-hero-search">
+        <form role="search" method="get" action={lh('/')}>
+          <input type="search" class="full-image-hero-search-field" placeholder="What are you looking for?" name="s" />
+          <i class="fa fa-search full-image-hero-search-icon"></i>
+        </form>
+      </div>
+
+      {config.guideButtons.length > 0 && (
+        <p class="full-image-hero-buttons">
+          {config.guideButtons.map((btn) => (
+            <a class="full-image-hero-btn" href={lh(btn.href)}>{btn.label}</a>
+          ))}
+        </p>
+      )}
+
+      {social && (
+        <div class="full-image-hero-social">
+          {social.facebook && <a href={social.facebook} target="_blank" rel="noopener"><i class="fa fa-facebook-square"></i></a>}
+          {social.twitter && <a href={social.twitter} target="_blank" rel="noopener"><i class="fa fa-twitter-square"></i></a>}
+          {social.youtube && <a href={social.youtube} target="_blank" rel="noopener"><i class="fa fa-youtube-play"></i></a>}
+          {social.instagram && <a href={social.instagram} target="_blank" rel="noopener"><i class="fa fa-instagram"></i></a>}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
