@@ -4681,94 +4681,18 @@ body.locale-zh, .locale-zh .full-image-hero-subtitle { font-family: Lato, 'Noto 
 /*# sourceMappingURL=material.min.css.map */
 
 /* ==================================================================
-   PostCard "full" variant — image left, text right with excerpt
+   Production-equivalent horizontal card patterns
+   Using display:table layout (matches WordPress Edition theme)
    ================================================================== */
-.post-card-full {
-  display: flex;
-  gap: 1.25rem;
-  margin-bottom: 1.25rem;
-  align-items: flex-start;
-}
-.post-card-full .card-image {
-  flex: 0 0 35%;
-  min-width: 180px;
-}
-.post-card-full .card-image img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 3px;
-  display: block;
-}
-.post-card-full .card-content {
-  flex: 1;
-  min-width: 0;
-}
-.post-card-full .card-content .badge {
-  margin-bottom: 0.35rem;
-}
-.post-card-full .card-content .badge a {
-  display: inline-block;
-  background: #ff6000;
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 2px;
-  margin-right: 4px;
-  margin-bottom: 4px;
-}
-.post-card-full .card-content .badge a:hover {
-  background: #e05500;
-  color: #fff;
-  text-decoration: none;
-}
-.post-card-full .card-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  line-height: 1.35;
-  margin-bottom: 0.4rem;
-}
-.post-card-full .card-title a {
-  color: #333;
-  text-decoration: none;
-}
-.post-card-full .card-title a:hover {
-  color: #ff6000;
-}
-.post-card-full .card-excerpt {
-  color: #666;
-  font-size: 0.875rem;
-  line-height: 1.55;
-  margin-bottom: 0.5rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.post-card-full .card-meta {
-  color: #aaa;
-  font-size: 0.8rem;
-}
-.post-card-full .card-meta a {
-  color: #ff6000;
-  text-decoration: none;
-  margin-left: 0.5rem;
-}
-.post-card-full .card-meta a:hover {
-  text-decoration: underline;
-}
 
-/* ==================================================================
-   SectionNav — inline quick-link bar under section headings
-   ================================================================== */
-.sectionnav {
+/* SectionNav — inline quick-link bar under section headings */
+.home .sectionnav {
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid #e8e8e8;
+  overflow: hidden;
 }
-.sectionnav a {
+.home .sectionnav a {
   display: inline-block;
   color: #555;
   font-size: 0.85rem;
@@ -4781,94 +4705,230 @@ body.locale-zh, .locale-zh .full-image-hero-subtitle { font-family: Lato, 'Noto 
   text-decoration: none;
   transition: border-color 0.15s;
 }
-.sectionnav a:last-child {
+.home .sectionnav a:last-child {
   margin-right: 0;
 }
-.sectionnav a:hover,
-.sectionnav a:active {
+.home .sectionnav a:hover,
+.home .sectionnav a:active {
   color: #333;
   border-bottom-color: #ff6000;
 }
 
-/* ==================================================================
-   SectionPostCard — horizontal excerpt card for category sections
-   ================================================================== */
-.section-post-card {
-  display: flex;
-  gap: 1.25rem;
-  padding-bottom: 1.25rem;
-  margin-bottom: 1.25rem;
-  border-bottom: 1px solid #eee;
-  align-items: flex-start;
+/* Full-variant post card: table layout matching production postlist.withthumb.cardview */
+.full-card-wrapper {
+  margin-bottom: 15px;
 }
-.section-post-card:last-of-type {
-  border-bottom: none;
+a.full-card-link {
+  display: table;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #f4f5f8;
+  background: #fff;
+  border-radius: 3px;
+  color: #333;
+  text-decoration: none;
+  -moz-transition: all 0.3s ease 0s;
+  -webkit-transition: all 0.3s ease 0s;
+  -o-transition: all 0.3s ease 0s;
+  transition: all 0.3s ease 0s;
 }
-.section-post-card .card-image {
-  flex: 0 0 180px;
+a.full-card-link:hover {
+  text-decoration: none;
+  border-color: #b8bac0;
 }
-.section-post-card .card-image img {
-  width: 180px;
+.full-card-link .full-card-thumb {
+  display: table-cell;
+  vertical-align: middle;
+  width: 35%;
+}
+.full-card-link .full-card-thumb img {
+  width: 100%;
+  max-width: 280px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+}
+.full-card-link .full-card-content {
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 14px;
+  padding-left: 15px;
+  line-height: 1.3em;
+}
+.full-card-link .full-card-content .cat-badge {
+  margin-bottom: 5px;
+}
+.full-card-link .full-card-content .cat-badge a {
+  display: inline-block;
+  background: #ff6000;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+}
+.full-card-link .full-card-content .cat-badge a:hover {
+  background: #e05500;
+  color: #fff;
+  text-decoration: none;
+}
+.full-card-link .full-card-content h4 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #333;
+}
+.full-card-link .full-card-content h4 a {
+  color: #333;
+  text-decoration: none;
+}
+.full-card-link .full-card-content h4 a:hover {
+  color: #ff6000;
+}
+.full-card-link .full-card-content .full-card-excerpt {
+  color: #666;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin-bottom: 5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.full-card-link .full-card-content .full-card-meta {
+  color: #aaa;
+  font-size: 0.8rem;
+}
+.full-card-link .full-card-content .full-card-meta .read-more {
+  color: #ff6000;
+  font-weight: 600;
+  text-decoration: none;
+}
+.full-card-link .full-card-content .full-card-meta .read-more:hover {
+  text-decoration: underline;
+}
+
+/* SectionPostCard — horizontal card for Bandung/Jogja/Lombok sections */
+.recommended-source {
+  display: block;
+}
+.recommended-source a {
+  display: table;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #f4f5f8;
+  background: #fff;
+  margin-bottom: 15px;
+  border-radius: 3px;
+  color: #333;
+  text-decoration: none;
+  -moz-transition: all 0.3s ease 0s;
+  -webkit-transition: all 0.3s ease 0s;
+  -o-transition: all 0.3s ease 0s;
+  transition: all 0.3s ease 0s;
+}
+.recommended-source a:hover {
+  text-decoration: none;
+  border-color: #b8bac0;
+}
+.recommended-source .recommended-thumb {
+  display: table-cell;
+  vertical-align: middle;
+  width: 200px;
+  background-color: #d7dee6;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 3px;
+}
+.recommended-source .recommended-thumb img {
+  width: 200px;
   height: 120px;
   object-fit: cover;
   border-radius: 3px;
   display: block;
 }
-.section-post-card .card-content {
-  flex: 1;
-  min-width: 0;
+.recommended-source .recommended-content {
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 14px;
+  padding-left: 15px;
+  padding-right: 10px;
+  line-height: 1.3em;
 }
-.section-post-card .card-tags {
-  margin-bottom: 0.3rem;
-}
-.section-post-card .card-tags a {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 600;
+.recommended-source .recommended-content .source {
+  font-size: 11px;
+  color: #888;
+  display: block;
+  margin-bottom: 5px;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.recommended-source .recommended-content .source a {
+  display: inline;
+  padding: 0;
+  border: none;
   color: #ff6000;
-  text-decoration: none;
-  margin-right: 8px;
-}
-.section-post-card .card-tags a:hover {
-  color: #e05500;
-}
-.section-post-card .card-tags span.sep {
-  color: #ccc;
-  margin: 0 2px;
-}
-.section-post-card .card-title {
-  font-size: 1rem;
   font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 0.35rem;
+  margin: 0;
+  background: none;
 }
-.section-post-card .card-title a {
+.recommended-source .recommended-content .source a:hover {
+  color: #e05500;
+  border: none;
+  background: none;
+}
+.recommended-source .recommended-content h4 {
+  font-weight: 600;
+  line-height: 1.3;
+  font-size: 18px;
+  margin-top: 5px;
+  margin-bottom: 8px;
+  color: #333;
+}
+.recommended-source .recommended-content h4 a {
+  display: inline;
+  padding: 0;
+  border: none;
   color: #333;
   text-decoration: none;
+  background: none;
 }
-.section-post-card .card-title a:hover {
+.recommended-source .recommended-content h4 a:hover {
   color: #ff6000;
+  border: none;
+  background: none;
 }
-.section-post-card .card-excerpt {
+.recommended-source .recommended-content p {
+  font-size: 14px;
+  line-height: 1.5em;
   color: #666;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  margin-bottom: 0.4rem;
+  margin-bottom: 5px;
 }
-.section-post-card .card-readmore {
+.recommended-source .recommended-content .read-more-link {
+  display: inline;
+  padding: 0;
+  border: none;
   color: #ff6000;
-  font-size: 0.85rem;
   font-weight: 600;
+  font-size: 13px;
+  margin: 0;
+  background: none;
   text-decoration: none;
 }
-.section-post-card .card-readmore:hover {
-  text-decoration: underline;
+.recommended-source .recommended-content .read-more-link:hover {
+  color: #e05500;
+  border: none;
+  background: none;
 }
 
-/* ==================================================================
-   Section spacing — more breathing room
-   ================================================================== */
+/* Section spacing */
 .no-top-margin.section {
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
@@ -4877,35 +4937,42 @@ body.locale-zh, .locale-zh .full-image-hero-subtitle { font-family: Lato, 'Noto 
   padding-bottom: 1rem;
 }
 
-/* ==================================================================
-   Mobile: stack variants vertically
-   ================================================================== */
+/* Mobile: stack cards vertically */
 @media (max-width: 767px) {
-  .post-card-full {
-    flex-direction: column;
+  .home .sectionnav a {
+    margin-right: 0.75rem;
+    font-size: 0.78rem;
   }
-  .post-card-full .card-image {
-    flex: none;
-    min-width: 0;
+  a.full-card-link {
+    display: block;
+  }
+  .full-card-link .full-card-thumb {
+    display: block;
     width: 100%;
+    margin-bottom: 10px;
   }
-  .post-card-full .card-image img {
-    height: 200px;
+  .full-card-link .full-card-thumb img {
+    max-width: 100%;
+    height: 180px;
+  }
+  .full-card-link .full-card-content {
+    display: block;
+    padding-left: 0;
+  }
+  .recommended-source a {
+    display: block;
+  }
+  .recommended-source .recommended-thumb {
+    display: block;
     width: 100%;
+    margin-bottom: 10px;
   }
-  .section-post-card {
-    flex-direction: column;
-  }
-  .section-post-card .card-image {
-    flex: none;
-    width: 100%;
-  }
-  .section-post-card .card-image img {
+  .recommended-source .recommended-thumb img {
     width: 100%;
     height: 160px;
   }
-  .sectionnav a {
-    margin-right: 0.75rem;
-    font-size: 0.78rem;
+  .recommended-source .recommended-content {
+    display: block;
+    padding-left: 0;
   }
 }

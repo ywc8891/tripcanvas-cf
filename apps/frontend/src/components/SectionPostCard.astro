@@ -14,35 +14,29 @@ const thumb = firstImageUrl(post.content);
 const displayTitle = post.title || post.slug.replace(/-/g, ' ');
 const excerpt = post.excerpt || '';
 const slug = post.slug;
+const postUrl = localePath(`/blog/${slug}`, locale);
 ---
 
-<div class="section-post-card">
-  {thumb && (
-    <div class="card-image">
-      <a href={localePath(`/blog/${slug}`, locale)}>
+<div class="recommended-source">
+  <a href={postUrl}>
+    {thumb && (
+      <div class="recommended-thumb">
         <img src={thumb} alt={displayTitle} loading="lazy" />
-      </a>
-    </div>
-  )}
-  <div class="card-content">
-    {categoryLinks && categoryLinks.length > 0 && (
-      <div class="card-tags">
-        {categoryLinks.map((cl, i) => (
-          <>
-            {i > 0 && <span class="sep"> | </span>}
-            <a href={localePath(cl.href, locale)}>{cl.label}</a>
-          </>
-        ))}
       </div>
     )}
-    <div class="card-title">
-      <a href={localePath(`/blog/${slug}`, locale)}>{displayTitle}</a>
+    <div class="recommended-content">
+      {categoryLinks && categoryLinks.length > 0 && (
+        <span class="source">
+          {categoryLinks.map((cl, i) => (
+            <>{i > 0 && <span> | </span>}<a href={localePath(cl.href, locale)}>{cl.label}</a></>
+          ))}
+        </span>
+      )}
+      <h4>{displayTitle}</h4>
+      {showExcerpt && excerpt && (
+        <p class="card-excerpt">{excerpt}</p>
+      )}
+      <span class="read-more-link">Read More &rarr;</span>
     </div>
-    {showExcerpt && excerpt && (
-      <div class="card-excerpt">{excerpt}</div>
-    )}
-    <a class="card-readmore" href={localePath(`/blog/${slug}`, locale)}>
-      Read More &rarr;
-    </a>
-  </div>
+  </a>
 </div>

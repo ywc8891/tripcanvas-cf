@@ -32,33 +32,31 @@ const excerpt = post.excerpt || '';
 ---
 
 {variant === 'full' ? (
-  <div class="post-card-full">
-    {thumb && (
-      <div class="card-image">
-        <a href={postUrl}>
+  <div class="full-card-wrapper">
+    <a href={postUrl} class="full-card-link">
+      {thumb && (
+        <div class="full-card-thumb">
           <img src={thumb} alt={displayTitle} loading="lazy" />
-        </a>
-      </div>
-    )}
-    <div class="card-content">
-      {cats.length > 0 && (
-        <div class="badge">
-          {cats.slice(0, 2).map((cat: any) => (
-            <a href={localePath(`/${cat.slug}`, locale)}>{cat.name || cat.slug}</a>
-          ))}
         </div>
       )}
-      <div class="card-title">
-        <a href={postUrl}>{displayTitle}</a>
+      <div class="full-card-content">
+        {cats.length > 0 && (
+          <div class="cat-badge">
+            {cats.slice(0, 2).map((cat: any) => (
+              <a href={localePath(`/${cat.slug}`, locale)}>{cat.name || cat.slug}</a>
+            ))}
+          </div>
+        )}
+        <h4>{displayTitle}</h4>
+        {excerpt && (
+          <div class="full-card-excerpt">{excerpt}</div>
+        )}
+        <div class="full-card-meta">
+          <span>{dateAgo}</span>
+          <span class="read-more"> &middot; Read More &rarr;</span>
+        </div>
       </div>
-      {excerpt && (
-        <div class="card-excerpt">{excerpt}</div>
-      )}
-      <div class="card-meta">
-        <span>{dateAgo}</span>
-        <a href={postUrl}>Read More &rarr;</a>
-      </div>
-    </div>
+    </a>
   </div>
 ) : (
   <div class="isobrick">
