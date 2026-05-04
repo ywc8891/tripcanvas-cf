@@ -1817,3 +1817,53 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 4px; font-size: .85rem; font-weight: 600; text-decoration: none;
 }
 .covid-banner-link:hover { background: #e8eaf6; }
+
+/* ─── MOST POPULAR ─────────────────────────────────────────── */
+.most-popular { background: #f9f9f9; padding: 2rem 0; }
+.most-popular-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+@media (max-width: 768px) { .most-popular-grid { grid-template-columns: 1fr; } }
+.most-popular-card { display: flex; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); text-decoration: none; color: inherit; }
+.most-popular-card-thumb { width: 100px; min-height: 80px; flex-shrink: 0; background: #eee; }
+.most-popular-card-body { padding: .75rem; }
+.most-popular-card-title { font-family: Merriweather, serif; font-size: .85rem; margin: 0 0 .25rem; }
+.most-popular-card-desc { font-size: .75rem; color: #777; line-height: 1.4; }
+
+/* ─── CATEGORY SECTIONS (Best of X) ────────────────────────── */
+.category-section { padding: 2rem 0; border-bottom: 1px solid #eee; }
+.category-section:last-child { border-bottom: none; }
+.category-section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; }
+.category-section-title { font-family: Merriweather, serif; font-size: 1.1rem; font-weight: 700; margin: 0; }
+.category-section-subnav { display: flex; gap: 1rem; flex-wrap: wrap; }
+.category-section-subnav a { font-size: .8rem; color: var(--brand); text-decoration: none; }
+.category-section-subnav a:hover { text-decoration: underline; }
+.category-section-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+@media (max-width: 900px) { .category-section-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .category-section-grid { grid-template-columns: 1fr; } }
+.category-section-more { display: block; text-align: right; margin-top: 1rem; font-size: .85rem; font-weight: 600; color: var(--brand); text-decoration: none; }
+.category-section-more:hover { text-decoration: underline; }
+
+/* ─── FOLLOW US BAR ─────────────────────────────────────────── */
+.follow-bar { background: #f0f0f0; text-align: center; padding: 1.5rem 0; }
+.follow-bar-title { font-family: Merriweather, serif; font-size: .95rem; margin: 0 0 .75rem; display: inline-block; margin-right: 1rem; }
+.follow-bar-links { display: inline-flex; gap: .75rem; }
+.follow-bar-links a { color: #555; font-size: 1.3rem; }
+.follow-bar-links a:hover { color: var(--brand); }
+
+/* ─── ITINERARY FLOATING MENU ────────────────────────────────── */
+.itinerary-menu {
+  position: fixed; bottom: 20px; left: 20px; z-index: 999;
+  background: var(--brand); color: #fff; border-radius: 8px;
+  padding: .5rem 1rem; font-size: .8rem; font-weight: 600;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2); cursor: pointer;
+  display: flex; align-items: center; gap: .5rem;
+}
+.itinerary-menu a { color: #fff; text-decoration: none; }
+.itinerary-menu:hover { background: #3a7cc3; }
+@media (max-width: 768px) { .itinerary-menu { display: none; } }
+
+/* ─── LOCALE ZH (Lato font for MY Chinese) ─────────────────── */
+body.locale-zh, .locale-zh .full-image-hero-subtitle { font-family: Lato, 'Noto Sans SC', sans-serif; }
+.locale-zh h1, .locale-zh h2, .locale-zh h3, .locale-zh h4, .locale-zh h5, .locale-zh h6,
+.locale-zh .post-card-body h3, .locale-zh .section-title, .locale-zh .footer-column-title {
+  font-family: Lato, 'Noto Sans SC', sans-serif; font-weight: 700;
+}
