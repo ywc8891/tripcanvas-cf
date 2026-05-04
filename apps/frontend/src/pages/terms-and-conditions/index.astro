@@ -1,23 +1,24 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { marketFromHost } from '../../lib/locale';
+import { t } from '../../lib/i18n';
+
+const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
+const locale = (Astro.locals as { locale?: string }).locale || 'en';
+const market = marketFromHost(host);
+const marketName: Record<string, string> = { en: 'Southeast Asia', my: 'Malaysia', id: 'Indonesia', th: 'Thailand' };
+const name = marketName[market] || 'Southeast Asia';
 ---
 
-<Layout title="Terms &amp; Conditions" description="TripCanvas terms and conditions.">
+<Layout title={t('static.terms.title', locale)} description={`${t('static.terms.title', locale)} - TripCanvas ${name}`}>
   <div class="page-banner">
-    <div class="container">
-      <h1>Terms &amp; Conditions</h1>
+    <div class="page-banner-overlay no-bg">
+      <div class="container">
+        <h1>{t('static.terms.title', locale)}</h1>
+      </div>
     </div>
   </div>
-  <div class="container" style="max-width:720px; padding-bottom:4rem;">
-    <p>By using this website, you agree to the following terms and conditions. If you do not agree, please do not use our site.</p>
-    <h3>Content</h3>
-    <p>All content on TripCanvas is for informational purposes only. We strive for accuracy but make no guarantees. Opinions expressed are our own.</p>
-    <h3>Affiliate Links</h3>
-    <p>Some links on this site are affiliate links. We may earn a commission at no extra cost to you.</p>
-    <h3>Intellectual Property</h3>
-    <p>All text, images, and content on this site are the property of TripCanvas unless otherwise noted. Reproduction without permission is prohibited.</p>
-    <h3>Limitation of Liability</h3>
-    <p>TripCanvas is not liable for any damages arising from the use of this website.</p>
-    <p>These terms may be updated at any time. Last updated: April 2026.</p>
+  <div class="container" style="max-width:720px; padding:2rem 0 4rem;">
+    <div class="rich-text" set:html={t('static.terms.content', locale)}></div>
   </div>
 </Layout>

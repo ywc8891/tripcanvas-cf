@@ -1,0 +1,436 @@
+---
+interface Props {
+  market: string;
+  locale: string;
+}
+
+const { market, locale } = Astro.props;
+
+interface FooterColumn {
+  heading: string;
+  links: { label: string; href: string; children?: { label: string; href: string }[] }[];
+}
+
+// Market × Locale footer data structure
+const FOOTER_DATA: Record<string, Record<string, FooterColumn[]>> = {
+  // ─── INDONESIA ────────────────────────────────────────────
+  id: {
+    en: [
+      {
+        heading: 'Bali',
+        links: [
+          { label: 'Bali Itineraries', href: '/bali/itineraries/' },
+          { label: 'Bali Hotel Reviews & Experiences', href: '/bali/hotel-experience-reviews/' },
+          { label: 'Where to stay', href: '/bali/hotels-villas-bali/', children: [
+            { label: 'Luxury Stay', href: '/bali/luxury-travel-bali/' },
+            { label: 'Romantic Stay', href: '/bali/honeymoon-romance-bali/' },
+            { label: 'Kids Friendly Stay', href: '/bali/family-hotels-villas-bali/' },
+            { label: 'Budget Stay', href: '/bali/budget-travel-bali/' },
+          ]},
+          { label: 'Things to do', href: '/bali/attractions-activities-bali/', children: [
+            { label: 'Romance', href: '/bali/honeymoon-romance-bali/' },
+            { label: 'Beach and Islands', href: '/bali/beach-holiday-bali/' },
+            { label: 'Family', href: '/bali/family-group-travel-bali/' },
+            { label: 'Culture', href: '/bali/culture-bali/' },
+          ]},
+          { label: 'Where to eat', href: '/bali/restaurants-cafes-bars-bali/', children: [
+            { label: 'Fine dining', href: '/bali/luxury-travel-bali/' },
+            { label: 'Romantic dining', href: '/bali/honeymoon-romance-bali/' },
+            { label: 'Cafes', href: '/bali/restaurants-cafes-bars-bali/' },
+          ]},
+          { label: 'Area Guides', href: '/bali/', children: [
+            { label: 'Seminyak / Legian', href: '/bali/' },
+            { label: 'Ubud', href: '/bali/' },
+            { label: 'Canggu', href: '/bali/' },
+            { label: 'Uluwatu', href: '/bali/' },
+            { label: 'Nusa Dua', href: '/bali/' },
+          ]},
+          { label: 'Guides and Tips', href: '/bali/travel-guide-tips-bali/', children: [
+            { label: 'Couple Guide', href: '/bali/honeymoon-romance-bali/' },
+            { label: 'Friends and Families Guide', href: '/bali/family-group-travel-bali/' },
+            { label: 'Budget Guide', href: '/bali/budget-travel-bali/' },
+          ]},
+        ],
+      },
+      {
+        heading: 'Best of Indonesia',
+        links: [
+          { label: 'Responsible Travel', href: '/responsible-travel/' },
+          { label: 'Our experiences/reviews', href: '/hotel-reviews-experience/' },
+          { label: 'Best of Indonesia', href: '/best-of-indonesia/' },
+          { label: 'Java', href: '/java/', children: [
+            { label: 'Bandung', href: '/bandung/' },
+            { label: 'Jogja', href: '/jogja/' },
+            { label: 'Malang', href: '/malang/' },
+            { label: 'Jakarta', href: '/jakarta/' },
+            { label: 'Semarang', href: '/semarang/' },
+            { label: 'Bogor', href: '/bogor/' },
+            { label: 'Banyuwangi', href: '/banyuwangi/' },
+          ]},
+          { label: 'Lombok', href: '/lombok/' },
+          { label: 'Nusa Tenggara', href: '/nusa-tenggara/', children: [
+            { label: 'Flores', href: '/flores/' },
+            { label: 'Sumba', href: '/sumba/' },
+          ]},
+          { label: 'Sumatra', href: '/sumatra/' },
+          { label: 'Sulawesi', href: '/sulawesi/' },
+          { label: 'West Papua', href: '/west-papua/' },
+        ],
+      },
+      {
+        heading: 'Get in touch',
+        links: [
+          { label: 'Bahasa Indonesia', href: '/id/' },
+          { label: '中文 (Chinese)', href: '/zh/' },
+          { label: 'Partner with us', href: '/advertise/' },
+          { label: 'Careers', href: '/careers/' },
+          { label: 'Write for us', href: '/write-article/' },
+          { label: 'About Us', href: '/about-us/' },
+          { label: 'Contact us', href: '/contact/' },
+          { label: 'Terms and Conditions', href: '/terms-and-conditions/' },
+          { label: 'Privacy policy', href: '/privacy-policy/' },
+          { label: 'Our sister brands', href: '#', children: [
+            { label: 'Academy T', href: 'https://academyt.co/' },
+            { label: 'MU Living', href: 'http://muliving.sg' },
+          ]},
+        ],
+      },
+    ],
+    zh: [
+      {
+        heading: '巴厘岛',
+        links: [
+          { label: '巴厘岛行程', href: '/bali/itineraries/' },
+          { label: '巴厘岛酒店点评', href: '/bali/hotel-experience-reviews/' },
+          { label: '住宿推荐', href: '/bali/hotels-villas-bali/', children: [
+            { label: '豪华住宿', href: '/bali/luxury-travel-bali/' },
+            { label: '浪漫住宿', href: '/bali/honeymoon-romance-bali/' },
+            { label: '亲子住宿', href: '/bali/family-hotels-villas-bali/' },
+            { label: '经济住宿', href: '/bali/budget-travel-bali/' },
+          ]},
+          { label: '景点活动', href: '/bali/attractions-activities-bali/', children: [
+            { label: '浪漫之旅', href: '/bali/honeymoon-romance-bali/' },
+            { label: '海滩海岛', href: '/bali/beach-holiday-bali/' },
+            { label: '家庭出游', href: '/bali/family-group-travel-bali/' },
+            { label: '文化体验', href: '/bali/culture-bali/' },
+          ]},
+          { label: '美食指南', href: '/bali/restaurants-cafes-bars-bali/', children: [
+            { label: '高档餐厅', href: '/bali/luxury-travel-bali/' },
+            { label: '浪漫餐厅', href: '/bali/honeymoon-romance-bali/' },
+            { label: '咖啡馆', href: '/bali/restaurants-cafes-bars-bali/' },
+          ]},
+          { label: '区域指南', href: '/bali/', children: [
+            { label: '水明漾 / 雷吉安', href: '/bali/' },
+            { label: '乌布', href: '/bali/' },
+            { label: '长谷', href: '/bali/' },
+            { label: '乌鲁瓦图', href: '/bali/' },
+            { label: '努沙杜瓦', href: '/bali/' },
+          ]},
+          { label: '旅行贴士', href: '/bali/travel-guide-tips-bali/', children: [
+            { label: '情侣指南', href: '/bali/honeymoon-romance-bali/' },
+            { label: '亲友指南', href: '/bali/family-group-travel-bali/' },
+            { label: '预算指南', href: '/bali/budget-travel-bali/' },
+          ]},
+        ],
+      },
+      {
+        heading: '印尼精选',
+        links: [
+          { label: '负责任的旅行', href: '/responsible-travel/' },
+          { label: '体验点评', href: '/hotel-reviews-experience/' },
+          { label: '印尼精选', href: '/best-of-indonesia/' },
+          { label: '爪哇', href: '/java/', children: [
+            { label: '万隆', href: '/bandung/' },
+            { label: '日惹', href: '/jogja/' },
+            { label: '玛琅', href: '/malang/' },
+            { label: '雅加达', href: '/jakarta/' },
+            { label: '三宝垄', href: '/semarang/' },
+            { label: '茂物', href: '/bogor/' },
+            { label: '外南梦', href: '/banyuwangi/' },
+          ]},
+          { label: '龙目岛', href: '/lombok/' },
+          { label: '努沙登加拉', href: '/nusa-tenggara/', children: [
+            { label: '弗洛勒斯岛', href: '/flores/' },
+            { label: '松巴岛', href: '/sumba/' },
+          ]},
+          { label: '苏门答腊', href: '/sumatra/' },
+          { label: '苏拉威西', href: '/sulawesi/' },
+          { label: '西巴布亚', href: '/west-papua/' },
+        ],
+      },
+      {
+        heading: '联络我们',
+        links: [
+          { label: 'Bahasa Indonesia', href: '/id/' },
+          { label: '中文 (Chinese)', href: '/zh/' },
+          { label: '刊登广告', href: '/advertise/' },
+          { label: '加入我们', href: '/careers/' },
+          { label: '投稿', href: '/write-article/' },
+          { label: '关于我们', href: '/about-us/' },
+          { label: '联络我们', href: '/contact/' },
+          { label: '使用条款及条件', href: '/terms-and-conditions/' },
+          { label: '隐私政策', href: '/privacy-policy/' },
+          { label: '姐妹品牌', href: '#', children: [
+            { label: 'Academy T', href: 'https://academyt.co/' },
+            { label: 'MU Living', href: 'http://muliving.sg' },
+          ]},
+        ],
+      },
+    ],
+  },
+
+  // ─── MALAYSIA ─────────────────────────────────────────────
+  my: {
+    en: [
+      {
+        heading: 'Malaysia',
+        links: [
+          { label: 'KL & Selangor', href: '/kuala-lumpur/' },
+          { label: 'Johor', href: '/johor/' },
+          { label: 'Melaka', href: '/melaka/' },
+          { label: 'Kedah & Langkawi', href: '/kedah/' },
+          { label: 'Penang', href: '/penang/' },
+          { label: 'Perak', href: '/perak/' },
+          { label: 'Pahang', href: '/pahang/' },
+          { label: 'Sabah', href: '/sabah/' },
+          { label: 'Terengganu', href: '/terengganu/' },
+          { label: 'Negeri Sembilan', href: '/negeri-sembilan/' },
+          { label: 'Best of Malaysia', href: '/best-of-malaysia/' },
+          { label: 'Inspiration', href: '/inspiration/' },
+        ],
+      },
+      {
+        heading: 'Guides',
+        links: [
+          { label: 'Shopping Guide', href: '/shopping/' },
+          { label: 'Inspiration', href: '/inspiration/' },
+        ],
+      },
+      {
+        heading: 'Get in touch',
+        links: [
+          { label: '中文 (Chinese)', href: '/zh/' },
+          { label: 'Partner with us', href: '/advertise/' },
+          { label: 'About Us', href: '/about-us/' },
+          { label: 'Contact us', href: '/contact/' },
+          { label: 'Terms and Conditions', href: '/terms-and-conditions/' },
+          { label: 'Privacy policy', href: '/privacy-policy/' },
+          { label: 'Our sister brands', href: '#', children: [
+            { label: 'Academy T', href: 'https://academyt.co/' },
+            { label: 'MU Living', href: 'http://muliving.sg' },
+          ]},
+        ],
+      },
+    ],
+    zh: [
+      {
+        heading: '马来西亚',
+        links: [
+          { label: '吉隆坡 & 雪兰莪', href: '/kuala-lumpur/' },
+          { label: '柔佛', href: '/johor/' },
+          { label: '马六甲', href: '/melaka/' },
+          { label: '吉打 & 兰卡威', href: '/kedah/' },
+          { label: '槟城', href: '/penang/' },
+          { label: '霹雳', href: '/perak/' },
+          { label: '彭亨', href: '/pahang/' },
+          { label: '沙巴', href: '/sabah/' },
+          { label: '登嘉楼', href: '/terengganu/' },
+          { label: '森美兰', href: '/negeri-sembilan/' },
+          { label: '马来西亚精选', href: '/best-of-malaysia/' },
+          { label: '灵感', href: '/inspiration/' },
+        ],
+      },
+      {
+        heading: '指南',
+        links: [
+          { label: '购物指南', href: '/shopping/' },
+          { label: '灵感', href: '/inspiration/' },
+        ],
+      },
+      {
+        heading: '联络我们',
+        links: [
+          { label: '中文 (Chinese)', href: '/zh/' },
+          { label: '刊登广告', href: '/advertise/' },
+          { label: '关于我们', href: '/about-us/' },
+          { label: '联络我们', href: '/contact/' },
+          { label: '使用条款及条件', href: '/terms-and-conditions/' },
+          { label: '隐私政策', href: '/privacy-policy/' },
+          { label: '姐妹品牌', href: '#', children: [
+            { label: 'Academy T', href: 'https://academyt.co/' },
+            { label: 'MU Living', href: 'http://muliving.sg' },
+          ]},
+        ],
+      },
+    ],
+  },
+
+  // ─── THAILAND ─────────────────────────────────────────────
+  th: {
+    en: [
+      {
+        heading: 'Thailand',
+        links: [
+          { label: 'Bangkok', href: '/bangkok/' },
+          { label: 'Southern Thailand', href: '/southern-thailand/' },
+          { label: 'Central Thailand', href: '/central-thailand/' },
+          { label: 'Northern Thailand', href: '/northern-thailand/' },
+          { label: 'Best of Thailand', href: '/best-of-thailand/' },
+        ],
+      },
+      {
+        heading: 'Destinations',
+        links: [
+          { label: 'Phuket', href: '/phuket/' },
+          { label: 'Krabi', href: '/krabi/' },
+          { label: 'Chiang Mai', href: '/chiang-mai/' },
+          { label: 'Chiang Rai', href: '/chiang-rai/' },
+          { label: 'Hat Yai', href: '/hat-yai/' },
+          { label: 'Hua Hin', href: '/hua-hin/' },
+          { label: 'Khao Yai', href: '/khao-yai/' },
+          { label: 'Kanchanaburi', href: '/kanchanaburi/' },
+          { label: 'Pattaya & Chonburi', href: '/chonburi/' },
+          { label: 'Koh Samui', href: '/koh-samui/' },
+        ],
+      },
+      {
+        heading: 'Get in touch',
+        links: [
+          { label: '中文 (Chinese)', href: '/zh/' },
+          { label: 'Partner with us', href: '/advertise/' },
+          { label: 'About Us', href: '/about-us/' },
+          { label: 'Contact us', href: '/contact/' },
+          { label: 'Terms and Conditions', href: '/terms-and-conditions/' },
+          { label: 'Privacy policy', href: '/privacy-policy/' },
+          { label: 'Our sister brands', href: '#', children: [
+            { label: 'Academy T', href: 'https://academyt.co/' },
+            { label: 'MU Living', href: 'http://muliving.sg' },
+          ]},
+        ],
+      },
+    ],
+    zh: [
+      {
+        heading: '泰国',
+        links: [
+          { label: '曼谷', href: '/bangkok/' },
+          { label: '泰国南部', href: '/southern-thailand/' },
+          { label: '泰国中部', href: '/central-thailand/' },
+          { label: '泰国北部', href: '/northern-thailand/' },
+          { label: '泰国精选', href: '/best-of-thailand/' },
+        ],
+      },
+      {
+        heading: '目的地',
+        links: [
+          { label: '普吉岛', href: '/phuket/' },
+          { label: '甲米', href: '/krabi/' },
+          { label: '清迈', href: '/chiang-mai/' },
+          { label: '清莱', href: '/chiang-rai/' },
+          { label: '合艾', href: '/hat-yai/' },
+          { label: '华欣', href: '/hua-hin/' },
+          { label: '考艾', href: '/khao-yai/' },
+          { label: '北碧府', href: '/kanchanaburi/' },
+          { label: '芭提雅 & 春武里', href: '/chonburi/' },
+          { label: '苏梅岛', href: '/koh-samui/' },
+        ],
+      },
+      {
+        heading: '联络我们',
+        links: [
+          { label: '中文 (Chinese)', href: '/zh/' },
+          { label: '合作伙伴', href: '/advertise/' },
+          { label: '关于我们', href: '/about-us/' },
+          { label: '联络我们', href: '/contact/' },
+          { label: '使用条款及条件', href: '/terms-and-conditions/' },
+          { label: '隐私政策', href: '/privacy-policy/' },
+          { label: '姐妹品牌', href: '#', children: [
+            { label: 'Academy T', href: 'https://academyt.co/' },
+            { label: 'MU Living', href: 'http://muliving.sg' },
+          ]},
+        ],
+      },
+    ],
+    id: [
+      {
+        heading: 'Thailand',
+        links: [
+          { label: 'Bangkok', href: '/bangkok/' },
+          { label: 'Thailand Selatan', href: '/southern-thailand/' },
+          { label: 'Thailand Tengah', href: '/central-thailand/' },
+          { label: 'Thailand Utara', href: '/northern-thailand/' },
+          { label: 'Terbaik Thailand', href: '/best-of-thailand/' },
+        ],
+      },
+      {
+        heading: 'Destinasi',
+        links: [
+          { label: 'Phuket', href: '/phuket/' },
+          { label: 'Krabi', href: '/krabi/' },
+          { label: 'Chiang Mai', href: '/chiang-mai/' },
+          { label: 'Chiang Rai', href: '/chiang-rai/' },
+          { label: 'Hat Yai', href: '/hat-yai/' },
+          { label: 'Hua Hin', href: '/hua-hin/' },
+          { label: 'Khao Yai', href: '/khao-yai/' },
+          { label: 'Kanchanaburi', href: '/kanchanaburi/' },
+          { label: 'Pattaya & Chonburi', href: '/chonburi/' },
+          { label: 'Koh Samui', href: '/koh-samui/' },
+        ],
+      },
+      {
+        heading: 'Hubungi Kami',
+        links: [
+          { label: 'Bahasa Indonesia', href: '/id/' },
+          { label: '中文 (Chinese)', href: '/zh/' },
+          { label: 'Kerja sama', href: '/advertise/' },
+          { label: 'Tentang Kami', href: '/about-us/' },
+          { label: 'Hubungi Kami', href: '/contact/' },
+          { label: 'Syarat & Ketentuan', href: '/terms-and-conditions/' },
+          { label: 'Kebijakan Pribadi', href: '/privacy-policy/' },
+          { label: 'Merek kami', href: '#', children: [
+            { label: 'Academy T', href: 'https://academyt.co/' },
+            { label: 'MU Living', href: 'http://muliving.sg' },
+          ]},
+        ],
+      },
+    ],
+  },
+};
+
+// Fallback: market en → FOOTER_DATA.en doesn't exist, fall through to id.en
+const marketData = FOOTER_DATA[market] || FOOTER_DATA.id;
+const columns = marketData[locale] || marketData.en || FOOTER_DATA.id.en;
+---
+
+<footer class="site-footer-extended">
+  <div class="container">
+    <div class="site-footer-columns">
+      {columns.map((col) => (
+        <div class="footer-column">
+          <h4 class="footer-column-title">{col.heading}</h4>
+          <ul class="footer-column-links">
+            {col.links.map((link) => (
+              link.children ? (
+                <li>
+                  <a href={link.href} class="footer-column-parent">{link.label}</a>
+                  <ul class="footer-column-sublinks">
+                    {link.children.map((child) => (
+                      <li><a href={child.href}>{child.label}</a></li>
+                    ))}
+                  </ul>
+                </li>
+              ) : (
+                <li><a href={link.href}>{link.label}</a></li>
+              )
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="site-footer-extended-bottom">
+    <div class="container">
+      <p>Brought to you from South East Asia for South East Asia</p>
+    </div>
+  </div>
+</footer>
