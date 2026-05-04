@@ -6,10 +6,12 @@ interface Props {
   post: any;
   locale: string;
   catCount?: number;
-  size?: 'fullgrid' | 'halfgrid';
+  isFirst?: boolean;
 }
 
-const { post, locale, catCount = 1, size = 'halfgrid' } = Astro.props;
+const { post, locale, catCount = 1, isFirst = false } = Astro.props;
+const size = isFirst ? 'fullgrid' : 'halfgrid';
+const imgClass = isFirst ? 'attachment-big size-big wp-post-image' : 'attachment-half size-half wp-post-image';
 const thumb = firstImageUrl(post.content);
 const cats = post.categories || [];
 const dateAgo = (function() {
@@ -27,10 +29,10 @@ const postUrl = getPostUrl(post.slug, locale, primaryCategory(post.categories));
 const catId = cats[0]?.id || '';
 ---
 
-<div class="col-md-4 col-sm-6 col-xs-12 grid-item no-top-margin">
-  <div class={`highlight_category_${catId} has-thumbnail ${size}`}>
+<div class="isobrick">
+  <div class={`highlight_category_${catId} has-thumbnail ${size} grid-item`}>
     <div class="isobrick-inner">
-      <img src={thumb} class="attachment-section-thumb wp-post-image" alt="" loading="lazy" style="opacity: 0.75;" />
+      <img src={thumb} class={imgClass} alt="" loading="lazy" style="opacity: 0.75;" />
       <span class="thumboverdate">
         <i class="fa fa-bookmark"></i>{dateAgo}
       </span>

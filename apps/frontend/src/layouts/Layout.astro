@@ -26,8 +26,9 @@ const locale = ((Astro.locals as { locale?: string }).locale || 'en').toLowerCas
 const market = marketFromHost(host);
 
 const currentPath = Astro.url.pathname;
+const isHomepage = currentPath === '/' || currentPath.startsWith('/?');
 const isZhMyLocale = locale === 'zh' && market === 'my';
-const bodyClass = `edition desktop-device regular-nav sticky-nav-enabled${isZhMyLocale ? ' locale-zh' : ''}`;
+const bodyClass = `edition desktop-device regular-nav sticky-nav-enabled${isHomepage ? ' home' : ''}${isZhMyLocale ? ' locale-zh' : ''}`;
 
 const analytics = ANALYTICS[market] || {};
 

@@ -25,7 +25,12 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
 ---
 
 <Layout title={meta.name} description={meta.description} ogImage={ogImage} canonical={canonical}>
-  <FullImageHero market={market} locale={locale} />
+  <div class="content-section content-full section first-section no-title" style="margin-top:0;">
+    <div class="col-md-12" style="padding-left:0;padding-right:0;">
+      <FullImageHero market={market} locale={locale} />
+    </div>
+    <div class="clear"></div>
+  </div>
 
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">

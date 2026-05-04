@@ -4,6 +4,7 @@ import { localePath } from '../lib/locale';
 
 interface Props { market: string; locale: string; }
 const { market, locale } = Astro.props;
+const postId = Astro.props.postId || '6064';
 
 const HERO_CONFIG: Record<string, {
   bgImage: string;
