@@ -18,7 +18,6 @@ const homePosts = rawPosts.filter((p: any) => p.title).slice(0, 8);
 const bestOfBangkok = await getPostsByCategory('bangkok', locale, 1, 8);
 const bestOfHuaHin = await getPostsByCategory('hua-hin', locale, 1, 4);
 const bestOfKhaoYai = await getPostsByCategory('khao-yai', locale, 1, 4);
-const bestOfPattaya = await getPostsByCategory('chonburi', locale, 1, 4);
 const { firstImageUrl } = await import('../../lib/payload');
 const ogImage = homePosts[0] ? firstImageUrl(homePosts[0].content) : undefined;
 
@@ -31,7 +30,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <div class="section-title"><span>{t('home.featured', locale)}</span><p>{meta.tagline}</p></div>
+        <div class="section-title"><p><span>{t('home.featured', locale)}<span class="vertical-div"> | </span></span>{meta.tagline}</p><h2></h2></div>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{homePosts.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -44,7 +44,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>Bangkok，曼谷必游</span></p>
+        <p class="section-title"><span>Bangkok，曼谷必游</span></p><h2></h2>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfBangkok.docs.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -58,26 +59,11 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
     <div class="container"><div class="col-md-12"><a href={sectionUrl('bangkok')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bangkok' })}</a></div></div>
   </div>
 
-  <div class="content-section content-full section not-first-section subscription-wrapper">
-    <div class="col-md-12" style="padding-left:0;padding-right:0;">
-      <div class="subscription-box">
-        <div class="container">
-          <h2 class="subscription-box-title">获取更多泰国旅行灵感 <span>in your inbox!</span></h2>
-          <p class="subscription-box-desc">订阅我们的每月邮件，获取您一定会喜欢的泰国旅行灵感。</p>
-          <form class="subscription-box-form" method="post" target="_blank">
-            <input type="email" class="subscription-box-input" placeholder="输入您的邮箱地址" required />
-            <input type="submit" class="subscription-box-btn" value="立即订阅！" />
-          </form>
-        </div>
-      </div>
-    </div>
-    <div class="clear"></div>
-  </div>
-
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>Hua Hin，华欣必游</span></p>
+        <p class="section-title"><span>Hua Hin，华欣必游</span></p><h2></h2>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfHuaHin.docs.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -94,7 +80,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>Khao Yai，考艾必游</span></p>
+        <p class="section-title"><span>Khao Yai，考艾必游</span></p><h2></h2>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfKhaoYai.docs.map(post => <PostCard post={post} locale={locale} />)}</div>

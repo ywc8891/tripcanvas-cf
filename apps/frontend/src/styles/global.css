@@ -4668,3 +4668,5 @@ body.locale-zh, .locale-zh .full-image-hero-subtitle { font-family: Lato, 'Noto 
 .fullsection .grid.grid-full { width: 100%; }
 @media (max-width: 900px) { .section .grid.grid-full > .grid-item { width: 50%; } }
 @media (max-width: 520px) { .section .grid.grid-full > .grid-item { width: 100%; } }
+
+@media only screen and (max-width: 600px) {.full-image-section{background-position-x:-500px;}}

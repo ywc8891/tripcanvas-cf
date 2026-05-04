@@ -2,11 +2,7 @@
 import { MARKET_SOCIAL } from '../lib/i18n';
 import { localePath } from '../lib/locale';
 
-interface Props {
-  market: string;
-  locale: string;
-}
-
+interface Props { market: string; locale: string; }
 const { market, locale } = Astro.props;
 
 const HERO_CONFIG: Record<string, {
@@ -14,27 +10,24 @@ const HERO_CONFIG: Record<string, {
   bannerLogo: string;
   tagline: string;
   guideButtons: { label: string; href: string }[];
+  socialRss?: boolean;
 }> = {
   'my_en': {
-    bgImage: 'https://malaysia.tripcanvas.co/wp-content/uploads/2021/06/78669773_149847319754938_492495314192695296_n.jpg',
-    bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
+    bgImage: 'https://malaysia.tripcanvas.co/wp-content/uploads/2019/12/Malaysia-Kuala-Lumpur-Skyline-View.jpg',
+    bannerLogo: 'https://malaysia.tripcanvas.co/wp-content/uploads/2019/07/Tripcanvas-MY-banner.png',
     tagline: 'Not Your Usual Malaysia Travel Guide',
     guideButtons: [
-      { label: 'Kuala Lumpur Guide', href: '/kuala-lumpur/' },
-      { label: 'Penang Guide', href: '/penang/' },
-      { label: 'Johor Guide', href: '/johor/' },
-      { label: 'Langkawi Guide', href: '/kedah/' },
+      { label: 'Indonesia Guide', href: 'https://indonesia.tripcanvas.co' },
+      { label: 'Thailand Guide', href: 'https://thailand.tripcanvas.co' },
     ],
   },
   'my_zh': {
-    bgImage: 'https://malaysia.tripcanvas.co/wp-content/uploads/2021/06/78669773_149847319754938_492495314192695296_n.jpg',
+    bgImage: 'https://malaysia.tripcanvas.co/wp-content/uploads/2019/12/Malaysia-Kuala-Lumpur-Skyline-View.jpg',
     bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
     tagline: '非一般的大马旅游攻略',
     guideButtons: [
-      { label: '吉隆坡 & 雪兰莪', href: '/kuala-lumpur/' },
-      { label: '槟城', href: '/penang/' },
-      { label: '柔佛', href: '/johor/' },
-      { label: '霹雳', href: '/perak/' },
+      { label: '印尼旅游攻略', href: 'https://indonesia.tripcanvas.co' },
+      { label: '泰国旅游攻略', href: 'https://thailand.tripcanvas.co' },
     ],
   },
   'id_id': {
@@ -42,10 +35,10 @@ const HERO_CONFIG: Record<string, {
     bannerLogo: 'https://indonesia.tripcanvas.co/wp-content/uploads/2015/05/Tripcanvas-banner.png',
     tagline: 'Not Your Usual Indonesia Travel Guide',
     guideButtons: [
-      { label: 'Panduan Bali', href: '/id/bali/' },
-      { label: 'Panduan Bandung', href: '/id/bandung/' },
-      { label: 'Panduan Jogja', href: '/id/jogja/' },
-      { label: 'Panduan Lombok', href: '/id/lombok/' },
+      { label: 'Bali Guide', href: '/bali/' },
+      { label: 'Bandung Guide', href: '/bandung/' },
+      { label: 'Jogja Guide', href: '/jogja/' },
+      { label: 'Lombok Guide', href: '/lombok/' },
     ],
   },
   'id_zh': {
@@ -95,6 +88,7 @@ const HERO_CONFIG: Record<string, {
 const configKey = `${market}_${locale}`;
 const config = HERO_CONFIG[configKey] || HERO_CONFIG[`${market}_en`] || HERO_CONFIG.id_id;
 const social = MARKET_SOCIAL[market];
+const rssUrl = localePath('/rss.xml', locale);
 
 function lh(href: string): string {
   if (href.startsWith('http')) return href;
@@ -102,40 +96,40 @@ function lh(href: string): string {
 }
 ---
 
-<div class="full-image-hero" style={`background-image: url('${config.bgImage}');`}>
-  <div class="full-image-hero-overlay"></div>
-  <div class="full-image-hero-content">
-    <div class="container">
-      <h1 class="full-image-hero-logo">
-        <a href={lh('/')}>
-          <img src={config.bannerLogo} alt="TripCanvas" />
-        </a>
-      </h1>
-      <p class="full-image-hero-subtitle">{config.tagline}</p>
-
-      <div class="full-image-hero-search">
-        <form role="search" method="get" action={lh('/')}>
-          <input type="search" class="full-image-hero-search-field" placeholder="What are you looking for?" name="s" />
-          <i class="fa fa-search full-image-hero-search-icon"></i>
-        </form>
-      </div>
-
-      {config.guideButtons.length > 0 && (
-        <p class="full-image-hero-buttons">
-          {config.guideButtons.map((btn) => (
-            <a class="full-image-hero-btn" href={lh(btn.href)}>{btn.label}</a>
-          ))}
-        </p>
-      )}
-
-      {social && (
-        <div class="full-image-hero-social">
-          {social.facebook && <a href={social.facebook} target="_blank" rel="noopener"><i class="fa fa-facebook-square"></i></a>}
-          {social.twitter && <a href={social.twitter} target="_blank" rel="noopener"><i class="fa fa-twitter-square"></i></a>}
-          {social.youtube && <a href={social.youtube} target="_blank" rel="noopener"><i class="fa fa-youtube-play"></i></a>}
-          {social.instagram && <a href={social.instagram} target="_blank" rel="noopener"><i class="fa fa-instagram"></i></a>}
+<div class="full-image-section" style={`background-image: url('${config.bgImage}'); background-attachment: fixed;`}>
+  <div class="fullsection">
+    <div class="overlay" style="text-align: center; opacity: 0.35;"></div>
+    <div class="fullcontent container" style="text-align: center;">
+      <div class="col-md-8 col-md-offset-2">
+        <h1 class="title" style="margin-bottom: 0; margin-right: 0;">
+          <a href={lh('/')}><img src={config.bannerLogo} alt="TripCanvas" /></a>
+        </h1>
+        <p class="subtitle" style="color: #ddd; margin-bottom: 30px;">{config.tagline}</p>
+        <div class="search-form search" style="margin: 0 auto 30px;">
+          <form class="search-form" action={lh('/')} method="get" name="SearchForm">
+            <label>
+              <input class="search-field" style="background: rgba(255,255,255,.8); border-radius: 2px; height: 57px; font-size: 16px; padding-left: 40px;" name="s" type="search" value="" placeholder="What are you looking for?" />
+              <i class="fa fa-search searchbutton" style="line-height: 55px; color: #555; padding-right: 20px;"></i>
+            </label>
+          </form>
         </div>
-      )}
+        {config.guideButtons.length > 0 && (
+          <p style="margin-bottom: 40px;">
+            {config.guideButtons.map((btn) => (
+              <a class="button outline" href={lh(btn.href)} style="margin: 0 5px;">{btn.label}</a>
+            ))}
+          </p>
+        )}
+        {social && (
+          <div class="topbar-right" style="text-align: center; font-size: 26px; margin-left: 0;">
+            {social.facebook && <a href={social.facebook} target="_blank" rel="noopener"><i class="fa fa-facebook-square"></i></a>}
+            {social.twitter && <a href={social.twitter} target="_blank" rel="noopener"><i class="fa fa-twitter-square"></i></a>}
+            {social.youtube && <a href={social.youtube} target="_blank" rel="noopener"><i class="fa fa-youtube"></i></a>}
+            {social.instagram && <a href={social.instagram} target="_blank" rel="noopener"><i class="fa fa-instagram"></i></a>}
+            <a href={lh(rssUrl)} target="_blank" rel="noopener"><i class="fa fa-rss"></i></a>
+          </div>
+        )}
+      </div>
     </div>
   </div>
 </div>

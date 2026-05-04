@@ -30,7 +30,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <div class="section-title"><span>{t('home.featured', locale)}</span><p>{meta.tagline}</p></div>
+        <div class="section-title"><p><span>{t('home.featured', locale)}<span class="vertical-div"> | </span></span>{meta.tagline}</p><h2></h2></div>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{homePosts.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -43,7 +44,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>Best of Bangkok</span></p>
+        <p class="section-title"><span>Best of Bangkok</span></p><h2></h2>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfBangkok.docs.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -57,7 +59,7 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
     <div class="container"><div class="col-md-12"><a href={sectionUrl('bangkok')} class="home-section-cta">{t('home.categorySection.more', locale, { destination: 'Bangkok' })}</a></div></div>
   </div>
 
-  <div class="content-section content-full section not-first-section subscription-wrapper">
+  <div class="content-section content-full section not-first-section no-title">
     <div class="col-md-12" style="padding-left:0;padding-right:0;">
       <div class="subscription-box">
         <div class="container">
@@ -76,7 +78,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>Best of Hua Hin</span></p>
+        <p class="section-title"><span>Best of Hua Hin</span></p><h2></h2>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfHuaHin.docs.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -93,7 +96,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>Best of Khao Yai</span></p>
+        <p class="section-title"><span>Best of Khao Yai</span></p><h2></h2>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfKhaoYai.docs.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -110,7 +114,8 @@ function sectionUrl(slug: string) { return localePath(`/${slug}`, locale); }
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>Best of Pattaya and Chonburi</span></p>
+        <p class="section-title"><span>Best of Pattaya and Chonburi</span></p><h2></h2>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{bestOfPattaya.docs.slice(0, 4).map(post => <PostCard post={post} locale={locale} />)}</div>

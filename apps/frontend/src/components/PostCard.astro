@@ -6,34 +6,47 @@ interface Props {
   post: any;
   locale: string;
   catCount?: number;
+  size?: 'fullgrid' | 'halfgrid';
 }
 
-const { post, locale, catCount = 1 } = Astro.props;
+const { post, locale, catCount = 1, size = 'halfgrid' } = Astro.props;
 const thumb = firstImageUrl(post.content);
 const cats = post.categories || [];
-const postDate = new Date(post.publishedAt || post.createdAt).toLocaleDateString(locale === 'zh' ? 'zh-CN' : locale === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+const dateAgo = (function() {
+  const d = new Date(post.publishedAt || post.createdAt);
+  const now = new Date();
+  const years = now.getFullYear() - d.getFullYear();
+  if (years >= 1) return `${years} year${years > 1 ? 's' : ''} ago`;
+  const months = (now.getFullYear() - d.getFullYear()) * 12 + now.getMonth() - d.getMonth();
+  if (months >= 1) return `${months} month${months > 1 ? 's' : ''} ago`;
+  const days = Math.floor((now.getTime() - d.getTime()) / 86400000);
+  return `${days || 1} day${days !== 1 ? 's' : ''} ago`;
+})();
 const displayTitle = post.title || post.slug.replace(/-/g, ' ');
 const postUrl = getPostUrl(post.slug, locale, primaryCategory(post.categories));
+const catId = cats[0]?.id || '';
 ---
 
 <div class="col-md-4 col-sm-6 col-xs-12 grid-item no-top-margin">
-  <div class="thumbwrapper">
-    <div class="thumbwrap">
-      <a href={postUrl}>
-        {thumb ? <img width="400" height="250" src={thumb} class="attachment-section-thumb" alt="" loading="lazy" /> : <div class="no-thumb"></div>}
-      </a>
-    </div>
-    <div class="thumb-title">
-      <div class="badge">
-        {cats.slice(0, catCount).map((cat: any) => (
-          <a href={localePath(`/${cat.slug}`, locale)} class={`category-${cat.id || ''}`}>{cat.name || cat.slug}</a>
-        ))}
-        <div class="clear"></div>
-      </div>
-      <h4><a href={postUrl}>{displayTitle}</a></h4>
-      <span class="tiny-details">
-        <a href={postUrl}>{postDate}</a>
+  <div class={`highlight_category_${catId} has-thumbnail ${size}`}>
+    <div class="isobrick-inner">
+      <img src={thumb} class="attachment-section-thumb wp-post-image" alt="" loading="lazy" style="opacity: 0.75;" />
+      <span class="thumboverdate">
+        <i class="fa fa-bookmark"></i>{dateAgo}
       </span>
+      <div class="thumbovertext">
+        <div class="badge">
+          {cats.slice(0, catCount).map((cat: any) => (
+            <a href={localePath(`/${cat.slug}`, locale)} class={`category-${cat.id || ''}`}>{cat.name || cat.slug}</a>
+          ))}
+          <div class="clear"></div>
+        </div>
+        <h2 class="title">
+          <a href={postUrl}>{displayTitle}</a>
+        </h2>
+        <a class="button outline" href={postUrl}>Read More</a>
+      </div>
+      <a class="brick-thumb-link" href={postUrl}>{displayTitle}</a>
     </div>
   </div>
 </div>

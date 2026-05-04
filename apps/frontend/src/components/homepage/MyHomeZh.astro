@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import FullImageHero from '../../components/FullImageHero.astro';
 import PostCard from '../../components/PostCard.astro';
 import { getPosts } from '../../lib/payload';
-import { getPostUrl, primaryCategory, localePath, isStagingWorker } from '../../lib/locale';
+import { localePath, isStagingWorker } from '../../lib/locale';
 import { t } from '../../lib/i18n';
 
 const locale = 'zh';
@@ -25,7 +25,8 @@ const canonical = staging ? undefined : `https://${MARKET_DOMAIN.my}/zh/`;
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <div class="section-title"><span>{t('home.featured', locale)}</span><p>{meta.tagline}</p></div>
+        <div class="section-title"><p><span>{t('home.featured', locale)}<span class="vertical-div"> | </span></span>{meta.tagline}</p><h2></h2></div>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{homePosts.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -35,7 +36,7 @@ const canonical = staging ? undefined : `https://${MARKET_DOMAIN.my}/zh/`;
     </div>
   </div>
 
-  <div class="content-section content-full section not-first-section subscription-wrapper">
+  <div class="content-section content-full section not-first-section no-title">
     <div class="col-md-12" style="padding-left:0;padding-right:0;">
       <div class="subscription-box">
         <div class="container">

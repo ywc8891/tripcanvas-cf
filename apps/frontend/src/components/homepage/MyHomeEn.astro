@@ -21,18 +21,26 @@ const canonical = staging ? undefined : `https://${MARKET_DOMAIN.my}/`;
 <Layout title={meta.name} description={meta.description} ogImage={ogImage} canonical={canonical}>
   <FullImageHero market={market} locale={locale} />
 
-  <div class="covid-banner">
-    <div class="container">
-      <h3 class="covid-banner-title">{t('home.covid.title', locale)}</h3>
-      <p class="covid-banner-desc">{t('home.covid.content', locale)}</p>
-      <a class="covid-banner-link" href="/news/covid19-updates/">{t('home.covid.link', locale)}</a>
+  <div class="content-section content-full section not-first-section no-title">
+    <div class="col-md-12" style="padding-left:0;padding-right:0;">
+      <div class="container" style="margin-top:20px;">
+        <div class="su-note" style="border-color:#e5e3ba;border-radius:3px;">
+          <div class="su-note-inner su-clearfix" style="background-color:#fffccf;border:1px solid #ff6000;color:#333;border-radius:3px;padding:10px;">
+            <table style="margin:auto;"><tbody><tr style="color:#ff6000;font-family:Open Sans;font-size:15px;font-weight:200;text-align:center;">
+              <td><a class="su-button su-button-style-default" style="color:#ff6000;" href="/news/covid19-updates/">Here is our coverage on COVID-19 (FAQs, useful info, etc) <i class="fa fa-arrow-circle-right"></i></a></td>
+            </tr></tbody></table>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="clear"></div>
   </div>
 
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
       <div class="imagegrid full col-md-12">
-        <div class="section-title"><span>{t('home.featured', locale)}</span><p>{meta.tagline}</p></div>
+        <div class="section-title"><p><span>{t('home.featured', locale)}<span class="vertical-div"> | </span></span>{meta.tagline}</p><h2></h2></div>
+        <div class="loading"></div>
         <div class="grid-wrapper">
           <div class="homeposts grid-full">
             <div class="isotopecontainer" data-value="3">{homePosts.map(post => <PostCard post={post} locale={locale} />)}</div>
@@ -42,7 +50,7 @@ const canonical = staging ? undefined : `https://${MARKET_DOMAIN.my}/`;
     </div>
   </div>
 
-  <div class="content-section content-full section not-first-section subscription-wrapper">
+  <div class="content-section content-full section not-first-section no-title">
     <div class="col-md-12" style="padding-left:0;padding-right:0;">
       <div class="subscription-box">
         <div class="container">
@@ -58,7 +66,7 @@ const canonical = staging ? undefined : `https://${MARKET_DOMAIN.my}/`;
     <div class="clear"></div>
   </div>
 
-  <div class="content-section content-full section not-first-section">
+  <div class="content-section content-full section not-first-section no-title">
     <div class="col-md-12" style="padding-left:0;padding-right:0;"><div class="ad-slot">Advertisement</div></div>
     <div class="clear"></div>
   </div>
