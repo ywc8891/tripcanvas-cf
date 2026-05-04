@@ -6,7 +6,7 @@ import { getPosts, getPostsByCategory } from '../../lib/payload';
 import { localePath, isStagingWorker } from '../../lib/locale';
 import { t } from '../../lib/i18n';
 
-const locale = 'id';
+const locale = (Astro.locals as { locale?: string }).locale || 'id';
 const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
 const market = 'id';
 const staging = isStagingWorker(host);

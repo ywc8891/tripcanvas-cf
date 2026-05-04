@@ -76,11 +76,10 @@ export async function onRequest(
 
   const pathLocaleMatch = extractPathLocale(url.pathname);
 
-  // Locale priority: header override > internal rewrite > query param > path prefix > default (en)
-  const locale = headerLocale || internalLocale || queryLocale || (pathLocaleMatch?.pathLocale as any) || 'en';
-
-  // Market is always derived from the host (en/my/id/th), independent of locale
+  // Locale priority: header override > internal rewrite > query param > path prefix > market default (id→id, else en)
   const market = marketFromHost(host);
+  const defaultLocale: Record<string, string> = { id: 'id', th: 'en', my: 'en', en: 'en' };
+  const locale = headerLocale || internalLocale || queryLocale || (pathLocaleMatch?.pathLocale as any) || defaultLocale[market] || 'en';
 
   locals.locale = locale;
   locals.host = host;
