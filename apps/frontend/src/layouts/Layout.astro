@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
-import { localePath, marketFromHost } from '../lib/locale';
-import { MARKET_NAV } from '../lib/i18n';
+import { marketFromHost } from '../lib/locale';
 import { ANALYTICS } from '../lib/analytics';
 import NavBar from '../components/NavBar.astro';
 import Footer from '../components/Footer.astro';
@@ -26,8 +25,6 @@ const host = (Astro.locals as { host?: string }).host || Astro.url.hostname;
 const locale = ((Astro.locals as { locale?: string }).locale || 'en').toLowerCase();
 const market = marketFromHost(host);
 
-const localeNav = MARKET_NAV[market]?.[locale] || MARKET_NAV[market]?.en;
-const isHub = market === 'en';
 const currentPath = Astro.url.pathname;
 const isZhMyLocale = locale === 'zh' && market === 'my';
 const bodyClass = `edition desktop-device regular-nav sticky-nav-enabled${isZhMyLocale ? ' locale-zh' : ''}`;
@@ -63,9 +60,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   return parts.join('\n');
 })();
 
-function navLinkHref(href: string): string {
-  return localePath(href, locale);
-}
 ---
 
 <!DOCTYPE html>

@@ -181,8 +181,14 @@ const translations: Record<string, Record<TranslationKey, string>> = {
   },
 };
 
-export function t(key: TranslationKey, locale: string): string {
-  return translations[locale]?.[key] ?? translations.en[key] ?? key;
+export function t(key: TranslationKey, locale: string, vars?: Record<string, string>): string {
+  let value = translations[locale]?.[key] ?? translations.en[key] ?? key;
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) {
+      value = value.replace(`{${k}}`, v);
+    }
+  }
+  return value;
 }
 
 export interface NavItem {
