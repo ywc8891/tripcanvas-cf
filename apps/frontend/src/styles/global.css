@@ -3717,6 +3717,46 @@ p.link-pages a .page-link {
 .section.grid.grid-full .isotopecontainer {
   margin-right: -6px;
 }
+
+/* Isotope base rules */
+.isotopecontainer {
+  overflow: visible !important;
+  margin-bottom: 30px;
+}
+
+.isobrick {
+  float: left;
+  display: block;
+  margin: 0 2px 4px 2px;
+}
+
+.isobrick .brick-thumb-link {
+  display: block;
+}
+
+.isotope, .isotope .isotope-item {
+  -webkit-transition-duration: 0.8s;
+  -moz-transition-duration: 0.8s;
+  -ms-transition-duration: 0.8s;
+  -o-transition-duration: 0.8s;
+  transition-duration: 0.8s;
+}
+
+.isotope {
+  -webkit-transition-property: height;
+  -moz-transition-property: height;
+  -ms-transition-property: height;
+  -o-transition-property: height;
+  transition-property: height;
+}
+
+.isotope .isotope-item {
+  -webkit-transition-property: -webkit-transform, opacity;
+  -moz-transition-property: -moz-transform, opacity;
+  -ms-transition-property: -ms-transform, opacity;
+  -o-transition-property: top, left, opacity;
+  transition-property: transform, opacity;
+}
 .section.grid.grid-full .pageflip {
   margin-top: 0;
   margin-right: 14px;
@@ -4888,8 +4928,8 @@ a.full-card-link:hover {
   font-weight: 600;
   line-height: 1.3;
   font-size: 18px;
-  margin-top: 5px;
-  margin-bottom: 8px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   color: #333;
 }
 .recommended-source .recommended-content h4 a {
@@ -5027,3 +5067,117 @@ a.full-card-link:hover {
     padding-left: 0;
   }
 }
+
+/* ==================================================================
+   Subscription Box — matches production gray background
+   ================================================================== */
+.subscription-box {
+  background: #ddd;
+  padding: 30px 0;
+  text-align: center;
+}
+.subscription-box-title {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: 400;
+}
+.subscription-box-title span {
+  color: #469ae9;
+}
+.subscription-box-desc {
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 20px;
+}
+.subscription-box-form {
+  display: inline-flex;
+  gap: 0;
+  max-width: 500px;
+  width: 100%;
+}
+.subscription-box-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 3px 0 0 3px;
+  font-size: 14px;
+  background: #fff;
+}
+.subscription-box-btn {
+  padding: 12px 25px;
+  background: #469ae9;
+  color: #fff;
+  border: none;
+  border-radius: 0 3px 3px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+.subscription-box-btn:hover {
+  background: #357abd;
+}
+
+/* ==================================================================
+   Footer — Astro component column layout
+   ================================================================== */
+.site-footer-extended {
+  background: #222;
+  color: #ccc;
+  padding: 50px 0 0;
+  position: relative;
+  overflow-x: hidden;
+}
+.site-footer-extended a { color: #fff; }
+.site-footer-extended h4,
+.site-footer-extended h4 a { color: #fff; }
+.site-footer-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 993px;
+  margin: 0 auto;
+}
+.footer-column {
+  flex: 1;
+  min-width: 280px;
+  margin-bottom: 30px;
+}
+.footer-column-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  color: #fff;
+  font-weight: 400;
+}
+.footer-column-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-column-links li { margin-bottom: 8px; font-size: 14px; }
+.footer-column-links a { color: #ccc; text-decoration: none; }
+.footer-column-links a:hover { color: #fff; }
+.footer-column-parent {
+  font-weight: 600;
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+.footer-column-sublinks {
+  list-style: none;
+  padding-left: 15px;
+  margin: 0 0 8px;
+}
+.footer-column-sublinks li { margin-bottom: 4px; font-size: 13px; }
+.footer-column-sublinks a { color: #aaa; }
+.footer-column-sublinks a:hover { color: #fff; }
+.site-footer-extended-bottom {
+  background: #1a1a1a;
+  padding: 15px 0;
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin-top: 20px;
+}
+.site-footer-extended-bottom p { margin: 0; }
