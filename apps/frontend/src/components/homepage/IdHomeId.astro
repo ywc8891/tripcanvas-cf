@@ -15,7 +15,6 @@ const staging = isStagingWorker(host);
 const MARKET_DOMAIN: Record<string, string> = { id: staging ? 'tripcanvas-id.academyt.workers.dev' : 'indonesia.tripcanvas.co' };
 const meta = { name: 'TripCanvas Indonesia', tagline: 'Not Your Usual Indonesia Travel Guide', description: 'We share unique information on hotels, villas, things to do and dining places in Indonesia that you never knew existed.' };
 const { docs: featured } = await getPosts(locale, 1, 8);
-const { docs: indonesiaPosts } = await getPosts(locale, 2, 8);
 const bestOfBali = await getPostsByCategory('bali', locale, 1, 8);
 const bestOfBandung = await getPostsByCategory('bandung', locale, 1, 8);
 const bestOfJogja = await getPostsByCategory('jogja', locale, 1, 4);
@@ -39,20 +38,6 @@ const bandungNav = secNav.bandung || [];
     <div class="clear"></div>
   </div>
 
-  <!-- COVID Banner -->
-  <div class="content-section content-full section not-first-section no-title" style="margin-top:0;">
-    <div class="col-md-12" style="padding-left:0;padding-right:0;">
-      <div class="container" style="margin-top:20px;">
-        <div class="covid-inner" style="border-color:#e5e3ba;">
-          <div class="covid-box" style="background:#fffccf;border:1px solid #ff6000;color:#333;padding:10px;border-radius:3px;text-align:center;">
-            <a class="su-button su-button-style-default" style="color:#ff6000;font-family:Open Sans;font-size:15px;font-weight:200;" href={localePath('/news/covid19-updates/', locale)}>{t('home.covid.content', locale)} <i class="fa fa-arrow-circle-right"></i></a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="clear"></div>
-  </div>
-
   <!-- Featured Grid -->
   <div class="no-top-margin grid grid-full section not-first-section has-title">
     <div class="container">
@@ -68,46 +53,18 @@ const bandungNav = secNav.bandung || [];
     </div>
   </div>
 
-  <!-- Discover more topics -->
-  <div class="no-top-margin section not-first-section">
+  <!-- Read More CTA -->
+  <div class="homesection ad-section section not-first-section no-title">
     <div class="container">
       <div class="col-md-12">
-        <TopicCards
-          locale={locale}
-          topics={[
-            { label: 'Hotels & Accommodations', href: '/bali/hotels-villas-bali/', image: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg' },
-            { label: 'Travel', href: '/best-of-indonesia/', image: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg' },
-            { label: 'Beaches & Islands', href: '/bali/beach-holiday-bali/', image: 'https://indonesia.tripcanvas.co/wp-content/uploads/2019/09/cover-picture-tripcanvas-indo-bromo.jpg' },
-          ]}
-        />
-      </div>
-    </div>
-  </div>
-
-  <!-- Ad -->
-  <div class="content-section content-full section not-first-section no-title">
-    <div class="col-md-12" style="padding-left:0;padding-right:0;"><div class="ad-slot">Advertisement</div></div>
-    <div class="clear"></div>
-  </div>
-
-  <!-- Best of Indonesia (full variant) -->
-  <div class="no-top-margin grid grid-full section not-first-section has-title">
-    <div class="container">
-      <div class="imagegrid full col-md-12">
-        <p class="section-title"><span>{t('home.mostPopular.title', locale)}</span></p><h2></h2>
-        <div class="loading"></div>
-        <div class="grid-wrapper">
-          <div class="homeposts grid-full">
-            {indonesiaPosts.slice(0, 8).map((post) => <PostCard post={post} locale={locale} variant="full" />)}
+        <div class="ad-wrapper">
+          <div class="ad-image">
+            <p><a href={localePath('/best-of-indonesia/', locale)} style="font-size: 20px;">{t('home.readMore', locale)} <i class="fa fa-chevron-right"></i></a></p>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- View All CTA -->
-  <div class="homesection ad-section section not-first-section">
-    <div class="container"><div class="col-md-12"><a href={localePath('/blog', locale)} class="home-section-cta">{t('home.viewAll', locale)}</a></div></div>
+    <div class="clear"></div>
   </div>
 
   <!-- Newsletter -->

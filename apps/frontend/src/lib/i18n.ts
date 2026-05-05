@@ -26,7 +26,8 @@ type TranslationKey =
   | 'home.followUs'
   | 'home.tagline'
   | 'home.categorySection.more'
-  | 'home.mostPopular.title';
+  | 'home.mostPopular.title'
+  | 'home.readMore';
 
 const translations: Record<string, Record<TranslationKey, string>> = {
   en: {
@@ -58,6 +59,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.tagline': 'Not Your Usual {country} Travel Guide',
     'home.categorySection.more': 'More {destination} travel stories',
     'home.mostPopular.title': 'Most Popular',
+    'home.readMore': 'Read more stories like these →',
   },
   my: {
     'nav.home': 'Utama',
@@ -88,6 +90,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.tagline': 'Not Your Usual Malaysia Travel Guide',
     'home.categorySection.more': 'More {destination} travel stories',
     'home.mostPopular.title': 'Most Popular',
+    'home.readMore': 'Baca lagi cerita seperti ini →',
   },
   id: {
     'nav.home': 'Beranda',
@@ -118,6 +121,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.tagline': 'Not Your Usual Indonesia Travel Guide',
     'home.categorySection.more': 'More {destination} travel stories',
     'home.mostPopular.title': 'Terpopuler',
+    'home.readMore': 'Baca cerita Indonesia lainnya →',
   },
   th: {
     'nav.home': 'หน้าแรก',
@@ -148,6 +152,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.tagline': 'Not Your Usual Thailand Travel Guide',
     'home.categorySection.more': 'More {destination} travel stories',
     'home.mostPopular.title': 'แนะนำ',
+    'home.readMore': 'อ่านเรื่องราวเพิ่มเติม →',
   },
   zh: {
     'nav.home': '首页',
@@ -178,6 +183,7 @@ const translations: Record<string, Record<TranslationKey, string>> = {
     'home.tagline': '非一般的{country}旅游攻略',
     'home.categorySection.more': '更多{destination}旅游详情',
     'home.mostPopular.title': '最新热门',
+    'home.readMore': '查看更多文章 →',
   },
 };
 
