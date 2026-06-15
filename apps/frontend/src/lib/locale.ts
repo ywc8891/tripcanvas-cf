@@ -78,6 +78,21 @@ export function marketFromHost(host: string): MarketLocale {
   return HOST_MARKET_MAP[host] || 'en';
 }
 
+// Public base for media served from the tripcanvas-media R2 bucket (custom domain).
+export const MEDIA_BASE_URL = 'https://media.tripcanvas.co';
+
+// Maps a legacy WordPress upload URL path to its media.tripcanvas.co URL.
+// Returns null if the path is not under /wp-content/uploads/.
+// `host` must be normalized (lowercase, no port) — same as middleware's `host`.
+export function wpUploadToMediaUrl(host: string, pathname: string): string | null {
+  const match = pathname.match(/^\/wp-content\/uploads\/(.+)$/);
+  if (!match) return null;
+  // Strip the WordPress generated size suffix (e.g. -300x200) before the extension.
+  const rest = match[1].replace(/-\d+x\d+(?=\.\w+$)/, '');
+  const market = marketFromHost(host);
+  return `${MEDIA_BASE_URL}/${market}/${rest}`;
+}
+
 // Default locale is always 'en' for all markets.
 // Kept for backward compatibility but now always returns 'en'.
 export function localeFromHost(_host: string): SupportedLocale {
