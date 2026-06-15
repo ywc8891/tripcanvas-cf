@@ -12,5 +12,8 @@
       "binding": "CMS_SERVICE",
       "service": "tripcanvas-cms"
     }
+  ],
+  "routes": [
+    { "pattern": "indonesia.tripcanvas.co/*", "zone_name": "tripcanvas.co" }
   ]
 }

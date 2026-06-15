@@ -12,5 +12,8 @@
       "binding": "CMS_SERVICE",
       "service": "tripcanvas-cms"
     }
+  ],
+  "routes": [
+    { "pattern": "thailand.tripcanvas.co/*", "zone_name": "tripcanvas.co" }
   ]
 }
