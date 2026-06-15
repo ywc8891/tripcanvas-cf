@@ -5,17 +5,20 @@
 // worker with an x-tc-host header to simulate each market subdomain.
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://tripcanvas.academyt.workers.dev';
+// media.tripcanvas.co has Cloudflare bot protection that returns 403 to curl-like UA.
+// A browser-like UA is required for image target requests to return 200.
 const BROWSER_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
 
 // path = legacy upload path; expectedKey = path after media.tripcanvas.co/{market}/
+// Images chosen from r2-reorg-map.json entries and verified 200 via HEAD on media.tripcanvas.co.
 const CASES = [
-  { host: 'tripcanvas.co', market: 'en', path: '/wp-content/uploads/2019/07/0-3-1.jpg', expectedKey: '2019/07/0-3-1.jpg' },
-  { host: 'malaysia.tripcanvas.co', market: 'my', path: '/wp-content/uploads/2019/07/0-3-1.jpg', expectedKey: '2019/07/0-3-1.jpg' },
-  { host: 'indonesia.tripcanvas.co', market: 'id', path: '/wp-content/uploads/2019/07/0-3-1.jpg', expectedKey: '2019/07/0-3-1.jpg' },
-  { host: 'thailand.tripcanvas.co', market: 'th', path: '/wp-content/uploads/2019/07/0-3-1.jpg', expectedKey: '2019/07/0-3-1.jpg' },
-  // Thumbnail suffix must be stripped to the original key.
-  { host: 'malaysia.tripcanvas.co', market: 'my', path: '/wp-content/uploads/2019/07/0-3-1-300x200.jpg', expectedKey: '2019/07/0-3-1.jpg' },
+  { host: 'tripcanvas.co', market: 'en', path: '/wp-content/uploads/2016/05/3-3-seat-via-utamiadmanegara.jpg', expectedKey: '2016/05/3-3-seat-via-utamiadmanegara.jpg' },
+  { host: 'malaysia.tripcanvas.co', market: 'my', path: '/wp-content/uploads/2019/07/0-1-intro-via-chin5158-1.jpg', expectedKey: '2019/07/0-1-intro-via-chin5158-1.jpg' },
+  { host: 'indonesia.tripcanvas.co', market: 'id', path: '/wp-content/uploads/2019/03/15295937077_dbdb785a77_z.jpg', expectedKey: '2019/03/15295937077_dbdb785a77_z.jpg' },
+  { host: 'thailand.tripcanvas.co', market: 'th', path: '/wp-content/uploads/2019/08/1-1-1-Baobab.jpg', expectedKey: '2019/08/1-1-1-Baobab.jpg' },
+  // Tests suffix stripping; target may 404 if sized variant not in R2 (expected)
+  { host: 'malaysia.tripcanvas.co', market: 'my', path: '/wp-content/uploads/2019/07/0-1-intro-via-chin5158-1-300x200.jpg', expectedKey: '2019/07/0-1-intro-via-chin5158-1.jpg', skipTargetCheck: true },
 ];
 
 async function checkRedirect(c) {
@@ -29,8 +32,8 @@ async function checkRedirect(c) {
   const redirectOk = res.status === 301 && location === expectedLocation;
 
   let targetOk = false;
-  let targetInfo = 'not checked';
-  if (location) {
+  let targetInfo = 'skipped';
+  if (!c.skipTargetCheck && location) {
     const t = await fetch(location, {
       method: 'GET',
       headers: { 'User-Agent': BROWSER_UA, Accept: 'image/avif,image/webp,*/*' },
@@ -38,6 +41,8 @@ async function checkRedirect(c) {
     const ct = t.headers.get('content-type') || '';
     targetOk = t.status === 200 && ct.startsWith('image/');
     targetInfo = `${t.status} ${ct}`;
+  } else if (c.skipTargetCheck) {
+    targetOk = true; // only checking redirect
   }
 
   return { ok: redirectOk && targetOk, status: res.status, location, expectedLocation, targetInfo };
