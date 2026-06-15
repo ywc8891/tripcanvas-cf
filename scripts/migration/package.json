@@ -13,6 +13,7 @@
     "migrate:backfill:posts:live": "node backfill-post-locales.js --live",
     "migrate:verify": "node verify.js",
     "migrate:verify:redirects": "node verify-redirects.js",
+    "migrate:verify:images": "node verify-image-redirects.js",
     "download-media": "node download-media.js",
     "export:zh": "node export-zh-posts.js",
     "migrate:zh:dry": "node migrate-zh-locale.js",
