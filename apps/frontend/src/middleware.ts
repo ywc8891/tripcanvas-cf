@@ -7,6 +7,7 @@ import {
   getPostUrl,
   primaryCategory,
   marketFromHost,
+  wpUploadToMediaUrl,
   type SupportedLocale,
 } from './lib/locale';
 
@@ -98,6 +99,13 @@ export async function onRequest(
       host,
       market,
     };
+  }
+
+  // Legacy WordPress image URLs (/wp-content/uploads/...) → media.tripcanvas.co.
+  // Pure host→market + key transform (see wpUploadToMediaUrl in lib/locale.ts).
+  if (context.request.method === 'GET' || context.request.method === 'HEAD') {
+    const mediaTarget = wpUploadToMediaUrl(host, url.pathname);
+    if (mediaTarget) return Response.redirect(mediaTarget, 301);
   }
 
   // For path-locale URLs (e.g. /id/blog/foo, /zh/blog/foo), rewrite to the
