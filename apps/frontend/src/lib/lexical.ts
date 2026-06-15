@@ -2,6 +2,8 @@
 // Handles the node types currently produced by the CMS: paragraph, heading,
 // quote, list/listitem, link, upload (media), and text with format flags.
 
+import { MEDIA_BASE_URL } from './locale';
+
 type LexicalNode = {
   type: string;
   version?: number;
@@ -38,14 +40,12 @@ type LexicalRoot = {
   root: LexicalNode;
 };
 
-const R2_PUBLIC_URL = 'https://pub-2faca0649c2047a1859536a3114d3f95.r2.dev';
-
 function r2ToHttps(url: string): string {
   if (url.startsWith('r2://')) {
     const withoutScheme = url.slice('r2://'.length);
     const slash = withoutScheme.indexOf('/');
     const key = slash >= 0 ? withoutScheme.slice(slash + 1) : withoutScheme;
-    return `${R2_PUBLIC_URL}/${key}`;
+    return `${MEDIA_BASE_URL}/${key}`;
   }
   return url;
 }

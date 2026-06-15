@@ -1,4 +1,6 @@
 // Types for Payload collections
+import { MEDIA_BASE_URL } from './locale';
+
 export interface PostCategory {
   id: string | number;
   slug: string;
@@ -159,7 +161,6 @@ export async function fetchPayload<T>(
 }
 
 const R2_IMG_RE = /\(r2:\/\/[^/]+\/([^)]+)\)/;
-const R2_PUBLIC_URL = 'https://pub-2faca0649c2047a1859536a3114d3f95.r2.dev';
 
 type LexicalLike = { type?: string; wp_url?: string; value?: unknown; children?: LexicalLike[]; root?: LexicalLike };
 
@@ -190,7 +191,7 @@ export function firstImageUrl(content: unknown): string | null {
   }
   const json = JSON.stringify(content);
   const m = R2_IMG_RE.exec(json);
-  return m ? `${R2_PUBLIC_URL}/${m[1]}` : null;
+  return m ? `${MEDIA_BASE_URL}/${m[1]}` : null;
 }
 
 // Helper functions
