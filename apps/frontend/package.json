@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "build": "astro build && echo '_worker.js' > dist/.assetsignore",
     "preview": "astro preview",
+    "test": "vitest run",
     "deploy": "pnpm build && printf '_worker.js\\n' > dist/.assetsignore && wrangler deploy"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.6",
     "tailwindcss": "^4.0.6",
+    "vitest": "^3.0.0",
     "wrangler": "^4.82.2"
   }
 }
