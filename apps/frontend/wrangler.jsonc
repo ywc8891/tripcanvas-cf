@@ -12,5 +12,9 @@
       "binding": "CMS_SERVICE",
       "service": "tripcanvas-cms"
     }
+  ],
+  "routes": [
+    { "pattern": "tripcanvas.co/*", "zone_name": "tripcanvas.co" },
+    { "pattern": "www.tripcanvas.co/*", "zone_name": "tripcanvas.co" }
   ]
 }
