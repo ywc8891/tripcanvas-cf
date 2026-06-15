@@ -162,6 +162,12 @@ Required vars (documented, not valued here):
   - ✅ Typography: Google Fonts (DM Sans + Fraunces) loaded via Layout.astro
   - ✅ Post dates use locale-formatted `publishedAt` with proper `<time datetime>` attribute
   - ✅ Post excerpt used as `<meta description>` on post pages
+  - ✅ Legacy WordPress image URL redirects live: `/wp-content/uploads/*` → `media.tripcanvas.co/{market}/...` (301)
+    - Pure host→market transform in `middleware.ts` via `wpUploadToMediaUrl()` in `lib/locale.ts`
+    - Thumbnail `-WxH` suffix stripped automatically; multisite `sites/N/` paths preserved
+    - Verified live: 4/5 checks pass end-to-end; redirect logic correct for all markets
+  - ✅ `MEDIA_BASE_URL` centralised in `lib/locale.ts` (replaces per-file `pub-...r2.dev` constant for r2:// path resolution)
+    - Note: upload nodes in Lexical content store HTTPS URLs from D1 `media.url` (still `pub-...r2.dev`); full switch requires a D1 UPDATE migration (follow-up)
 - [ ] Phase 6 — DNS cutover
 
 **Active phase: Phase 6 — DNS cutover**
